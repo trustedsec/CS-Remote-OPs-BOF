@@ -62,8 +62,8 @@ DWORD delete_regkey(const char * hostname, HKEY hive, const char * path, const c
 delete_regkey_end:
 	if(RemoteKey)
 	{
-		ADVAPI32$RegCloseKey(rootkey);
-		rootkey = NULL;
+		ADVAPI32$RegCloseKey(RemoteKey);
+		RemoteKey = NULL;
 	}
 
 	if(rootkey)
