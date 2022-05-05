@@ -138,7 +138,7 @@ DWORD killit(DWORD pid) {
             objectNameInfo = NULL;
         }
 
-        if (processHandle) {
+        if (dupHandle) {
             KERNEL32$CloseHandle(dupHandle);
             dupHandle = NULL;
         }
@@ -292,7 +292,7 @@ DWORD killit(DWORD pid) {
         objectNameInfo = NULL;
     }
 
-    if (processHandle) {
+    if (dupHandle) {
         KERNEL32$CloseHandle(dupHandle);
         dupHandle = NULL;
     }
