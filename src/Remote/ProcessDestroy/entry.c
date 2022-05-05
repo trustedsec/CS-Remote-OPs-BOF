@@ -26,14 +26,6 @@ typedef NTSTATUS (NTAPI *_NtDuplicateObject)(
     ULONG Attributes,
     ULONG Options
     );
-typedef NTSTATUS (NTAPI *_NtQueryObject)(
-    HANDLE ObjectHandle,
-    ULONG ObjectInformationClass,
-    PVOID ObjectInformation,
-    ULONG ObjectInformationLength,
-    PULONG ReturnLength
-    );
-
  
 typedef struct _SYSTEM_HANDLE {
     ULONG ProcessId;
@@ -64,15 +56,11 @@ DWORD cutit(DWORD pid, USHORT handleID)
 {
     DWORD dwErrorCode = ERROR_SUCCESS;
     HANDLE processHandle = NULL;
-    _NtQuerySystemInformation NtQuerySystemInformation = NULL;
     _NtDuplicateObject NtDuplicateObject = NULL;
-    _NtQueryObject NtQueryObject = NULL;
 
-    NtQuerySystemInformation = GetLibraryProcAddress("ntdll.dll", "NtQuerySystemInformation");
     NtDuplicateObject = GetLibraryProcAddress("ntdll.dll", "NtDuplicateObject");
-    NtQueryObject = GetLibraryProcAddress("ntdll.dll", "NtQueryObject");
 
-    if ((NULL == NtQuerySystemInformation)||(NULL == NtDuplicateObject)||(NULL == NtQueryObject)) {
+    if (NULL == NtDuplicateObject) {
         dwErrorCode = ERROR_INVALID_FUNCTION;
         internal_printf("Failed to resolve NT functions.\n");
         goto cutit_end;
@@ -120,13 +108,11 @@ DWORD killit(DWORD pid) {
     ULONG i = 0;
     _NtQuerySystemInformation NtQuerySystemInformation = NULL;
     _NtDuplicateObject NtDuplicateObject = NULL;
-    _NtQueryObject NtQueryObject = NULL;
 
     NtQuerySystemInformation = GetLibraryProcAddress("ntdll.dll", "NtQuerySystemInformation");
     NtDuplicateObject = GetLibraryProcAddress("ntdll.dll", "NtDuplicateObject");
-    NtQueryObject = GetLibraryProcAddress("ntdll.dll", "NtQueryObject");
 
-    if ((NULL == NtQuerySystemInformation)||(NULL == NtDuplicateObject)||(NULL == NtQueryObject)) {
+    if ((NULL == NtQuerySystemInformation)||(NULL == NtDuplicateObject)) {
         dwErrorCode = ERROR_INVALID_FUNCTION;
         internal_printf("Failed to resolve NT functions.\n");
         goto killit_end;
