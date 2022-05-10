@@ -91,45 +91,77 @@ void printoutput(BOOL done)
 }
 #endif
 
+#ifdef DYNAMIC_LIB_COUNT
+
+
+typedef struct loadedLibrary {
+    HMODULE hMod; // mod handle
+    const char * name; // name normalized to uppercase
+}loadedLibrary, *ploadedLibrary;
+loadedLibrary loadedLibraries[DYNAMIC_LIB_COUNT] __attribute__((section (".data"))) = {0};
+DWORD loadedLibrariesCount __attribute__((section (".data"))) = 0;
+
+BOOL intstrcmp(LPCSTR szLibrary, LPCSTR sztarget)
+{
+    BOOL bmatch = FALSE;
+    DWORD pos = 0;
+    while(szLibrary[pos] && sztarget[pos])
+    {
+        if(szLibrary[pos] != sztarget[pos])
+        {
+            goto end;
+        }
+        pos++;
+    }
+    if(szLibrary[pos] | sztarget[pos]) // if either of these down't equal null then they can't match
+        {goto end;}
+    bmatch = TRUE;
+
+    end:
+    return bmatch;
+}
+
+//GetProcAddress, LoadLibraryA, GetModuleHandle, and FreeLibrary are gimmie functions
 //
 // DynamicLoad
 // Retrieves a function pointer given the BOF library-function name
-// szBOFfunc            - The library and function name in BOF format, e.g., 
-//                          KERNEL32$GetLastError
+// szLibrary           - The library containing the function you want to load
+// szFunction          - The Function that you want to load
 // Returns a FARPROC function pointer if successful, or NULL if lookup fails
 //
-FARPROC DynamicLoad(LPCSTR szBOFfunc)
+FARPROC DynamicLoad(const char * szLibrary, const char * szFunction)
 {
     FARPROC fp = NULL;
-    LPSTR szLibrary = NULL;
-    LPSTR szFunction = NULL;
-    CHAR * pchDivide = NULL;
-    HMODULE hLibrary = NULL;
-
-    szLibrary = (LPSTR)intAlloc(MSVCRT$strlen(szBOFfunc)+1);
-    if(szLibrary)
+    HMODULE hMod = NULL;
+    DWORD i = 0;
+    DWORD liblen = 0;
+    for(i = 0; i < loadedLibrariesCount; i++)
     {
-        MSVCRT$strcpy(szLibrary,szBOFfunc);
-        pchDivide = MSVCRT$strchr(szLibrary, '$');
-        pchDivide[0] = '\0';
-        pchDivide++;
-        szFunction = pchDivide;
-        hLibrary = KERNEL32$LoadLibraryA(szLibrary);
-        if (hLibrary)
+        if(intstrcmp(szLibrary, loadedLibraries[i].name))
         {
-            fp = KERNEL32$GetProcAddress(hLibrary,szFunction);
+            hMod = loadedLibraries[i].hMod;
         }
-        intFree(szLibrary);
     }
+    if(!hMod)
+    {
+        hMod = LoadLibraryA(szLibrary);
+        if(!hMod){ 
+            BeaconPrintf(CALLBACK_ERROR, "*** DynamicLoad(%s) FAILED!\nCould not find library to load.", szLibrary);
+            return NULL;
+        }
+        loadedLibraries[loadedLibrariesCount].hMod = hMod;
+        loadedLibraries[loadedLibrariesCount].name = szLibrary; //And this is why this HAS to be a constant or not freed before bofstop
+        loadedLibrariesCount++;
+    }
+    fp = GetProcAddress(hMod, szFunction);
 
     if (NULL == fp)
     {
-        BeaconPrintf(CALLBACK_ERROR, "*** DynamicLoad(%s) FAILED!\n", szBOFfunc);
+        BeaconPrintf(CALLBACK_ERROR, "*** DynamicLoad(%s) FAILED!\n", szFunction);
     }
-
     return fp;
 }
-
+#endif
 
 char* Utf16ToUtf8(const wchar_t* input)
 {

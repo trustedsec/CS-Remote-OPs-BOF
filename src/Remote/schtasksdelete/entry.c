@@ -24,6 +24,9 @@ DWORD deleteTask(const wchar_t * server, const wchar_t * taskname, BOOL isfolder
 	IID CTaskScheduler = {0x0f87369f,0xa4e5,0x4cfc,{0xbd,0x3e,0x73,0xe6,0x15,0x45,0x72,0xdd}};
 	IID IIDTaskService = {0x2faba4c7, 0x4da9, 0x4013, {0x96, 0x97, 0x20, 0xcc, 0x3f, 0xd4, 0x0f, 0x85}};
 	ITaskService *pService = NULL;
+		// Initialize variants
+	OLEAUT32$VariantInit(&Vserver);
+	OLEAUT32$VariantInit(&VNull);
 
 	// Initialize COM
 	hr = OLE32$CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -33,9 +36,7 @@ DWORD deleteTask(const wchar_t * server, const wchar_t * taskname, BOOL isfolder
 		goto deleteTask_end;
 	}
 
-	// Initialize variants
-	OLEAUT32$VariantInit(&Vserver);
-	OLEAUT32$VariantInit(&VNull);
+
 
 	// Get an instance of the task scheduler
     hr = OLE32$CoCreateInstance( &CTaskScheduler,

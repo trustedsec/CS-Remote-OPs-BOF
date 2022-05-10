@@ -1,4 +1,5 @@
 #include <windows.h>
+#define DYNAMIC_LIB_COUNT 9
 #include <stdio.h>
 #include <oleauto.h>
 #include <wbemcli.h>
@@ -20,6 +21,7 @@
 #define ERROR_RESULT			L"*ERROR*"
 #define EMPTY_RESULT			L"(EMPTY)"
 #define NULL_RESULT				L"(NULL)"
+
 
 #define SAFE_DESTROY( arraypointer )	\
 	if ( (arraypointer) != NULL )	\
