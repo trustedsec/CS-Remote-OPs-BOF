@@ -1,0 +1,37 @@
+{
+"name": "enableuser",
+"version": "0.0.0",
+"command_name": "remote-enable-user",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "N/A",
+"help": "Unlock and enable a local / remote user account",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "enableuser.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "enableuser.x86.o"
+}
+],
+"arguments": [
+    {
+        "name": "ComputerName",
+        "desc": "Computer to enable / unlock account on.  Target DC for domain accounts. Use \"\" for  local computer",
+        "type": "wstring",
+        "optional": false
+    },
+    {
+        "name": "Username",
+        "desc": "Username to unlock / enable",
+        "type": "wstring",
+        "optional": false
+    }
+]
+}
