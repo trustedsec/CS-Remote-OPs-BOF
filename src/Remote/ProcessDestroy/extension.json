@@ -1,0 +1,37 @@
+{
+"name": "processdestroy",
+"version": "0.0.0",
+"command_name": "remote-process-destroy",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "N/A",
+"help": "Attempt to crash a local process by cutting all handles in it.",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "ProcessDestroy.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "ProcessDestroy.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "pid",
+    "desc": "Process id to manipulate",
+    "type": "integer",
+    "optional": false
+    },
+    {
+    "name": "handleNumber",
+    "desc": "Handle ID you want to cut, cut all if not provided",
+    "type": "integer",
+    "optional": true
+    }
+]
+}

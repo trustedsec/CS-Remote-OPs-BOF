@@ -1,0 +1,31 @@
+{
+"name": "ProcessListHandles",
+"version": "0.0.0",
+"command_name": "remote-process-list-handles",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "N/A",
+"help": "list the various handles a process has open",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "ProcessListHandles.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "ProcessListHandles.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "pid",
+    "desc": "pid to list handles of",
+    "type": "int",
+    "optional": false
+    }
+]
+}
