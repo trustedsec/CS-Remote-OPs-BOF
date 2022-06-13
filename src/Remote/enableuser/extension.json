@@ -4,7 +4,7 @@
     "command_name": "remote-enable-user",
     "extension_author": "TrustedSec",
     "original_author": "TrustedSec",
-    "repo_url": "N/A",
+    "repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
     "help": "Unlock and enable a local / remote user account",
     "depends_on": "coff-loader",
     "entrypoint": "go",

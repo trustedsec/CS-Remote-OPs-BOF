@@ -4,7 +4,7 @@
     "command_name": "remote-adcs-request",
     "extension_author": "TrustedSec",
     "original_author": "TrustedSec",
-    "repo_url": "N/A",
+    "repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
     "help": "Request an certificate from an AD certificate server",
     "depends_on": "coff-loader",
     "entrypoint": "go",
