@@ -1,61 +1,61 @@
 {
-"name": "adcs_request",
-"version": "0.0.0",
-"command_name": "remote-adcs-request",
-"extension_author": "TrustedSec",
-"original_author": "TrustedSec",
-"repo_url": "N/A",
-"help": "Request an certificate from an AD certificate server",
-"depends_on": "coff-loader",
-"entrypoint": "go",
-"files": [
-{
-"os": "windows",
-"arch": "amd64",
-"path": "adcs_request.x64.o"
-},
-{
-"os": "windows",
-"arch": "386",
-"path": "adcs_request.x86.o"
-}
-],
-"arguments": [
-    {
-    "name": "CA",
-    "desc": "certificate authority to make request against. format: <domain>\\<CA Name>",
-    "type": "wstring",
-    "optional": false
-    },
-    {
-    "name": "template",
-    "desc": "Template to request from CA",
-    "type": "wstring",
-    "optional": true
-    },
-    {
-    "name": "subject",
-    "desc": "Subject to use in request",
-    "type": "wstring",
-    "optional": true
-    },
-    {
-    "name": "alt-name",
-    "desc": "Alternative name to request on cert",
-    "type": "wstring",
-    "optional": true
-    },
-    {
-    "name": "Install",
-    "desc": "set to something other then zero to install cert under user account",
-    "type": "short",
-    "optional": true
-    },
-    {
-    "name": "Machine",
-    "desc": "if this is set along with install cert is installed under machine account instead of user",
-    "type": "short",
-    "optional": true
-    }
-]
-}
+    "name": "adcs_request",
+    "version": "0.0.0",
+    "command_name": "remote-adcs-request",
+    "extension_author": "TrustedSec",
+    "original_author": "TrustedSec",
+    "repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+    "help": "Request an certificate from an AD certificate server",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+      {
+        "os": "windows",
+        "arch": "amd64",
+        "path": "adcs_request.x64.o"
+      },
+      {
+        "os": "windows",
+        "arch": "386",
+        "path": "adcs_request.x86.o"
+      }
+    ],
+    "arguments": [
+      {
+        "name": "CA",
+        "desc": "certificate authority to make request against. format: <domain>\\<CA Name>",
+        "type": "wstring",
+        "optional": false
+      },
+      {
+        "name": "template",
+        "desc": "Template to request from CA",
+        "type": "wstring",
+        "optional": true
+      },
+      {
+        "name": "subject",
+        "desc": "Subject to use in request",
+        "type": "wstring",
+        "optional": true
+      },
+      {
+        "name": "alt-name",
+        "desc": "Alternative name to request on cert",
+        "type": "wstring",
+        "optional": true
+      },
+      {
+        "name": "Install",
+        "desc": "set to something other then zero to install cert under user account",
+        "type": "short",
+        "optional": true
+      },
+      {
+        "name": "Machine",
+        "desc": "if this is set along with install cert is installed under machine account instead of user",
+        "type": "short",
+        "optional": true
+      }
+    ]
+  }
