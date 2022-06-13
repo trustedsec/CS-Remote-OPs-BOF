@@ -45,6 +45,16 @@ jobs:
           chmod +x ./make_bof.sh
           ./make_bof.sh adcs_request
 
+      - name: chromeKey
+        run: |
+          chmod +x ./make_bof.sh
+          ./make_bof.sh chromeKey
+
+      - name: enableuser
+        run: |
+          chmod +x ./make_bof.sh
+          ./make_bof.sh enableuser
+
       - name: "Publish Release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
