@@ -10,6 +10,8 @@ all:
 	$(CC_x86) -o $(BOFNAME).x86.o $(COMINCLUDE) -Os -c entry.c -DBOF
 	mkdir -p ../../../Remote/$(BOFNAME) 
 	mv $(BOFNAME)*.o ../../../Remote/$(BOFNAME)
+	cp extension.json ../../../Remote/$(BOFNAME)
+	#need to modify C code to handle char to wchar file convesion
 
 test:
 	$(CC_x64) entry.c $(COMINCLUDE) $(LIBINCLUDE) -o $(BOFNAME).x64.exe  

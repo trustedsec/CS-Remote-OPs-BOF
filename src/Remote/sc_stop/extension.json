@@ -1,0 +1,37 @@
+{
+    "name": "sc_stop",
+    "version": "0.0.0",
+    "command_name": "remote-sc-stop",
+    "extension_author": "TrustedSec",
+    "original_author": "TrustedSec",
+    "repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+    "help": "stop service on a windows based system",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+    {
+    "os": "windows",
+    "arch": "amd64",
+    "path": "sc_stop.x64.o"
+    },
+    {
+    "os": "windows",
+    "arch": "386",
+    "path": "sc_stop.x86.o"
+    }
+    ],
+    "arguments": [
+        {
+        "name": "hostname",
+        "desc": "hostname to stop service on use \"\" for local system",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "service_name",
+        "desc": "name of service to stop",
+        "type": "string",
+        "optional": false
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+"name": "schtasksstop",
+"version": "0.0.0",
+"command_name": "remote-schtasks-stop",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "stop a running scheduled task",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "schtasksstop.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "schtasksstop.x86.o"
+}
+],
+"arguments": [
+    {
+        "name": "hostname",
+        "desc": "host to stop task on use \"\" for local",
+        "type": "wstring",
+        "optional": false
+        },
+        {
+        "name": "task_path",
+        "desc": "path to task to stop",
+        "type": "wstring",
+        "optional": false
+        }
+]
+}

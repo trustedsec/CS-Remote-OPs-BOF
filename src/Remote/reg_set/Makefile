@@ -10,6 +10,8 @@ all:
 	$(CC_x86) -o $(BOFNAME).x86.o $(COMINCLUDE) -Os -c entry.c -DBOF
 	mkdir -p ../../../Remote/$(BOFNAME) 
 	mv $(BOFNAME)*.o ../../../Remote/$(BOFNAME)
+	# cp extension.json ../../../Remote/$(BOFNAME)
+	#TODO: c file needs to be re-written to account for lack of server side coding support in sliver
 
 test:
 	$(CC_x64) entry.c $(COMINCLUDE) $(LIBINCLUDE) -o $(BOFNAME).x64.exe  

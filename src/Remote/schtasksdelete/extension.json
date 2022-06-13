@@ -1,0 +1,43 @@
+{
+"name": "schtasksdelete",
+"version": "0.0.0",
+"command_name": "remote-schtasks-delete",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "Delete a scheduled task",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "schtasksdelete.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "schtasksdelete.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "hostname",
+    "desc": "host to delete task from, use \"\" for local",
+    "type": "wstring",
+    "optional": false
+    },
+    {
+    "name": "task_path",
+    "desc": "path to task or folder to delete",
+    "type": "wstring",
+    "optional": false
+    },
+    {
+    "name": "isfolder",
+    "desc": "0=delete a task|1=delete a folder",
+    "type": "int",
+    "optional": true
+    }
+]
+}

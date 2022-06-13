@@ -1,0 +1,55 @@
+{
+"name": "reg_delete",
+"version": "0.0.0",
+"command_name": "remote-reg-delete",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "Delete a registry key or value",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "reg_delete.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "reg_delete.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "hostname",
+    "desc": "\"\"=local else remote hostname",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "hive",
+    "desc": "0=HKCR|1=HKCU|2=HKLM|3=HKU",
+    "type": "int",
+    "optional": false
+    },
+    {
+    "name": "path",
+    "desc": "registry key path",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "value",
+    "desc": "value under key to delete, use \"\" when deleteing a whole key",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "Deletekey",
+    "desc": "Set to 1 when deleting a whole key",
+    "type": "int",
+    "optional": true
+    }
+]
+}

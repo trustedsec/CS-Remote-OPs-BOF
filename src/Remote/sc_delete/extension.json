@@ -1,0 +1,37 @@
+{
+"name": "sc_delete",
+"version": "0.0.0",
+"command_name": "remote-sc-delete",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "delete a service from a windows based computer",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "sc_delete.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "sc_delete.x86.o"
+}
+],
+"arguments": [
+    {
+        "name": "hostname",
+        "desc": "hostname to delete service on from \"\" for local system",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "service_name",
+        "desc": "name of service to delete",
+        "type": "string",
+        "optional": false
+    }
+]
+}

@@ -1,0 +1,43 @@
+{
+"name": "sc_description",
+"version": "0.0.0",
+"command_name": "remote-sc-description",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "change description of a server",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "sc_description.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "sc_description.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "hostname",
+    "desc": "hostname to modify service on use \"\" for local system",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "service_name",
+    "desc": "name of service to modify",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "description",
+    "desc": "Service description to set",
+    "type": "string",
+    "optional": false
+    }
+]
+}

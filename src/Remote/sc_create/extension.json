@@ -1,0 +1,67 @@
+{
+"name": "sc_create",
+"version": "0.0.0",
+"command_name": "remote-sc-create",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "Create a new service on a windows system",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "sc_create.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "sc_create.x86.o"
+}
+],
+"arguments": [
+    {
+        "name": "hostname",
+        "desc": "hostname to create service on use \"\" for local system",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "service_name",
+        "desc": "name of service to create",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "binpath",
+        "desc": "New binary path for service",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "display_name",
+        "desc": "Service displayname to use",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "description",
+        "desc": "Service description to set",
+        "type": "string",
+        "optional": false
+        },
+        {
+        "name": "error_mode",
+        "desc": "new error mode for service binary\n\t\t0=ignore|1=normal|2=severe|3=critical",
+        "type": "short",
+        "optional": false
+        },
+        {
+        "name": "start_mode",
+        "desc": "start mode for service\n\t\t2=auto|3=demand|4=disable",
+        "type": "short",
+        "optional": false
+        }
+]
+}

@@ -1,0 +1,43 @@
+{
+"name": "reg_save",
+"version": "0.0.0",
+"command_name": "remote-reg-save",
+"extension_author": "TrustedSec",
+"original_author": "TrustedSec",
+"repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+"help": "backup a registry have to a file on disk (requires Enabled SEBackup Priv)",
+"depends_on": "coff-loader",
+"entrypoint": "go",
+"files": [
+{
+"os": "windows",
+"arch": "amd64",
+"path": "reg_save.x64.o"
+},
+{
+"os": "windows",
+"arch": "386",
+"path": "reg_save.x86.o"
+}
+],
+"arguments": [
+    {
+    "name": "path",
+    "desc": "parent key to initiate save from",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "output_path",
+    "desc": "path on target disk to write backup to",
+    "type": "string",
+    "optional": false
+    },
+    {
+    "name": "hive",
+    "desc": "0=HKCR|1=HKCU|2=HKLM|3=HKU",
+    "type": "int",
+    "optional": false
+    }
+]
+}
