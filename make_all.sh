@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cd src/Remote
 ls | while read dir; do
     if [[ -d $dir ]]; then
@@ -12,7 +11,6 @@ ls | while read dir; do
     fi
 done
 cd ../..
-
 cd src/Injection
 ls | while read dir; do
     if [[ -d $dir ]]; then
