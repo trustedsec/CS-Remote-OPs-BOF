@@ -73,7 +73,7 @@ void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
 		goto END;
 	}
 
-	buffer = KERNEL32$VirtualAlloc(0,address_sz+0x100, MEM_COMMIT, PAGE_READWRITE );
+	buffer = intAlloc(address_sz+0x100);
 	if (buffer == NULL)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "Failed to allocate memory");
@@ -99,7 +99,7 @@ NEXT:
 		index += ret_sz;
 	}
 END:
-    KERNEL32$VirtualFree(buffer,0,MEM_RELEASE);
+	intFree(buffer);
 }
 
 void GetProcessMemory( HANDLE hProcess )
@@ -131,7 +131,7 @@ void GetProcessMemory( HANDLE hProcess )
 
     do
     {
-        PMEMORY_INFO mem_info = KERNEL32$VirtualAlloc(0,sizeof(MEMORY_INFO), MEM_COMMIT, PAGE_READWRITE );
+        PMEMORY_INFO mem_info = intAlloc(sizeof(MEMORY_INFO));
 		if (mem_info == NULL)
 		{
 			BeaconPrintf(CALLBACK_ERROR, "Failed to allocate memory");
@@ -164,7 +164,7 @@ void GetProcessMemory( HANDLE hProcess )
         lpAddress = lpAddress + mem_info->size;
         if( mem_info->protect == PAGE_READWRITE && mem_info->type == MEM_PRIVATE)
             Write_Memory_Range( hProcess, mem_info->offset, mem_info->size);
-		KERNEL32$VirtualFree(mem_info,0,MEM_RELEASE);
+		intFree( mem_info );
     } while(1);
 END:
 	return;
@@ -239,7 +239,7 @@ int findUnicodeString( char* buffer, int buffer_sz, wchar_t* needle, int needle_
 			goto END;
 		}
 
-		l_buffer = KERNEL32$VirtualAlloc(0,end-buffer, MEM_COMMIT, PAGE_READWRITE );
+		l_buffer = intAlloc(end-buffer);
 		if (l_buffer == NULL)
 		{
 			BeaconPrintf(CALLBACK_ERROR, "Failed to allocate memory");
@@ -247,6 +247,7 @@ int findUnicodeString( char* buffer, int buffer_sz, wchar_t* needle, int needle_
 		}
 		MSVCRT$memcpy(l_buffer, buffer,end-buffer);
 		internal_printf("%s\t%ls\n", label, (wchar_t*)buffer );
+		intFree(l_buffer);
 		ret = end-buffer -1;
 	} 
 END:
