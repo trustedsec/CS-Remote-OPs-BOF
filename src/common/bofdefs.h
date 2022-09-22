@@ -136,6 +136,7 @@ WINBASEAPI PCHAR __cdecl MSVCRT$strchr(const char *haystack, int needle);
 WINBASEAPI int __cdecl MSVCRT$strcmp(const char *_Str1,const char *_Str2);
 WINBASEAPI char * __cdecl MSVCRT$strcpy(char * __restrict__ __dst, const char * __restrict__ __src);
 WINBASEAPI size_t __cdecl MSVCRT$strlen(const char *_Str);
+WINBASEAPI int __cdecl MSVCRT$wcsncmp(const wchar_t *_Str1,const wchar_t *_Str2, size_t count);
 WINBASEAPI int __cdecl MSVCRT$strncmp(const char *_Str1,const char *_Str2,size_t _MaxCount);
 WINBASEAPI size_t __cdecl MSVCRT$strnlen(const char *_Str,size_t _MaxCount);
 WINBASEAPI PCHAR __cdecl MSVCRT$strstr(const char *haystack, const char *needle);
@@ -530,6 +531,7 @@ DWORD WINAPI PSAPI$GetModuleBaseNameW(HANDLE hProcess,HMODULE hModule,LPWSTR lpB
 #define MSVCRT$strcmp strcmp
 #define MSVCRT$strcpy strcpy
 #define MSVCRT$strlen strlen
+#define MSVCRT$wcsncmp wcsncmp
 #define MSVCRT$strncmp strncmp
 #define MSVCRT$strnlen strnlen
 #define MSVCRT$strstr strstr
