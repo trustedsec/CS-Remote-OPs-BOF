@@ -16,6 +16,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |command|notes|
 |-------|-----|
 |adcs_request| Request an enrollment certificate|
+|addusertogroup| Add specified user to a group|
 |chromeKey| Decrypts the provided base64 encoded Chrome key |
 |enableuser| Enables and unlocks the specified user account |
 |office_tokens|Collects Office JWT Tokens from any office process.|
@@ -36,6 +37,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |schtasksstop| stop a running scheduled task|
 |setuserpass| Set a users password|
 |shspawnas| A misguided attempt at injecting code into a newly spawned process|
+|unexpireuser| Set a user account to never expire|
 
 Yes schtasksrun is missing, yes that is intentional, but if someone puts in a pull for it I'll accept it on this side.
 
