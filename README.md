@@ -18,6 +18,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |adcs_request| Request an enrollment certificate|
 |chromeKey| Decrypts the provided base64 encoded Chrome key |
 |enableuser| Enables and unlocks the specified user account |
+|lastpass | Searches chrome, brave memory for lastpass passwords and data |
 |office_tokens|Collects Office JWT Tokens from any office process.|
 |procdump|Dumps the specified process to the specified output file|
 |ProcessDestroy|Closes handle(s) in a process|
