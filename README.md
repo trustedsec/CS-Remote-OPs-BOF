@@ -34,12 +34,10 @@ You are welcome to use these, but issues opened related to these will be closed 
 |sc_stop| stop an existing service|
 |schtaskscreate| Create a new scheduled task (via xml definition)|
 |schtasksdelete| Delete an existing scheduled task|
-|schtasksstop| stop a running scheduled task|
+|schtasksstop| start a scheduled task|
+|schtasksrun| stop a running scheduled task|
 |setuserpass| Set a users password|
 |shspawnas| A misguided attempt at injecting code into a newly spawned process|
-
-Yes schtasksrun is missing, yes that is intentional, but if someone puts in a pull for it I'll accept it on this side.
-
 
 ## Contributing
 
