@@ -35,8 +35,8 @@ You are welcome to use these, but issues opened related to these will be closed 
 |sc_stop| Stop an existing service|
 |schtaskscreate| Create a new scheduled task (via xml definition)|
 |schtasksdelete| Delete an existing scheduled task|
-|schtasksstop| start a scheduled task|
-|schtasksrun| stop a running scheduled task|
+|schtasksrun| Stop a running scheduled task|
+|schtasksstop| Start a scheduled task|
 |setuserpass| Set a users password|
 |shspawnas| A misguided attempt at injecting code into a newly spawned process|
 |unexpireuser| Set a user account to never expire|
