@@ -1331,13 +1331,13 @@ Usage:   setuserpass <USERNAME> <PASSWORD> <DOMAIN>
 #addusertogroup
 alias addusertogroup
 {
-    if(size(@_) != 4)
+    if(size(@_) != 5)
     {
         berror($1, beacon_command_detail("addusertogroup"));
         berror($1, "Invalid number of parameters");
         return;
     }
-    beacon_inline_execute($1, readbof($1, "addusertogroup"), "go", bof_pack($1, "ZZZ", $4, $2, $3));
+    beacon_inline_execute($1, readbof($1, "addusertogroup"), "go", bof_pack($1, "ZZZZ", $5 $4, $2, $3));
 }
 
 beacon_command_register(
@@ -1350,9 +1350,11 @@ Summary: Add the specified user to the group. Domain groups only!
 Usage:   addusertogroup <USERNAME> <GROUPNAME> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
+         Server     Required. The target computer to perform the addition on. use \"\" for the local machine
          DOMAIN     Required. The domain/computer for the account. You must give 
                     the domain name for the user if it is a domain account, or
                     use \"\" to target an account on the local machine.
+                    
 "
 );
 
