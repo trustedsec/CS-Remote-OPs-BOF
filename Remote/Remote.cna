@@ -1592,3 +1592,44 @@ beacon_command_register(
 Usage: lastpass <number of pids> <pid>,<pid>,<pid> ... "
 );
 
+alias suspend {
+    local('$args');
+    if(size(@_) < 2)
+	{
+		berror($1, beacon_command_detail("suspend"));
+		return;
+	}
+    $args = bof_pack($1, "si", 1, $2);
+    beacon_inline_execute($1, readbof($1, "suspendresume"), "go", $args);
+}
+
+beacon_command_register(
+    "suspend",
+    "suspend a process by pid",
+    "Command: suspend
+    
+Usage: suspend <pid>
+
+attempts to suspend the process listed"
+);
+
+alias resume {
+    local('$args');
+    if(size(@_) < 2)
+	{
+		berror($1, beacon_command_detail("resume"));
+		return;
+	}
+    $args = bof_pack($1, "si", 0, $2);
+    beacon_inline_execute($1, readbof($1, "suspendresume"), "go", $args);
+}
+
+beacon_command_register(
+    "resume",
+    "resume a process by pid",
+    "Command: resume
+    
+Usage: resume <pid>
+
+attempts to resume the process listed"
+);
