@@ -1337,7 +1337,7 @@ alias addusertogroup
         berror($1, "Invalid number of parameters");
         return;
     }
-    beacon_inline_execute($1, readbof($1, "addusertogroup"), "go", bof_pack($1, "ZZZZ", $5 $4, $2, $3));
+    beacon_inline_execute($1, readbof($1, "addusertogroup"), "go", bof_pack($1, "ZZZZ", $5, $4, $2, $3));
 }
 
 beacon_command_register(
