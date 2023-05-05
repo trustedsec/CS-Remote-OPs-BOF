@@ -3,25 +3,32 @@
 ########################################
 
 %reghives = %(
-HKCR => 0,
-HKCU => 1,
-HKLM => 2,
-HKU  => 3
+    HKCR => 0,
+    HKCU => 1,
+    HKLM => 2,
+    HKU  => 3
 );
 #sleep can't handle the actual values... so we'll just add them on the c side :(
 
 %regtypes = %(
-REG_SZ => 1,
-REG_EXPAND_SZ => 2,
-REG_BINARY => 3,
-REG_DWORD => 4,
-REG_MULTI_SZ => 7,
-REG_QWORD => 11
+    REG_SZ => 1,
+    REG_EXPAND_SZ => 2,
+    REG_BINARY => 3,
+    REG_DWORD => 4,
+    REG_MULTI_SZ => 7,
+    REG_QWORD => 11
 );
 
 %inttypes = %( 
     REG_DWORD => 1, 
     REG_QWORD => 1
+);
+
+%servicetypes = %(
+    1 => 0x02,
+    2 => 0x01,
+    3 => 0x10,
+    4 => 0x20
 );
 
 $id_lastpass = "LASTPASS>>";
@@ -228,7 +235,7 @@ Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
 
 sub bsc_create
 {
-    local('$hostname $servicename $binpath $errormode $startmode $junk $desc $displayname $bid $args');
+    local('$hostname $servicetype $servicename $binpath $errormode $startmode $junk $desc $displayname $bid $args');
     $bid = $1;
     $servicename = $2;
     $displayname = $3;
@@ -236,8 +243,8 @@ sub bsc_create
     $desc = $5;
     $errormode = $6;
     $startmode = $7;
-    $hostname = $8;
-
+    $servicetype = $8;
+    $hostname = $9;
 
     try {
         $junk = parseNumber($errormode, 10);
@@ -259,15 +266,16 @@ sub bsc_create
         berror($bid, "startmode is not a valid value");
         return;
     }
-    $args = bof_pack($bid, "zzzzzss",  $hostname, $servicename, $binpath, $displayname, $desc, $errormode, $startmode);
+
+    $args = bof_pack($bid, "zzzzzsss",  $hostname, $servicename, $binpath, $displayname, $desc, $errormode, $startmode, $servicetype);
     beacon_inline_execute($bid, readbof($bid, "sc_create"), "go", $args);
 }
 
 
-#sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+#sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
 alias sc_create
 {
-    local('$hostname $servicename $binpath $ignore $startmode $junk $desc $displayname');
+    local('$servicetype $hostname $servicename $binpath $ignore $startmode $junk $desc $displayname');
 
     if (size(@_) == 7)
     {
@@ -277,6 +285,7 @@ alias sc_create
         $desc = $5;
         $ignore = $6;
         $startmode = $7;
+        $servicetype = %servicetypes[3];
         $hostname = $null;
     }
     else if(size(@_) == 8)
@@ -287,7 +296,35 @@ alias sc_create
         $desc = $5;
         $ignore = $6;
         $startmode = $7;
-        $hostname = $8;
+        if ($8 in %servicetypes)
+        {
+            $servicetype = %servicetypes[$8];
+        }
+        else
+        {
+            berror($1, "invalid service type index");
+            return;
+        }
+        $hostname = $null;
+    }
+    else if(size(@_) == 9)
+    {
+        $servicename = $2;
+        $displayname = $3;
+        $binpath = $4;
+        $desc = $5;
+        $ignore = $6;
+        $startmode = $7;
+        if ($8 in %servicetypes)
+        {
+            $servicetype = %servicetypes[$8];
+        }
+        else
+        {
+            berror($1, "invalid service type index");
+            return;
+        }
+        $hostname = $9;
     }
     else
     {
@@ -295,7 +332,7 @@ alias sc_create
         return;
     }
 
-    bsc_create($1, $servicename, $displayname, $binpath, $desc, $ignore, $startmode, $hostname);
+    bsc_create($1, $servicename, $displayname, $binpath, $desc, $ignore, $startmode, $servicetype, $hostname);
 }
 
 beacon_command_register(
@@ -304,7 +341,7 @@ beacon_command_register(
     "
 Command: sc_create 
 Summary: This command creates a service on the target host.
-Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
          SVCNAME      Required. The name of the service to create.
          DISPLAYNAME  Required. The display name of the service.
          BINPATH      Required. The binary path of the service to execute.
@@ -320,6 +357,12 @@ Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <
                         2 - auto start
                         3 - on demand start
                         4 - disabled
+         TYPE         Optional. The type of service to create. The valid
+                      options are:
+                      1 - SERVICE_FILE_SYSTEM_DRIVER (File system driver service)
+                      2 - SERVICE_KERNEL_DRIVER (Driver service)
+                      3 - SERVICE_WIN32_OWN_PROCESS (Service that runs in its own process) <-- Default
+                      4 - SERVICE_WIN32_SHARE_PROCESS (Service that shares a process with one or more other services)
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.
 "

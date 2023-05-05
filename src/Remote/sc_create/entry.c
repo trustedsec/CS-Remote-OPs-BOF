@@ -4,7 +4,7 @@
 #include "base.c"
 
 
-DWORD create_service(const char* Hostname, const char* cpServiceName, const char * displayname, const char * binpath, const char * newdesc, DWORD desclen, DWORD errmode, DWORD startmode)
+DWORD create_service(const char* Hostname, const char* cpServiceName, const char * displayname, const char * binpath, const char * newdesc, DWORD desclen, DWORD errmode, DWORD startmode, DWORD service_type)
 {
 	DWORD dwResult = ERROR_SUCCESS;
 	SC_HANDLE scManager = NULL;
@@ -37,7 +37,7 @@ DWORD create_service(const char* Hostname, const char* cpServiceName, const char
 		cpServiceName,
 		displayname,
 		SERVICE_ALL_ACCESS,
-		SERVICE_WIN32_OWN_PROCESS,
+		service_type,
 		startmode,
 		errmode,
 		binpath,
@@ -102,7 +102,8 @@ VOID go(
 	DWORD ignoremode = 0;
 	DWORD startmode = 0;
 	DWORD desclen = 0;
-	
+	DWORD service_type = 0;
+
 	BeaconDataParse(&parser, Buffer, Length);
 	hostname = BeaconDataExtract(&parser, NULL);
 	servicename = BeaconDataExtract(&parser, NULL);
@@ -111,6 +112,7 @@ VOID go(
 	newdesc = BeaconDataExtract(&parser, (int*)&desclen);
 	ignoremode = (DWORD)BeaconDataShort(&parser);
 	startmode = (DWORD)BeaconDataShort(&parser);
+	service_type = (DWORD)BeaconDataShort(&parser);
 
 	if(!bofstart())
 	{
@@ -118,16 +120,17 @@ VOID go(
 	}
 
 	internal_printf("create_service:\n");
-	internal_printf("  hostname:    %s\n", hostname);
-	internal_printf("  servicename: %s\n", servicename);
-	internal_printf("  displayname: %s\n", displayname);
-	internal_printf("  binpath:     %s\n", binpath);
-	internal_printf("  newdesc:     %s\n", newdesc);
-	internal_printf("  desclen:     %lu\n", desclen);
-	internal_printf("  ignoremode:  %lX\n", ignoremode);
-	internal_printf("  startmode:   %lX\n", startmode);
+	internal_printf("  hostname:     %s\n", hostname);
+	internal_printf("  servicename:  %s\n", servicename);
+	internal_printf("  displayname:  %s\n", displayname);
+	internal_printf("  binpath:      %s\n", binpath);
+	internal_printf("  newdesc:      %s\n", newdesc);
+	internal_printf("  desclen:      %lu\n", desclen);
+	internal_printf("  ignoremode:   %lX\n", ignoremode);
+	internal_printf("  startmode:    %lX\n", startmode);
+	internal_printf("  service_type: %lX\n", service_type);
 
-	dwErrorCode = create_service(hostname, servicename, displayname, binpath, newdesc, desclen, ignoremode, startmode);
+	dwErrorCode = create_service(hostname, servicename, displayname, binpath, newdesc, desclen, ignoremode, startmode, service_type);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "create_service failed: %lX\n", dwErrorCode);
@@ -159,6 +162,7 @@ int main(int argc, char ** argv)
 	DWORD  dwDescriptionLen  = 0;
 	DWORD  dwErrorMode       = SERVICE_ERROR_IGNORE;
 	DWORD  dwStartMode       = SERVICE_DEMAND_START;
+	DWORD  service_type      = SERVICE_WIN32_OWN_PROCESS;
 	
 	dwDescriptionLen = MSVCRT$strnlen(lpcszDescription, MAX_PATH);
 	
@@ -171,6 +175,8 @@ int main(int argc, char ** argv)
 	internal_printf("  dwDescriptionLen: %lu\n", dwDescriptionLen);
 	internal_printf("  dwErrorMode:      %lX\n", dwErrorMode);
 	internal_printf("  dwStartMode:      %lX\n", dwStartMode);
+	internal_printf("  service_type:     %lX\n", service_type);
+
 
 	dwErrorCode = create_service(
 		lpcszHostName, 
@@ -180,7 +186,8 @@ int main(int argc, char ** argv)
 		lpcszDescription, 
 		dwDescriptionLen, 
 		dwErrorMode, 
-		dwStartMode
+		dwStartMode,
+		service_type
 	);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
