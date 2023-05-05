@@ -88,7 +88,7 @@ HRESULT Wmi_Initialize(WMI* pWmi)
 	}
 
 	// Initialize COM process security
-	hr = OLE32$CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, 0);
+	hr = OLE32$CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_DYNAMIC_CLOAKING, 0);
 	if (FAILED(hr))
 	{
 		if (RPC_E_TOO_LATE != hr)
@@ -173,7 +173,6 @@ HRESULT Wmi_Connect(
 	}
 	
 	// Set the properties in the WMI object
-	pWmi->bstrServer = OLEAUT32$SysAllocString(pwszServer);
 	pWmi->bstrNetworkResource = OLEAUT32$SysAllocString(lpwszNetworkResource);
 
 	// Obtain the initial locator to Windows Management on host computer
@@ -604,7 +603,6 @@ void Wmi_Finalize(
 	SAFE_RELEASE(pWmi->pWbemLocator);
 
 	SAFE_FREE(pWmi->bstrLanguage);
-	SAFE_FREE(pWmi->bstrServer);
 	SAFE_FREE(pWmi->bstrNameSpace);
 	SAFE_FREE(pWmi->bstrNetworkResource);
 	SAFE_FREE(pWmi->bstrQuery);

@@ -13,7 +13,6 @@ typedef struct _Wmi {
 	IWbemLocator* pWbemLocator;
 	IEnumWbemClassObject* pEnumerator;
 	BSTR bstrLanguage;
-	BSTR bstrServer;
 	BSTR bstrNameSpace;
 	BSTR bstrNetworkResource;
 	BSTR bstrQuery;
