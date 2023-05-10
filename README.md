@@ -16,6 +16,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |Command|Notes|
 |-------|-----|
 |adcs_request| Request an enrollment certificate|
+|adduser| Add specified user to a machine|
 |addusertogroup| Add specified user to a group|
 |chromeKey| Decrypt the provided base64 encoded Chrome key|
 |enableuser| Enable and unlock the specified user account|

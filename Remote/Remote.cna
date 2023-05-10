@@ -1390,14 +1390,58 @@ beacon_command_register(
 Command: addusertogroup
 Summary: Add the specified user to the group. Domain groups only!
 
-Usage:   addusertogroup <USERNAME> <GROUPNAME> <DOMAIN>
+Usage:   addusertogroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
-         Server     Required. The target computer to perform the addition on. use \"\" for the local machine
+         SERVER     Required. The target computer to perform the addition on. use \"\" for the local machine
          DOMAIN     Required. The domain/computer for the account. You must give 
                     the domain name for the user if it is a domain account, or
                     use \"\" to target an account on the local machine.
                     
+"
+);
+
+#adduser
+alias adduser
+{
+    local('$bid $username $pass $server');
+
+    if(size(@_) < 3 || size(@_) > 4)
+    {
+        berror($1, beacon_command_detail("adduser"));
+        berror($1, "Invalid number of parameters");
+        return;
+    }
+    else if(size(@_) == 3)
+    {
+        $bid = $1;
+        $username = $2;
+        $pass = $3;
+        $server = "";
+    }
+    else if(size(@_) == 4)
+    {
+        $bid = $1;
+        $username = $2;
+        $pass = $3;
+        $server = $4;
+    }
+
+    beacon_inline_execute($bid, readbof($bid, "adduser"), "go", bof_pack($bid, "ZZZ", $username, $pass, $server));
+}
+
+beacon_command_register(
+    "adduser",
+    "Add a new user to a machine.",
+    "
+Command: adduser
+Summary: Add a new user to a machine.
+
+Usage:   adduser <USERNAME> <PASSWORD> <SERVER>
+         USERNAME   Required. The name of the new user. 
+         PASSWORD   Required. The password of the new user. 
+         SERVER     Optional. If entered, the user will be created on that machine. If not, the
+                    local machine will be used.
 "
 );
 
