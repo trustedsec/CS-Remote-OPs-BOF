@@ -190,6 +190,7 @@ VOID go(
 		{
 			internal_printf("[+] SeDebugPrivilege Disabled!\n");
 		}
+		KERNEL32$CloseHandle(currentTokenHandle);
 	}
 
 	printoutput(TRUE);
