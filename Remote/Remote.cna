@@ -81,7 +81,7 @@ sub ops {
 		if ($count > 0) {
 			if ($arg ismatch '/.*:.*') {
 				$arg = replace($arg, '\A/',"");
-				($key $val) = split(":", $arg, 2);
+				($key, $val) = split(":", $arg, 2);
 				%arguments[$key] = $val;
 			}
 			else if ($arg ismatch '/.*') {
@@ -510,7 +510,7 @@ Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
 
 on beacon_output
 {
-    local('$beacon $message $id $output $parsed_return_file @cmd $ret $lp_files $parser $returned_len $returned_len $fp')
+    local('$beacon $message $id $output $parsed_return_file @cmd $ret $lp_files $parser $returned_len $returned_len $fp');
    
     $beacon = $1;
     $message = $2;
@@ -817,7 +817,7 @@ alias reg_delete
     # test if val in pos 1 is in Hive, if not, then assume it is a hostname
     # values at end, if multisz pack them using a variable bof string
 
-    local('$hostname $hive $path $key $i $delkey')
+    local('$hostname $hive $path $key $i $delkey');
 
     if(size(@_) < 3)
     {
@@ -906,7 +906,7 @@ alias reg_save
 
 sub breg_save
 {
-    local('$hive $regpath $output $i')
+    local('$hive $regpath $output $i');
 
     $hive = %reghives[$2];
     $regpath = $3;
@@ -1052,7 +1052,7 @@ Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task
 #schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE>
 alias schtasksdelete
 {
-    local('$bid $args $server $taskname $isfolder')
+    local('$bid $args $server $taskname $isfolder');
     $bid = $1;
     $server = "";
     
@@ -1121,7 +1121,7 @@ Note:    If you are deleting a folder, it must be empty.
 #schtasksstop <OPT:HOSTNAME> <TASKNAME>
 alias schtasksstop
 {
-    local('$bid $args $server $taskname')
+    local('$bid $args $server $taskname');
     $bid = $1;
     $server = "";
     if ( size(@_) < 2)
@@ -1164,7 +1164,7 @@ Note:    The full path including the task name must be given, e.g.:
 #schtasksrun <OPT:HOSTNAME> <TASKNAME>
 alias schtasksrun
 {
-    local('$bid $args $server $taskname')
+    local('$bid $args $server $taskname');
     $bid = $1;
     $server = "";
     if ( size(@_) < 2)
