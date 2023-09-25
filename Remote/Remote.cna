@@ -1722,3 +1722,26 @@ Usage: resume <pid>
 
 attempts to resume the process listed"
 );
+
+alias get_priv {
+    local('$args');
+    if(size(@_) < 2)
+    {
+        berror($1, beacon_command_detail("get_priv"));
+        return;
+    }
+    $args = bof_pack($1, "z", $2);
+    beacon_inline_execute($1, readbof($1, "get_priv"), "go", $args);
+}
+
+beacon_command_register(
+    "get_priv",
+    "Activate a token privledge",
+    "Command: get_priv
+
+Usage: get_priv <Privledge Name>
+
+Privledge names are listed here https://learn.microsoft.com/en-us/windows/win32/secauthz/privilege-constants
+They are the equivilent of what you see in whoami /all or our whoami bof from the SA repo
+"
+);
