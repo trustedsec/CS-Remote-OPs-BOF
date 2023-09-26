@@ -220,7 +220,7 @@ Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
          ERRORMODE    Required. The error mode of the service. The valid 
                       options are:
                         0 - ignore errors
-                        1 - nomral logging
+                        1 - normal logging
                         2 - log severe errors
                         3 - log critical errors
          STARTMODE    Required. The start mode for the service. The valid
@@ -230,6 +230,82 @@ Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
                         4 - disabled
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.
+"
+);
+
+#sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+sub bsc_failure
+{
+    local('$hostname $servicename $resetperiod $rebootmessage $command $numactions $actions $bid $args');
+    $bid = $1;
+    $servicename = $2;
+    $resetperiod = $3;
+    $rebootmessage = $4;
+    $command = $5;
+    $numactions = $6;
+    $actions = $7;
+    $hostname = $8;
+    $args = bof_pack($bid, "zzszzsz", $hostname, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions);
+    beacon_inline_execute($bid, readbof($1, "sc_failure"), "go", $args);
+}
+
+#sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+alias sc_failure
+{
+    local('$hostname $servicename $resetperiod $rebootmessage $command $numactions $actions $junk');
+
+    if (size(@_) == 7)
+    {
+        $servicename = $2;
+        $resetperiod = $3;
+        $rebootmessage = $4;
+        $command = $5;
+        $numactions = $6;
+        $actions = $7;
+        $hostname = $null;
+    }
+    else if(size(@_) == 8)
+    {
+        $servicename = $2;
+        $resetperiod = $3;
+        $rebootmessage = $4;
+        $command = $5;
+        $numactions = $6;
+        $actions = $7;
+        $hostname = $8;
+    }
+    else
+    {
+        berror($1, beacon_command_detail('sc_failure'));
+        return;
+    }
+    bsc_failure($1, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions, $hostname);
+}
+
+beacon_command_register(
+    "sc_failure",
+    "Changes the actions upon failure",
+    "
+Command: sc_failure 
+Summary: This command configures the actions upon failure of an existing service on the target host.
+Usage:   sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+         SVCNAME        Required. The name of the service to create.
+         RESETPERIOD    Required. Length of period of no failures (in seconds)
+                        after which to reset the failure count to 0 (may be INFINITE)
+                        (Must be used in conjunction with ACTIONS )
+         REBOOTMESSAGE  Message broadcast before rebooting on failure. (NULL = \"\")
+         COMMAND        Command line to be run on failure. (NULL = \"\")
+         NUMACTIONS     How many actions to be configured  -- e.g., 3/5000/2/800 is <2> actions
+         ACTIONS        Failure actions and their delay time (in milliseconds),
+                        separated by / (forward slash) -- e.g., 3/5000/2/800
+                        Valid actions are:
+                            0 - No action
+                            1 - Restart the service
+                            2 - Reboot the computer
+                            3 - Run a command
+                        (Must be used in conjunction with the RESETPERIOD option) (NULL = \"\")
+         HOSTNAME       Optional. The host to connect to and run the commnad on. The
+                        local system is targeted if a HOSTNAME is not specified.
 "
 );
 
