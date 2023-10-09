@@ -21,7 +21,8 @@ DWORD config_failure(const char* Hostname, const char* cpServiceName, DWORD dwRe
 	DWORD dwResult = ERROR_SUCCESS;
 	SC_HANDLE scManager = NULL;
 	SC_HANDLE scService = NULL;
-
+	HANDLE hToken = NULL;
+	LUID luid;
 	SERVICE_FAILURE_ACTIONSA serviceFailureActions;
 	serviceFailureActions.dwResetPeriod = dwResetPeriod;
 	serviceFailureActions.lpRebootMsg = lpRebootMsg;
@@ -89,8 +90,7 @@ DWORD config_failure(const char* Hostname, const char* cpServiceName, DWORD dwRe
 	}
 
 	// Enabling the SE_SHUTDOWN_NAME privilege 
-	HANDLE hToken = NULL;
-	LUID luid;
+
 	ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken);
 	ADVAPI32$LookupPrivilegeValueA(NULL, SE_SHUTDOWN_NAME, &luid);
 	TOKEN_PRIVILEGES tp;
@@ -112,8 +112,6 @@ DWORD config_failure(const char* Hostname, const char* cpServiceName, DWORD dwRe
 		goto config_failure_end;
 	}
 
-	KERNEL32$CloseHandle(hToken);
-
 config_failure_end:
 
 	if (scService)
@@ -127,8 +125,11 @@ config_failure_end:
 		ADVAPI32$CloseServiceHandle(scManager);
 		scManager = NULL;
 	}
-
-	KERNEL32$CloseHandle(hToken);
+	if(hToken)
+	{
+		KERNEL32$CloseHandle(hToken);
+		hToken = NULL;
+	}
 	return dwResult;
 }
 
