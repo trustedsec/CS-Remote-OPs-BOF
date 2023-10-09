@@ -1642,8 +1642,13 @@ beacon_command_register(
 alias adcs_request {
 	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine');
 
-	%params = ops(@_);
-	@keys = keys(%params);
+    if(size(@_) < 2)
+    {
+        berror($1, beacon_command_detail("adcs_request"));
+		berror($1, "Need to provide the Certificate Authority at a minimum");
+		return;
+    }
+
 	
 	$adcs_request_ca = "";
 	$adcs_request_template = "";
@@ -1652,30 +1657,13 @@ alias adcs_request {
 	$adcs_request_install = 0;
 	$adcs_request_machine = 0;
 	
-	if ("CA" in @keys) {
-		$adcs_request_ca = %params["CA"];
-	}
-    else {
-		berror($1, beacon_command_detail("adcs_request"));
-		berror($1, "Need to provide the Certificate Authority at a minimum");
-		return;
-    }
-    if ("TEMPLATE" in @keys) {
-        $adcs_request_template = %params["TEMPLATE"];
-    }
-    if ("SUBJECT" in @keys) {
-        $adcs_request_subject = %params["SUBJECT"];
-    }
-    if ("ALTNAME" in @keys) {
-        $adcs_request_altname = %params["ALTNAME"];
-    }
-    if ("INSTALL" in @keys) {
-        $adcs_request_install = 1;
-    }
-    if ("MACHINE" in @keys) {
-        $adcs_request_machine = 1;
-    }
-    
+    $adcs_request_ca = $2;
+	$adcs_request_template = iff(-istrue $3, $3, "");
+    $adcs_request_subject = iff(-istrue $4, $4, "");
+    $adcs_request_altname = iff(-istrue $5, $5, "");
+    $adcs_request_install = iff(-istrue $6, $6, 0);
+    $adcs_request_machine = iff(-istrue $7, $7, 0);
+
 	$args = bof_pack($1, "ZZZZss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine);
 	beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
 }
@@ -1688,13 +1676,25 @@ Command: adcs_request
 Summary: This command connects a certificate authority and requests an enrollment 
          certificate of the specified type for the specified subject and alternative 
          name. It will also optionally install the certificate for the current context.
-Usage:   adcs_request /CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]
+Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTALL] [opt:MACHINE]
          CA        Required. The certificate authority to use.
-         TEMPLATE  Optional. The certificate type to request.
-         SUBJECT   Optional. The subject's distinguished name.
-         ALTNAME   Optional. The alternate subject's distinguished name.
-         INSTALL   Optional. Install the certificate in current context?
-         MACHINE   Optional. Request a certificate for a machine instead of a user?
+         TEMPLATE  Optional. The certificate type to request. Use \"\" for default of User/Machine
+         SUBJECT   Optional. The subject's distinguished name. Use \"\" for default of current machine / user
+         ALTNAME   Optional. The alternate subject's distinguished name. Use \"\" for default
+         INSTALL   Optional. Install the certificate in current context? 0 = No, 1 = Yes. Default = 0
+         MACHINE   Optional. Request a certificate for a machine instead of a user? 0 = No, 1 = Yes. Default = 0
+
+         All arguments are positional. To a specify a non-default value for a optional you must specify a value for 
+         All arguments prior to that given optional.
+
+Examples:
+basic:
+    adcs_request cert.example.org\example-CERT-CA 
+
+all options:
+    adcs_request cert.example.org\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org 0 0
+
+use quotes for any arguments with spaces.
 "
 );
 
