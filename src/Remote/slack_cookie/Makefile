@@ -1,4 +1,4 @@
-BOFNAME := slack_tokens
+BOFNAME := slack_cookie
 COMINCLUDE := -I ../../common
 LIBINCLUDE := 
 CC_x64 := x86_64-w64-mingw32-gcc

