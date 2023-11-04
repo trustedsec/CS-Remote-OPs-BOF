@@ -38,6 +38,10 @@ WINBASEAPI VOID WINAPI KERNEL32$GetLocalTime(LPSYSTEMTIME lpSystemTime);
 WINBASEAPI WINBOOL WINAPI KERNEL32$SystemTimeToFileTime(CONST SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime);
 #define SystemTimeToFileTime KERNEL32$SystemTimeToFileTime
 
+//add GetCurrentThread
+WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentThread(VOID);
+#define GetCurrentThread KERNEL32$GetCurrentThread
+
 #define GetCurrentProcess KERNEL32$GetCurrentProcess
 #define GetLastError KERNEL32$GetLastError
 
@@ -60,6 +64,8 @@ typedef LSTATUS WINAPI (*RegDeleteTreeA_t)(HKEY hKey, LPCSTR lpSubKey);
 typedef BOOL WINAPI (*LookupAccountNameA_t)(LPCSTR lpSystemName, LPCSTR lpAccountName, PSID Sid, LPDWORD cbSid, LPSTR ReferencedDomainName, LPDWORD cchReferencedDomainName, PSID_NAME_USE peUse);
 // add OpenProcessToken
 typedef BOOL WINAPI (*OpenProcessToken_t)(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
+// add OpenThreadToken
+typedef BOOL WINAPI (*OpenThreadToken_t)(HANDLE ThreadHandle, DWORD DesiredAccess, BOOL OpenAsSelf, PHANDLE TokenHandle);
 // add GetTokenInformation
 typedef BOOL WINAPI (*GetTokenInformation_t)(HANDLE TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass, LPVOID TokenInformation, DWORD TokenInformationLength, PDWORD ReturnLength);
 // add AllocateAndInitializeSid
@@ -80,6 +86,7 @@ typedef BOOL WINAPI (*ConvertStringSecurityDescriptorToSecurityDescriptorA_t)(LP
 #define RegDeleteTreeA ((RegDeleteTreeA_t)DynamicLoad("ADVAPI32", "RegDeleteTreeA"))
 #define LookupAccountNameA ((LookupAccountNameA_t)DynamicLoad("ADVAPI32", "LookupAccountNameA"))
 #define OpenProcessToken ((OpenProcessToken_t)DynamicLoad("ADVAPI32", "OpenProcessToken"))
+#define OpenThreadToken ((OpenThreadToken_t)DynamicLoad("ADVAPI32", "OpenThreadToken"))
 #define GetTokenInformation ((GetTokenInformation_t)DynamicLoad("ADVAPI32", "GetTokenInformation"))
 #define AllocateAndInitializeSid ((AllocateAndInitializeSid_t)DynamicLoad("ADVAPI32", "AllocateAndInitializeSid"))
 #define EqualSid ((EqualSid_t)DynamicLoad("ADVAPI32", "EqualSid"))
@@ -489,7 +496,25 @@ BOOL CheckSystem()
     SID_IDENTIFIER_AUTHORITY siaNT = SECURITY_NT_AUTHORITY;
     PSID pSystemSid;
     BOOL bSystem;
-    OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken);
+    // Get thread token, if failed then try process token
+    if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &hToken))
+    {
+        if (hToken == NULL && GetLastError() == ERROR_NO_TOKEN)
+        {
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+            {
+                BeaconPrintf(CALLBACK_ERROR, "Error calling OpenProcessToken. Error code:0x%x", GetLastError());
+                return false;
+            }
+        }
+        
+    }
+    if (hToken == NULL)
+    {
+        BeaconPrintf(CALLBACK_ERROR, "No token found. Error code:0x%x", GetLastError());
+        return false;
+    }
+
     if (!GetTokenInformation(hToken, TokenUser, pTokenUser, sizeof(bTokenUser), &cbTokenUser))
     {
         BeaconPrintf(CALLBACK_ERROR, "Error calling GetTokenInformation. Error code:0x%x", GetLastError());
