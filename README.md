@@ -41,6 +41,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |schtasksstop| Stop a running scheduled task|
 |setuserpass| Set a user's password|
 |shspawnas| A misguided attempt at injecting code into a newly spawned process|
+|slack_cookie| Collect the Slack authentication cookie from a Slack process|
 |unexpireuser| Set a user account to never expire|
 |ghost_task| Add/Delete a ghost task.
 

