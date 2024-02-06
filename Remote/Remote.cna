@@ -1916,6 +1916,7 @@ Note:    As of October 21, 2023, this tool has been tested on Windows 10, Window
          To create a scheduled task using this tool, NT AUTHORITY/SYSTEM privileges are required
          After configuring the scheduled task, you'll need to either restart the system or await the next reboot for the task to be loaded into the Schedule service process and subsequently executed
 "
+);
 alias slack_cookie 
 {
 	local('$pid $args');
