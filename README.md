@@ -32,6 +32,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |sc_config| Configure an existing service|
 |sc_create| Create a new service|
 |sc_delete| Delete an existing service|
+|sc_failure| Configures the actions upon failure of an existing service|
 |sc_description| Modify an existing services description|
 |sc_start| Start an existing service|
 |sc_stop| Stop an existing service|
