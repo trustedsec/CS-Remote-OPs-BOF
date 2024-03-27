@@ -245,7 +245,7 @@ sub bsc_failure
     $numactions = $6;
     $actions = $7;
     $hostname = $8;
-    $args = bof_pack($bid, "zzszzsz", $hostname, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions);
+    $args = bof_pack($bid, "zzizzsz", $hostname, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions);
     beacon_inline_execute($bid, readbof($1, "sc_failure"), "go", $args);
 }
 
