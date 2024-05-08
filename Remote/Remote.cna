@@ -1942,14 +1942,28 @@ Usage: slack_cookie <pid> "
 
 beacon_command_register(
 	"shutdown",
-	"shutdown the local or remote system",
-	"\nshutdown <hostname> <message> <time> <closeapps> <reboot>\n".
-		"<hostname> - For local host use \"\"\n".
-		"<message> - For no message use \"\".  Make sure to enclose in quotes.\n".
-		"<time> - Use 0 for immediately. Anything non-zero will prompt user with <message>\n".
-		"<closeapps> - Use 1 for close applications with unsaved changes or 0 to allow user to save\n".
-		"<reboot> - Use 1 to reboot the system after shutdown or 0 to have it stay off\n".
-		"\n\nThe flags for security patch, planned reboot are hard-coded but may be added later."
+	"Shutdown or reboot a local or remote system in the number of seconds provided",
+	"
+    Command: shutdown
+    Summary: Shutdown or reboot the local/remote system with or without a message, with or withough allowing the closing of apps in
+             the time specified. WARNING: non-zero times will prompt the user.
+    Usage:   shutdown <hostname> \"<message>\" <time> <closeapps> <reboot>
+		     - hostname: For localhost use \"\"
+		     - \"message\": For no message use \"\".  Make sure to enclose in quotes.
+		     - time: The number of seconds before the shutdown/reboot.
+                - 0 for immediately.
+                - WARNING: Anything non-zero will prompt user with <message>
+		     - closeapps: Whether or not to allow the user to save/close applications
+                - 0 to allow user to save before closing application
+                - 1 for close applications with unsaved changes
+		     - reboot:
+                - 1 to reboot the system after shutdown
+                - 0 to have it stay off (shutdown)
+
+
+		NOTE: The flags (SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED) for security patch,
+              planned reboot are hard-coded but may be added later as changeable or may be changed in entry.c.
+"
 );
 
 alias shutdown {
@@ -1966,6 +1980,11 @@ alias shutdown {
 		berror($bid, beacon_command_detail("shutdown"));
 		return;
 	}
+
+    if( ($ca != 0 && $ca != 1)  || ($rb != 0 && $rb != 1) ) {
+		berror($bid, beacon_command_detail("shutdown"));
+		return;
+    }
 
     $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq ""), "localhost", $hostname) . " in $time seconds" . iff(($message eq ""), ".", " with message '" . $message . "'.") .
             " Applications " . iff(($ca eq 0), "closed after user save", "closed without chance to save" . ".\n");
