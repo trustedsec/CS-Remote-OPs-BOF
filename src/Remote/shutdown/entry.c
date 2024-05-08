@@ -93,7 +93,7 @@ VOID go(
 	const short closeapps = BeaconDataShort(&parser);
 	const short reboot = BeaconDataShort(&parser);
 	BOOL status;
-    const char * privilege = (hostname == NULL ? "SeShutdownPrivilege" : "SeRemoteShutdownPrivilege");
+    const char * privilege = (! MSVCRT$strcmp(hostname, "") ? "SeShutdownPrivilege" : "SeRemoteShutdownPrivilege");
 
 	HANDLE currentTokenHandle = NULL;
 	BOOL getCurrentToken = ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &currentTokenHandle);
