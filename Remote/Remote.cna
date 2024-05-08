@@ -1946,7 +1946,7 @@ beacon_command_register(
 	"
     Command: shutdown
     Summary: Shutdown or reboot the local/remote system with or without a message, with or withough allowing the closing of apps in
-             the time specified. WARNING: non-zero times will prompt the user.
+             the time specified. WARNING: non-zero times will prompt the user.  Obviously, remote requires administrative privileges.
     Usage:   shutdown <hostname> \"<message>\" <time> <closeapps> <reboot>
 		     - hostname: For localhost use \"\"
 		     - \"message\": For no message use \"\".  Make sure to enclose in quotes.
@@ -1985,6 +1985,8 @@ alias shutdown {
 		berror($bid, beacon_command_detail("shutdown"));
 		return;
     }
+
+    if(bdata($bid)['computer'] eq $hostname) { $hostname = ""; }
 
     $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq ""), "localhost", $hostname) . " in $time seconds" . iff(($message eq ""), ".", " with message '" . $message . "'.") .
             " Applications " . iff(($ca eq 0), "closed after user save", "closed without chance to save" . ".\n");
