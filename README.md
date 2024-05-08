@@ -4,7 +4,7 @@ This repo serves as an addition to our previously released [SA](https://github.c
 
 Over time, we have seen many other public security companies release their offensive facing tooling, and we now feel it is appropriate for us to release a portion of our offensive tooling.
 
-Nothing in this repo is particularly special, it is basic Microsoft Windows operations in BOF form. These primitives can be used for a large variety of operations.  
+Nothing in this repo is particularly special, it is basic Microsoft Windows operations in BOF form. These primitives can be used for a large variety of operations.
 
 ## Injection BOF
 
@@ -41,6 +41,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |schtasksstop| Stop a running scheduled task|
 |setuserpass| Set a user's password|
 |shspawnas| A misguided attempt at injecting code into a newly spawned process|
+|shutdown| Shutdown or reboot a local or remote computer, with or without a warning/message
 |slack_cookie| Collect the Slack authentication cookie from a Slack process|
 |unexpireuser| Set a user account to never expire|
 |ghost_task| Add/Delete a ghost task.
