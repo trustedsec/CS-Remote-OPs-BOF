@@ -93,18 +93,19 @@ VOID go(
 	const short closeapps = BeaconDataShort(&parser);
 	const short reboot = BeaconDataShort(&parser);
 	BOOL status;
+    const char * privilege = (hostname == NULL ? "SeShutdownPrivilege" : "SeRemoteShutdownPrivilege");
 
 	HANDLE currentTokenHandle = NULL;
 	BOOL getCurrentToken = ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &currentTokenHandle);
 	if(getCurrentToken)
 	{
-		if (!SetPrivilege(currentTokenHandle, "SeShutdownPrivilege", TRUE))
+		if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] SeShutdownPrivilege enabled!\n");
+			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s enabled!\n", privilege);
 		}
 		else
 		{
-			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get SeShutdownPrivilege, stopping\n");
+			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get %s, stopping\n", privilege);
 			return;
 		}
 	}
@@ -114,7 +115,7 @@ VOID go(
 		return;
 	}
 
-	status = ADVAPI32$InitiateSystemShutdownExA(NULL, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
+	status = ADVAPI32$InitiateSystemShutdownExA((LPSTR) hostname, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
 	if(status)
 	{
 		BeaconPrintf(CALLBACK_OUTPUT, "[+] Successfully called InitiateSystemShutdownExW on %s", hostname);
@@ -124,9 +125,9 @@ VOID go(
 
 	if(getCurrentToken)
 	{
-		if (!SetPrivilege(currentTokenHandle, "SeShutdownPrivilege", FALSE))
+		if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] SeShutdownPrivilege Disabled!\n");
+			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s Disabled!\n", privilege);
 		}
 		KERNEL32$CloseHandle(currentTokenHandle);
 	}
@@ -141,18 +142,19 @@ int main(int argc, char ** argv)
 	const short closeapps = 1;
 	const short reboot = 1;
 	BOOL status;
+    const char * privilege = "SeShutdownPrivilege";
 
 	HANDLE currentTokenHandle = NULL;
 	BOOL getCurrentToken = ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &currentTokenHandle);
 	if(getCurrentToken)
 	{
-		if (!SetPrivilege(currentTokenHandle, "SeShutdownPrivilege", TRUE))
+		if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] SeShutdownPrivilege enabled!\n");
+			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s enabled!\n", privilege);
 		}
 		else
 		{
-			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get SeShutdownPrivilege, stopping\n");
+			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get %s, stopping\n", privilege);
 			return;
 		}
 	}
@@ -162,7 +164,7 @@ int main(int argc, char ** argv)
 		return;
 	}
 
-	status = ADVAPI32$InitiateSystemShutdownExA(NULL, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
+	status = ADVAPI32$InitiateSystemShutdownExA((LPSTR) hostname, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
 	if(status)
 	{
 		BeaconPrintf(CALLBACK_OUTPUT, "[+] Successfully called InitiateSystemShutdownExW on %s", hostname);
@@ -172,9 +174,9 @@ int main(int argc, char ** argv)
 
 	if(getCurrentToken)
 	{
-		if (!SetPrivilege(currentTokenHandle, "SeShutdownPrivilege", FALSE))
+		if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] SeShutdownPrivilege Disabled!\n");
+			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s Disabled!\n", privilege);
 		}
 		KERNEL32$CloseHandle(currentTokenHandle);
 	}
