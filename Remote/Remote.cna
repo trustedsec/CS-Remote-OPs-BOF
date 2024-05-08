@@ -1967,9 +1967,9 @@ alias shutdown {
 		return;
 	}
 
-    $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq $null), "localhost", $hostname) . " in $time seconds " . iff(($message eq $null), "", " with message '$message'") .
-                " applications " . iff(($ca eq 0), " closed after user save", " closed without chance to save" . ".\n")
-	blog($bid, $str, "T1529");
+    $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq ""), "localhost", $hostname) . " in $time seconds" . iff(($message eq ""), ".", " with message '" . $message . "'.") .
+            " Applications " . iff(($ca eq 0), "closed after user save", "closed without chance to save" . ".\n");
+	btask($bid, $str, "T1529");
 
 	$args = bof_pack($bid, "zziss", $hostname, $message, $time, $ca, $rb);
 	beacon_inline_execute($bid,  readbof($bid, "shutdown"), "go", $args);
