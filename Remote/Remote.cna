@@ -1986,7 +1986,7 @@ alias shutdown {
 		return;
     }
 
-    if(bdata($bid)['computer'] eq $hostname) { $hostname = ""; }
+    if(bdata($bid)['computer'] ismatch "(?i)$hostname" || bdata($bid)['computer'] ismatch "(?i)localhost") { $hostname = $null; }
 
     $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq ""), "localhost", $hostname) . " in $time seconds" . iff(($message eq ""), ".", " with message '" . $message . "'.") .
             " Applications " . iff(($ca eq 0), "closed after user save", "closed without chance to save" . ".\n");
