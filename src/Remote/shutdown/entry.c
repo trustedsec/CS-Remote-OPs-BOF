@@ -101,33 +101,33 @@ VOID go(
 	{
 		if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s enabled!\n", privilege);
+			BeaconPrintf(CALLBACK_OUTPUT, "%s enabled!\n", privilege);
 		}
 		else
 		{
-			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get %s, stopping\n", privilege);
+			BeaconPrintf(CALLBACK_ERROR, "Unable to get %s, stopping\n", privilege);
 			return;
 		}
 	}
 	else
 	{
-		BeaconPrintf(CALLBACK_ERROR, "[-] Can't get a handle to ourself, that's odd, stopping\n");
+		BeaconPrintf(CALLBACK_ERROR, "Can't get a handle to ourself, that's odd, stopping\n");
 		return;
 	}
 
 	status = ADVAPI32$InitiateSystemShutdownExA((LPSTR) hostname, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
 	if(status)
 	{
-		BeaconPrintf(CALLBACK_OUTPUT, "[+] Successfully called InitiateSystemShutdownExW on %s", hostname);
+		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW on %s", hostname);
 	} else {
-		BeaconPrintf(CALLBACK_ERROR, "[-] Failed to call InitiateSystemShutdownExW");
+		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW");
 	}
 
 	if(getCurrentToken)
 	{
 		if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s Disabled!\n", privilege);
+			BeaconPrintf(CALLBACK_OUTPUT, "%s Disabled!\n", privilege);
 		}
 		KERNEL32$CloseHandle(currentTokenHandle);
 	}
@@ -150,33 +150,33 @@ int main(int argc, char ** argv)
 	{
 		if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s enabled!\n", privilege);
+			BeaconPrintf(CALLBACK_OUTPUT, "%s enabled!\n", privilege);
 		}
 		else
 		{
-			BeaconPrintf(CALLBACK_ERROR, "[-] Unable to get %s, stopping\n", privilege);
+			BeaconPrintf(CALLBACK_ERROR, "Unable to get %s, stopping\n", privilege);
 			return;
 		}
 	}
 	else
 	{
-		BeaconPrintf(CALLBACK_ERROR, "[-] Can't get a handle to ourself, that's odd, stopping\n");
+		BeaconPrintf(CALLBACK_ERROR, "Can't get a handle to ourself, that's odd, stopping\n");
 		return;
 	}
 
 	status = ADVAPI32$InitiateSystemShutdownExA((LPSTR) hostname, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
 	if(status)
 	{
-		BeaconPrintf(CALLBACK_OUTPUT, "[+] Successfully called InitiateSystemShutdownExW on %s", hostname);
+		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW on %s", hostname);
 	} else {
-		BeaconPrintf(CALLBACK_ERROR, "[-] Failed to call InitiateSystemShutdownExW");
+		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW");
 	}
 
 	if(getCurrentToken)
 	{
 		if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
 		{
-			BeaconPrintf(CALLBACK_OUTPUT, "[+] %s Disabled!\n", privilege);
+			BeaconPrintf(CALLBACK_OUTPUT, "%s Disabled!\n", privilege);
 		}
 		KERNEL32$CloseHandle(currentTokenHandle);
 	}
