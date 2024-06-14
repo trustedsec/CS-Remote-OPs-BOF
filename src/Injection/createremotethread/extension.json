@@ -1,0 +1,38 @@
+{
+    "name": "createremotethread",
+    "version": "v0.0.7",
+    "command_name": "inject-createremotethread",
+    "extension_author": "0xbad53c",
+    "original_author": "TrustedSec",
+    "repo_url": "https://github.com/sliverarmory/CS-Remote-OPs-BOF",
+    "help": "inject into a process",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+      {
+        "os": "windows",
+        "arch": "amd64",
+        "path": "createremotethread.x64.o"
+      },
+      {
+        "os": "windows",
+        "arch": "386",
+        "path": "createremotethread.x86.o"
+      }
+    ],
+    "arguments": [
+  {
+        "name": "pid",
+        "desc": "process id",
+        "type": "int",
+        "optional": false
+      },
+      {
+        "name": "bin",
+        "desc": "/local/path/to/shellcode.bin",
+        "type": "file",
+        "optional": false
+      }
+    ]
+  }
+  
