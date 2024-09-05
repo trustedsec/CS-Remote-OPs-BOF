@@ -37,7 +37,7 @@ HCERTSTORE LoadCert(unsigned char * cert, const wchar_t * password, DWORD certle
 
 	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, password, CRYPT_USER_KEYSET);
 	*pcert = CRYPT32$CertEnumCertificatesInStore(store, NULL);
-	CRYPT32$CertAddCertificateContextToStore(hCertStore, *pcert, CERT_STORE_ADD_NEW, &pnewcert);
+	CRYPT32$CertAddCertificateContextToStore(hCertStore, *pcert, CERT_STORE_ADD_ALWAYS, &pnewcert);
 	CRYPT32$CertDeleteCertificateFromStore(*pcert);
 	CRYPT32$CertCloseStore(store, 0);
 	*pcert = pnewcert;
