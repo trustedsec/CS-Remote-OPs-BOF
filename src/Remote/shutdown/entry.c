@@ -93,54 +93,50 @@ VOID go(
 	const short closeapps = BeaconDataShort(&parser);
 	const short reboot = BeaconDataShort(&parser);
 	BOOL status;
-    const char * privilege = (! MSVCRT$strcmp(hostname, "") ? "SeShutdownPrivilege" : "SeRemoteShutdownPrivilege");
+    const char * privilege = (! hostname[0] ? "SeShutdownPrivilege" : "SeRemoteShutdownPrivilege");
 
 	HANDLE currentTokenHandle = NULL;
-	BOOL getCurrentToken = ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &currentTokenHandle);
-	if(getCurrentToken)
-	{
-		if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
-		{
-			BeaconPrintf(CALLBACK_OUTPUT, "%s enabled!\n", privilege);
-		}
-		else
-		{
-			BeaconPrintf(CALLBACK_ERROR, "Unable to get %s, stopping\n", privilege);
-			return;
-		}
-	}
-	else
+	if(!ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &currentTokenHandle))
 	{
 		BeaconPrintf(CALLBACK_ERROR, "Can't get a handle to ourself, that's odd, stopping\n");
 		return;
 	}
+	
+	if (!SetPrivilege(currentTokenHandle, privilege, TRUE))
+	{
+		BeaconPrintf(CALLBACK_OUTPUT, "%s enabled!\n", privilege);
+	}
+	else
+	{
+		BeaconPrintf(CALLBACK_ERROR, "Unable to set %s, stopping\n", privilege);
+		return;
+	}
+
 
 	status = ADVAPI32$InitiateSystemShutdownExA((LPSTR) hostname, (LPSTR) message, timeout, closeapps, reboot, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED);
+	dwErrorCode = KERNEL32$GetLastError();
 	if(status)
 	{
-    DWORD dwErrorCode = KERNEL32$GetLastError();
-
-        if(! MSVCRT$strcmp(hostname, "")) {
-    		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW: %lX", dwErrorCode);
+        if(! hostname[0]) {
+    		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW: %lu", dwErrorCode);
         } else {
-    		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW on %s: %lX", hostname, dwErrorCode);
+    		BeaconPrintf(CALLBACK_OUTPUT, "Successfully called InitiateSystemShutdownExW on %s: %lu", hostname, dwErrorCode);
         }
 	} else {
-       if(! MSVCRT$strcmp(hostname, "")) {
-    		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW: %lX", dwErrorCode);
+       if(! hostname[0]) {
+    		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW: %lu", dwErrorCode);
        } else {
-    		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW on %s: %lX", dwErrorCode);
+    		BeaconPrintf(CALLBACK_ERROR, "Failed to call InitiateSystemShutdownExW on %s: %lu", hostname, dwErrorCode);
        }
     }
 
-	if(getCurrentToken)
+
+	if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
 	{
-		if (!SetPrivilege(currentTokenHandle, privilege, FALSE))
-		{
-			BeaconPrintf(CALLBACK_OUTPUT, "%s Disabled!\n", privilege);
-		}
-		KERNEL32$CloseHandle(currentTokenHandle);
+		BeaconPrintf(CALLBACK_OUTPUT, "%s Disabled!\n", privilege);
 	}
+	KERNEL32$CloseHandle(currentTokenHandle);
+	
 }
 #else
 int main(int argc, char ** argv)
