@@ -1939,3 +1939,60 @@ beacon_command_register(
 
 Usage: slack_cookie <pid> "
 );
+
+beacon_command_register(
+	"shutdown",
+	"Shutdown or reboot a local or remote system in the number of seconds provided",
+	"
+    Command: shutdown
+    Summary: Shutdown or reboot the local/remote system with or without a message, with or withough allowing the closing of apps in
+             the time specified. WARNING: non-zero times will prompt the user.  Obviously, remote requires administrative privileges.
+    Usage:   shutdown <hostname> \"<message>\" <time> <closeapps> <reboot>
+		     - hostname: For localhost use \"\"
+		     - \"message\": For no message use \"\".  Make sure to enclose in quotes.
+		     - time: The number of seconds before the shutdown/reboot.
+                - 0 for immediately.
+                - WARNING: Anything non-zero will prompt user with <message>
+		     - closeapps: Whether or not to allow the user to save/close applications
+                - 0 to allow user to save before closing application
+                - 1 for close applications with unsaved changes
+		     - reboot:
+                - 1 to reboot the system after shutdown
+                - 0 to have it stay off (shutdown)
+
+
+		NOTE: The flags (SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED) for security patch,
+              planned reboot are hard-coded but may be added later as changeable or may be changed in entry.c.
+"
+);
+
+alias shutdown {
+	local('$bid $hostname $message $time $ca $rb $barch $str');
+	($bid, $hostname, $message, $time, $ca, $rb) = @_;
+#	$bid = $1;
+#	$hostname = $2;
+#	$message = $3;
+#	$time = $4;
+#	$ca = $5;
+#	$rb = $6;
+
+	if($time eq $null || $ca eq $null || $rb eq $null) {
+		berror($bid, beacon_command_detail("shutdown"));
+		return;
+	}
+
+    if( ($ca != 0 && $ca != 1)  || ($rb != 0 && $rb != 1) ) {
+		berror($bid, beacon_command_detail("shutdown"));
+		return;
+    }
+
+    if(bdata($bid)['computer'] ismatch "(?i)$hostname" || bdata($bid)['computer'] ismatch "(?i)localhost") { $hostname = $null; }
+
+    $str = "Issuing " . iff(($rb == 0), "shutdown", "reboot") . " to " . iff(($hostname eq ""), "localhost", $hostname) . " in $time seconds" . iff(($message eq ""), ".", " with message '" . $message . "'.") .
+            " Applications " . iff(($ca eq 0), "closed after user save", "closed without chance to save" . ".\n");
+	btask($bid, $str, "T1529");
+
+	$args = bof_pack($bid, "zziss", $hostname, $message, $time, $ca, $rb);
+	beacon_inline_execute($bid,  readbof($bid, "shutdown"), "go", $args);
+
+}
