@@ -19,8 +19,8 @@
     REG_QWORD => 11
 );
 
-%inttypes = %(
-    REG_DWORD => 1,
+%inttypes = %( 
+    REG_DWORD => 1, 
     REG_QWORD => 1
 );
 
@@ -133,8 +133,8 @@ beacon_command_register(
     "sc_description",
     "Sets the description of an existing service",
     "
-Command: sc_description
-Summary: This command sets the description of an existing service on the target
+Command: sc_description 
+Summary: This command sets the description of an existing service on the target 
          host.
 Usage:   sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
          SVCNAME      Required. The name of the service to create.
@@ -212,12 +212,12 @@ beacon_command_register(
     "sc_config",
     "Configures an existing service",
     "
-Command: sc_config
+Command: sc_config 
 Summary: This command configures an existing service on the target host.
 Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
          SVCNAME      Required. The name of the service to create.
          BINPATH      Required. The binary path of the service to execute.
-         ERRORMODE    Required. The error mode of the service. The valid
+         ERRORMODE    Required. The error mode of the service. The valid 
                       options are:
                         0 - ignore errors
                         1 - normal logging
@@ -245,7 +245,7 @@ sub bsc_failure
     $numactions = $6;
     $actions = $7;
     $hostname = $8;
-    $args = bof_pack($bid, "zzszzsz", $hostname, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions);
+    $args = bof_pack($bid, "zzizzsz", $hostname, $servicename, $resetperiod, $rebootmessage, $command, $numactions, $actions);
     beacon_inline_execute($bid, readbof($1, "sc_failure"), "go", $args);
 }
 
@@ -286,7 +286,7 @@ beacon_command_register(
     "sc_failure",
     "Changes the actions upon failure",
     "
-Command: sc_failure
+Command: sc_failure 
 Summary: This command configures the actions upon failure of an existing service on the target host.
 Usage:   sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
          SVCNAME        Required. The name of the service to create.
@@ -415,14 +415,14 @@ beacon_command_register(
     "sc_create",
     "Creates a new service",
     "
-Command: sc_create
+Command: sc_create 
 Summary: This command creates a service on the target host.
 Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
          SVCNAME      Required. The name of the service to create.
          DISPLAYNAME  Required. The display name of the service.
          BINPATH      Required. The binary path of the service to execute.
          DESCRIPTION  Required. The description of the service.
-         ERRORMODE    Required. The error mode of the service. The valid
+         ERRORMODE    Required. The error mode of the service. The valid 
                       options are:
                         0 - ignore errors
                         1 - nomral logging
@@ -476,7 +476,7 @@ beacon_command_register(
     "sc_delete",
     "Deletes a service",
     "
-Command: sc_delete
+Command: sc_delete 
 Summary: This command deletes the specified service on the target host.
 Usage:   sc_delete <SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to delete.
@@ -524,7 +524,7 @@ beacon_command_register(
     "sc_stop",
     "Stops a service",
     "
-Command: sc_stop
+Command: sc_stop 
 Summary: This command stops the specified service on the target host.
 Usage:   sc_stop <SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to stop.
@@ -540,7 +540,7 @@ sub bsc_start
     $servicename = $2;
     $hostname = $3;
     $args = bof_pack($bid, "zz", $hostname, $servicename);
-    beacon_inline_execute($bid, readbof($bid, "sc_start"), "go", $args);
+    beacon_inline_execute($bid, readbof($bid, "sc_start"), "go", $args);   
 }
 
 
@@ -575,7 +575,7 @@ beacon_command_register(
     "sc_start",
     "Starts a service",
     "
-Command: sc_start
+Command: sc_start 
 Summary: This command starts the specified service on the target host.
 Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to start.
@@ -587,7 +587,7 @@ Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
 on beacon_output
 {
     local('$beacon $message $id $output $parsed_return_file @cmd $ret $lp_files $parser $returned_len $returned_len $fp');
-
+   
     $beacon = $1;
     $message = $2;
     if (strlen($message) > 26) {
@@ -643,7 +643,7 @@ on beacon_output
 				}else{
 					println("Exec failed");
 					blog($beacon, "Exec failed");
-				}
+				}	
 			} else {
 				$lp_filename = script_resource("lastpass/lp_".@pid[0]."_".$type.".txt");
 				$handle = openf(">>".$lp_filename);
@@ -651,7 +651,7 @@ on beacon_output
 				print($handle, substr($message,0x18));
 				println($handle, "</MSG>");
 				closef($handle);
-			}
+			}	
 
         }
     }
@@ -662,12 +662,12 @@ on beacon_output
 # Registry commands
 ########################################
 #yeah I'm not dealing with this one (sub vs alias)
-sub breg_set
+sub breg_set 
 {
     local('$hostname $hive $path $key $type $i $value $packstr $regstr $buffer $fp');
-
+    
     $packstr = "zizzi";
-
+    
     if(size(@_) < 5)
     {
         berror($1, beacon_command_detail("reg_set"));
@@ -721,7 +721,7 @@ sub breg_set
                 bwrite($buffer, "z", ""); # null terminator at end
                 closef($buffer);
                 $value = readb($buffer, -1);
-
+                
             }
             else if ($regstr eq "REG_EXPAND_SZ" || $regstr eq "REG_SZ")
             {
@@ -748,7 +748,7 @@ sub breg_set
             return;
         }
         $args = bof_pack($1, $packstr, $hostname, $hive, $path, $key, $type, $value);
-
+        
         beacon_inline_execute($1, readbof($1, "reg_set"), "go", $args);
     }
 }
@@ -761,9 +761,9 @@ alias reg_set
     # values at end, if multisz pack them using a variable bof string
 
     local('$hostname $hive $path $key $type $i $value $packstr $regstr $buffer $fp');
-
+    
     $packstr = "zizzi";
-
+    
     if(size(@_) < 5)
     {
         berror($1, beacon_command_detail("reg_set"));
@@ -817,7 +817,7 @@ alias reg_set
                 bwrite($buffer, "z", ""); # null terminator at end
                 closef($buffer);
                 $value = readb($buffer, -1);
-
+                
             }
             else if ($regstr eq "REG_EXPAND_SZ" || $regstr eq "REG_SZ")
             {
@@ -844,7 +844,7 @@ alias reg_set
             return;
         }
         $args = bof_pack($1, $packstr, $hostname, $hive, $path, $key, $type, $value);
-
+        
         beacon_inline_execute($1, readbof($1, "reg_set"), "go", $args);
     }
 }
@@ -853,20 +853,20 @@ beacon_command_register(
     "reg_set",
     "Creates or sets a registry key or value",
     "
-Command: reg_set
+Command: reg_set 
 Summary: This command creates or sets the specified registry key (or value) on
          the target host.
 Usage:   reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
          HOSTNAME Optional. The host to connect to and run the commnad on.
-         HIVE     Required. The registry hive containing the REGPATH. Possible
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
                     HKCU
                     HKU
                     HKCR
-         KEY      Required. The registry path.
-         VALUE    Required. The value name. If you want to create/set the
-                  default key, use \"\".
+         KEY      Required. The registry path. 
+         VALUE    Required. The value name. If you want to create/set the 
+                  default key, use \"\".                  
          TYPE     Required. The type of registry value to create/set. The valid
                   options are:
                     REG_SZ
@@ -876,9 +876,9 @@ Usage:   reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
                     REG_MULTI_SZ
                     REG_QWORD
          DATA     Required. The data to store in the registry value.
-Note: For REG_BINARY, the VALUE must be the name of a file on disk which will
+Note: For REG_BINARY, the VALUE must be the name of a file on disk which will 
       read in and its contents used.
-Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list
+Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list 
       of quoted strings.
 Note: For REG_QWORD, the VALUE must be less than a DWORD (due to limitation of
       sleep language).
@@ -947,20 +947,20 @@ beacon_command_register(
     "reg_delete",
     "Deletes the registry key or value",
     "
-Command: reg_delete
-Summary: This command deletes the specified registry key (or value) on the
+Command: reg_delete 
+Summary: This command deletes the specified registry key (or value) on the 
          target host.
 Usage:   reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
          HOSTNAME Optional. The host to connect to and run the commnad on.
-         HIVE     Required. The registry hive containing the REGPATH. Possible
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
                     HKCU
                     HKU
                     HKCR
          REGPATH  Required. The registry path (deleted if value not given).
-         REGVALUE Optional. The registry value to delete. If the value is not
-                  specified, then the whole key is deleted. If you want to
+         REGVALUE Optional. The registry value to delete. If the value is not 
+                  specified, then the whole key is deleted. If you want to 
                   delete the default key, use \"\" as the REGVALUE.
 "
 );
@@ -1001,18 +1001,18 @@ beacon_command_register(
     "reg_save",
     "Saves the registry path and all subkeys to disk",
     "
-Command: reg_save
+Command: reg_save 
 Summary: This command saves the specified registry path (and all subkeys) to a
          file on the target system.
 Usage:   reg_save <HIVE> <REGPATH> <FILEOUT>
-         HIVE     Required. The registry hive containing the REGPATH. Possible
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
                     HKCU
                     HKU
                     HKCR
          REGPATH  Required. The registry path to save.
-         FILEOUT  Required. The output file.
+         FILEOUT  Required. The output file. 
 Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.
 "
 );
@@ -1105,7 +1105,7 @@ beacon_command_register(
     "
 Command: schtaskscreate
 Summary: This command attempts to create or update a scheduled task given an
-         XML task definition.
+         XML task definition.         
 Usage:   schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
          HOSTNAME  Optional. The system on which to create the task.
          TASKPATH  Required. The path for the created task.
@@ -1114,12 +1114,12 @@ Usage:   schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
                      USER uses the current user
                      XML uses the principal user from the task XML
                      SYSTEM uses the Local System service
-         FORCEMODE Required. Creation disposition. The options are (case
+         FORCEMODE Required. Creation disposition. The options are (case 
                    sensitive):
                      CREATE fail if the task already exists
-                     UPDATE update an exiting task
-Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema-elements
-         for the base xml definitions. More formed examples start here
+                     UPDATE update an exiting task 
+Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema-elements 
+         for the base xml definitions. More formed examples start here 
          https://docs.microsoft.com/en-us/windows/win32/taskschd/time-trigger-example--xml-
 "
 );
@@ -1131,7 +1131,7 @@ alias schtasksdelete
     local('$bid $args $server $taskname $isfolder');
     $bid = $1;
     $server = "";
-
+    
     if ( size(@_) < 3)
     {
         berror($bid, "Invalid Usage");
@@ -1147,13 +1147,13 @@ alias schtasksdelete
         $server = $2;
         $taskname = $3;
     }
-    else
+    else 
     {
         berror($bid, "Invalid Usage");
         berror($bid, beacon_command_detail("schtasksdelete"));
         return;
     }
-
+    
     if(@_[size(@_) -1] eq "TASK")
     {
         $isfolder = 0;
@@ -1168,7 +1168,7 @@ alias schtasksdelete
         berror($bid, "Must provide TASK or FOLDER (case sensitive)");
         return;
     }
-
+    
     $args = bof_pack($bid, "ZZi", $server, $taskname, $isfolder);
     beacon_inline_execute($bid, readbof($bid, "schtasksdelete"), "go", $args);
 }
@@ -1212,7 +1212,7 @@ alias schtasksstop
     {
         $server = $2;
         $taskname = $3;
-    } else
+    } else 
     {
         berror($bid, "Invalid Usage");
         berror($bid, beacon_command_detail("schtasksstop"));
@@ -1290,14 +1290,14 @@ Note:    The full path including the task name must be given, e.g.:
 alias procdump
 {
     local('$args $pid $target');
-
+    
     if (size(@_) != 3)
     {
         berror($1, beacon_command_detail("procdump"));
         berror($1, "Invalid number of arguments");
         return;
     }
-
+    
     blog($1, "Requesting to enable debug privs");
     bgetprivs($1, "SeDebugPrivilege");
 
@@ -1311,11 +1311,11 @@ beacon_command_register(
     "Dumps the specified process to the specified output file",
     "
 Command: procdump
-Summary: This command attempts to dump a process using MiniDumpWriteDump. It
+Summary: This command attempts to dump a process using MiniDumpWriteDump. It 
          writes the output to the file location specified.
 Usage:   procdump <PID> <FILEOUT>
          PID     Required. The process to dump.
-         FILEOUT Required. The output path to write the dump to. Remember to
+         FILEOUT Required. The output path to write the dump to. Remember to 
                  delete this file.
 Warning: This command may very well get caught, but is here as an option regardless.
 "
@@ -1341,7 +1341,7 @@ beacon_command_register(
 Command: ProcessListHandles
 Summary: Lists all open handles in a specified process.
 Usage:   ProcessListHandles <PID>
-         PID    Required. The process to list the handles of. You must have
+         PID    Required. The process to list the handles of. You must have 
                 permission to open the specified process.
 "
 );
@@ -1372,13 +1372,13 @@ beacon_command_register(
     "Closes handle(s) in a process",
     "
 Command: ProcessDestroy
-Summary: Closes specified handle in a specified process, or closes all handles
+Summary: Closes specified handle in a specified process, or closes all handles 
          if one is not specified.
 Usage:   ProcessDestroy <PID> <OPT:HANDLEID>
-         PID       Required. The process to list the handles of. You must have
+         PID       Required. The process to list the handles of. You must have 
                    permission to open the specified process.
-         HANDLEID: Optional. The specific handle ID to close, or close all
-                   handles if not specified. The values for HANDLEID must be
+         HANDLEID: Optional. The specific handle ID to close, or close all 
+                   handles if not specified. The values for HANDLEID must be 
                    between 1 - 65535.
 "
 );
@@ -1407,10 +1407,10 @@ beacon_command_register(
     "
 Command: enableuser
 Summary: Activates (and if necessary enables) the specified user account on the
-         target computer.
+         target computer. 
 Usage:   enableuser <USERNAME> <DOMAIN>
-         USERNAME  Required. The user name to activate/enable.
-         DOMAIN    Required. The domain/computer for the account. You must give
+         USERNAME  Required. The user name to activate/enable. 
+         DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
 "
@@ -1434,18 +1434,18 @@ beacon_command_register(
     "Sets the specified user\'s password",
     "
 Command: setuserpass
-Summary: Sets the password for the specified user account on the target
-         computer.
+Summary: Sets the password for the specified user account on the target 
+         computer. 
 Usage:   setuserpass <USERNAME> <PASSWORD> <DOMAIN>
-         USERNAME  Required. The user name to activate/enable.
-         PASSWORD  Required. The new password. The password must meet GPO
+         USERNAME  Required. The user name to activate/enable. 
+         PASSWORD  Required. The new password. The password must meet GPO 
                    requirements.
-         DOMAIN    Required. The domain/computer for the account. You must give
+         DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
 "
 );
-
+    
 
 #addusertogroup
 alias addusertogroup
@@ -1467,13 +1467,13 @@ Command: addusertogroup
 Summary: Add the specified user to the group. Domain groups only!
 
 Usage:   addusertogroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
-         USERNAME   Required. The user name to activate/enable.
+         USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
          SERVER     Required. The target computer to perform the addition on. use \"\" for the local machine
-         DOMAIN     Required. The domain/computer for the account. You must give
+         DOMAIN     Required. The domain/computer for the account. You must give 
                     the domain name for the user if it is a domain account, or
                     use \"\" to target an account on the local machine.
-
+                    
 "
 );
 
@@ -1514,8 +1514,8 @@ Command: adduser
 Summary: Add a new user to a machine.
 
 Usage:   adduser <USERNAME> <PASSWORD> <SERVER>
-         USERNAME   Required. The name of the new user.
-         PASSWORD   Required. The password of the new user.
+         USERNAME   Required. The name of the new user. 
+         PASSWORD   Required. The password of the new user. 
          SERVER     Optional. If entered, the user will be created on that machine. If not, the
                     local machine will be used.
 "
@@ -1539,10 +1539,10 @@ beacon_command_register(
     "
 Command: unexpireuser
 Summary: Activates (and if necessary enables) the specified user account on the
-         target computer.
+         target computer. 
 Usage:   unexpireuser <USERNAME> <DOMAIN>
-         USERNAME  Required. The user name to activate/enable.
-         DOMAIN    Required. The domain/computer for the account. You must give
+         USERNAME  Required. The user name to activate/enable. 
+         DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
 "
@@ -1559,16 +1559,16 @@ beacon_command_register(
     "Decrypts the provided base64 encoded Chrome key",
     "
 Command: chromeKey
-Summary: This command decrypts the provided base64 encoded Chrome key for use
-         in decrypting cookies. If you get results, download the Cookies file
+Summary: This command decrypts the provided base64 encoded Chrome key for use 
+         in decrypting cookies. If you get results, download the Cookies file 
          from either google or modern edge.  An example Filepath is:
   C:\\Users\\user\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cookies
-         You can feed the key and cookie file into Chlonium to decrypt the
+         You can feed the key and cookie file into Chlonium to decrypt the 
          contents. Chlonium can be found here:
          https://github.com/rxwx/chlonium
 
 Usage:   chromeKey
-"
+"  
 );
 
 
@@ -1649,14 +1649,14 @@ alias adcs_request {
 		return;
     }
 
-
+	
 	$adcs_request_ca = "";
 	$adcs_request_template = "";
 	$adcs_request_subject = "";
 	$adcs_request_altname = "";
 	$adcs_request_install = 0;
 	$adcs_request_machine = 0;
-
+	
     $adcs_request_ca = $2;
 	$adcs_request_template = iff(-istrue $3, $3, "");
     $adcs_request_subject = iff(-istrue $4, $4, "");
@@ -1673,8 +1673,8 @@ beacon_command_register(
 	"Request an enrollment certificate",
 	"
 Command: adcs_request
-Summary: This command connects a certificate authority and requests an enrollment
-         certificate of the specified type for the specified subject and alternative
+Summary: This command connects a certificate authority and requests an enrollment 
+         certificate of the specified type for the specified subject and alternative 
          name. It will also optionally install the certificate for the current context.
 Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTALL] [opt:MACHINE]
          CA        Required. The certificate authority to use.
@@ -1684,12 +1684,12 @@ Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTA
          INSTALL   Optional. Install the certificate in current context? 0 = No, 1 = Yes. Default = 0
          MACHINE   Optional. Request a certificate for a machine instead of a user? 0 = No, 1 = Yes. Default = 0
 
-         All arguments are positional. To a specify a non-default value for a optional you must specify a value for
+         All arguments are positional. To a specify a non-default value for a optional you must specify a value for 
          All arguments prior to that given optional.
 
 Examples:
 basic:
-    adcs_request cert.example.org\example-CERT-CA
+    adcs_request cert.example.org\example-CERT-CA 
 
 all options:
     adcs_request cert.example.org\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org 0 0
@@ -1698,7 +1698,7 @@ use quotes for any arguments with spaces.
 "
 );
 
-alias office_tokens
+alias office_tokens 
 {
 	local('$pid $args');
 	if(size(@_) != 2)
@@ -1752,7 +1752,7 @@ alias lastpass
 beacon_command_register(
 	"lastpass",
 	"Searches memory for LastPass passwords and hashes",
-	"Command: lastpass
+	"Command: lastpass 
 
 Usage: lastpass <number of pids> <pid>,<pid>,<pid> ... "
 );
@@ -1772,7 +1772,7 @@ beacon_command_register(
     "suspend",
     "suspend a process by pid",
     "Command: suspend
-
+    
 Usage: suspend <pid>
 
 attempts to suspend the process listed"
@@ -1793,7 +1793,7 @@ beacon_command_register(
     "resume",
     "resume a process by pid",
     "Command: resume
-
+    
 Usage: resume <pid>
 
 attempts to resume the process listed"
@@ -1895,8 +1895,8 @@ beacon_command_register(
     "Create or modify a local or remote scheduled task, without triggering Windows events 4698 and 106.",
     "
 Command: ghost_task
-Summary: Create or modify a local or remote scheduled task, without triggering
-         Windows events 4698 and 106.
+Summary: Create or modify a local or remote scheduled task, without triggering 
+         Windows events 4698 and 106.         
 Usage:   ghost_task <hostname/localhost> <operation> <taskname> <program> <argument> <username> <scheduletype> <time/second> <day>
          - hostname/localhost: Remote computer name or localhost.
          - operation: add/delete
@@ -1917,7 +1917,7 @@ Note:    As of October 21, 2023, this tool has been tested on Windows 10, Window
          After configuring the scheduled task, you'll need to either restart the system or await the next reboot for the task to be loaded into the Schedule service process and subsequently executed
 "
 );
-alias slack_cookie
+alias slack_cookie 
 {
 	local('$pid $args');
 	if(size(@_) != 2)
