@@ -153,7 +153,7 @@ VOID go(
 	BeaconDataParse(&parser, Buffer, Length);
 	hostname = BeaconDataExtract(&parser, NULL);
 	servicename = BeaconDataExtract(&parser, NULL);
-	resetPeriod = (DWORD)BeaconDataShort(&parser);
+	resetPeriod = BeaconDataInt(&parser);
 	rebootMsg = BeaconDataExtract(&parser, NULL);
 	command = BeaconDataExtract(&parser, NULL);
 	actions = (DWORD)BeaconDataShort(&parser);
