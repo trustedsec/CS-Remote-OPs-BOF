@@ -63,6 +63,7 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$CreateProcessW (LPCWSTR lpApplicationName, LP
 WINBASEAPI WINBOOL WINAPI KERNEL32$CreateProcessA (LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, WINBOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 WINBASEAPI HANDLE WINAPI KERNEL32$OpenProcess (DWORD dwDesiredAccess, WINBOOL bInheritHandle, DWORD dwProcessId);
 WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentProcess (VOID);
+WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentThread (VOID);
 WINBASEAPI WINBOOL WINAPI KERNEL32$GetExitCodeProcess (HANDLE hProcess, LPDWORD lpExitCode);
 WINBASEAPI WINBOOL WINAPI KERNEL32$WriteProcessMemory (HANDLE hProcess, LPVOID lpBaseAddress, LPCVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesWritten);
 WINBASEAPI WINBOOL WINAPI KERNEL32$ReadProcessMemory (HANDLE hProcess, LPCVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesRead);
@@ -289,6 +290,7 @@ WINADVAPI WINBOOL WINAPI ADVAPI32$CreateProcessAsUserW (HANDLE hToken, LPCWSTR l
 WINADVAPI WINBOOL WINAPI ADVAPI32$CreateProcessWithLogonW (LPCWSTR lpUsername, LPCWSTR lpDomain, LPCWSTR lpPassword, DWORD dwLogonFlags, LPCWSTR lpApplicationName, LPWSTR lpCommandLine, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 WINADVAPI WINBOOL WINAPI ADVAPI32$CreateProcessWithTokenW (HANDLE hToken, DWORD dwLogonFlags, LPCWSTR lpApplicationName, LPWSTR lpCommandLine, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 WINADVAPI WINBOOL WINAPI ADVAPI32$OpenProcessToken (HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
+WINADVAPI WINBOOL WINAPI ADVAPI32$OpenThreadToken (HANDLE ThreadHandle, DWORD DesiredAccess, BOOL OpenAsSelf, PHANDLE TokenHandle);
 WINADVAPI WINBOOL WINAPI ADVAPI32$GetTokenInformation (HANDLE TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass, LPVOID TokenInformation, DWORD TokenInformationLength, PDWORD ReturnLength);
 WINADVAPI WINBOOL WINAPI ADVAPI32$ConvertSidToStringSidA(PSID Sid,LPSTR *StringSid);
 WINADVAPI WINBOOL WINAPI ADVAPI32$ConvertSidToStringSidW(PSID Sid,LPWSTR *StringSid);
@@ -486,6 +488,7 @@ DWORD WINAPI PSAPI$GetModuleBaseNameW(HANDLE hProcess,HMODULE hModule,LPWSTR lpB
 #define KERNEL32$CreateProcessA CreateProcessA 
 #define KERNEL32$OpenProcess OpenProcess 
 #define KERNEL32$GetCurrentProcess GetCurrentProcess 
+#define KERNEL32$GetCurrentThread GetCurrentThread
 #define KERNEL32$GetExitCodeProcess GetExitCodeProcess 
 #define KERNEL32$WriteProcessMemory WriteProcessMemory 
 #define KERNEL32$ReadProcessMemory ReadProcessMemory 
@@ -691,6 +694,7 @@ DWORD WINAPI PSAPI$GetModuleBaseNameW(HANDLE hProcess,HMODULE hModule,LPWSTR lpB
 #define ADVAPI32$CreateProcessWithLogonW CreateProcessWithLogonW 
 #define ADVAPI32$CreateProcessWithTokenW CreateProcessWithTokenW 
 #define ADVAPI32$OpenProcessToken OpenProcessToken 
+#define ADVAPI32$OpenThreadToken OpenThreadToken 
 #define ADVAPI32$GetTokenInformation GetTokenInformation 
 #define ADVAPI32$ConvertSidToStringSidA ConvertSidToStringSidA
 #define ADVAPI32$ConvertSidToStringSidW ConvertSidToStringSidW
