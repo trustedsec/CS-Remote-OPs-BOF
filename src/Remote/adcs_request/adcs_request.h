@@ -6,8 +6,8 @@
 #include "certenroll.h"  // from /mnt/hgfs/git/external/winsdk-10/Include/10.0.16299.0/um
 
 HRESULT _adcs_request_CreatePrivateKey(BOOL bMachine, IX509PrivateKey ** lppPrivateKey);
-HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3, BOOL addAppPolicy );
+HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3, BOOL addAppPolicy, BOOL dns);
 HRESULT _adcs_request_CreateEnrollment(IX509CertificateRequestPkcs10V3 * pCertificateRequestPkcs10V3, IX509Enrollment ** lppEnrollment);
 HRESULT _adcs_request_SubmitEnrollment(IX509Enrollment * pEnrollment, BSTR bstrCA, BSTR * lpbstrCertificate);
 
-HRESULT adcs_request( LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine, BOOL addAppPolicy );
+HRESULT adcs_request( LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine, BOOL addAppPolicy, BOOL dns );

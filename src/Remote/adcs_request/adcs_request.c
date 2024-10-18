@@ -140,7 +140,7 @@ fail:
 } // end _adcs_request_CreatePrivateKey
 
 
-HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3, BOOL addAppPolicy)
+HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivateKey, BSTR bstrTemplate, BSTR bstrSubject, BSTR bstrAltName, IX509CertificateRequestPkcs10V3 ** lppCertificateRequestPkcs10V3, BOOL addAppPolicy, BOOL dns)
 {
 	HRESULT	hr = S_OK;
 	IX500DistinguishedName * pDistinguishedName = NULL;
@@ -258,7 +258,7 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 		hr = OLE32$CoCreateInstance(&CLSID_CX509ExtensionAlternativeNames, NULL, CLSCTX_INPROC_SERVER, &IID_IX509ExtensionAlternativeNames, (LPVOID *)&(pExtensionAlternativeNames));
 		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CX509ExtensionAlternativeNames)", hr);
 		// Initialize the AlternativeName
-		hr = pAlternativeName->lpVtbl->InitializeFromString(pAlternativeName, XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME, bstrAltName);
+		hr = pAlternativeName->lpVtbl->InitializeFromString(pAlternativeName, (dns) ? XCN_CERT_ALT_NAME_DNS_NAME : XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME, bstrAltName);
 		CHECK_RETURN_FAIL("pAlternativeName->lpVtbl->InitializeFromString()", hr);
 		// Add the AlternativeName to the collection of AlternativeNames
 		hr = pAlternativeNames->lpVtbl->Add(pAlternativeNames, pAlternativeName);
@@ -288,7 +288,7 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 		bstrAltNameValuePairName = OLEAUT32$SysAllocString(L"SAN");
 		// Create the AltNamePair Value
 		MSVCRT$memset(swzAltNamePairValue,0,MAX_PATH*sizeof(WCHAR));
-		MSVCRT$_swprintf(swzAltNamePairValue, L"upn=%s", bstrAltName);
+		MSVCRT$_swprintf(swzAltNamePairValue, L"%s=%s",(dns) ? L"dns" : L"upn", bstrAltName);
 		SAFE_SYS_FREE(bstrAltNameValuePairValue);
 		bstrAltNameValuePairValue = OLEAUT32$SysAllocString(swzAltNamePairValue);
 		// Initialize the AltNamePair
@@ -511,7 +511,7 @@ fail:
 } // end _adcs_request_SendCertRequestMessage
 
 
-HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine, BOOL addAppPolicy)
+HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubject, LPCWSTR lpswzAltName, BOOL bInstall, BOOL bMachine, BOOL addAppPolicy, BOOL dns)
 {
 	HRESULT	hr = S_OK;
 	BSTR bstrCA = NULL;
@@ -579,7 +579,7 @@ HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubjec
 	internal_printf("[*] CA            : %S\n", bstrCA);
 	internal_printf("[*] Template      : %S\n", bstrTemplate);
 	internal_printf("[*] Subject       : %S\n", bstrSubject);
-	internal_printf("[*] AltName       : %S\n", (bstrAltName?bstrAltName:L"N/A"));
+	internal_printf("[*] AltName (%s)       : %S\n", (dns) ? "dns" : "upn", (bstrAltName?bstrAltName:L"N/A"));
 
 	// Initialize COM
 	hr = OLE32$CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -610,7 +610,7 @@ HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubjec
 	CHECK_RETURN_FALSE("CRYPT32$CryptBinaryToStringW", hr);
 
 	// Create the cert request
-	hr = _adcs_request_CreateCertRequest(bMachine, pPrivateKey, bstrTemplate, bstrSubject, bstrAltName, &pCertificateRequestPkcs10V3, addAppPolicy);
+	hr = _adcs_request_CreateCertRequest(bMachine, pPrivateKey, bstrTemplate, bstrSubject, bstrAltName, &pCertificateRequestPkcs10V3, addAppPolicy, dns);
 	CHECK_RETURN_FAIL(L"_adcs_request_CreatePrivateKey", hr);
 
 	// Create enrollment
