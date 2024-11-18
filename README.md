@@ -24,6 +24,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |get_priv| Activate the specified token privledge, more for non-cobalt strike users|
 |global_unprotect| Locates and Decrypts GlobalProtect config files converted from: [GlobalUnProtect](https://github.com/rotarydrone/GlobalUnProtect/tree/409d64b097e0a928a5545051e40e1566e9c26bd0)|
 |lastpass | Search Chrome, brave memory for LastPass passwords and data|
+|make_token_cert| impersonates a user using the altname of a .pfx file |
 |office_tokens| Collect Office JWT Tokens from any Office process|
 |procdump| Dump the specified process to the specified output file|
 |ProcessDestroy| Close handle(s) in a process|

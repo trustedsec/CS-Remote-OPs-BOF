@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <windns.h>
 #include <dbghelp.h>
+#include <wincred.h>
 #include <security.h>
 #include <winldap.h>
 #include <winnetwk.h>
@@ -127,6 +128,7 @@ WINBASEAPI ULONG WINAPI IPHLPAPI$GetTcpTable (PMIB_TCPTABLE TcpTable, PULONG Siz
 //MSVCRT
 WINBASEAPI char * __cdecl MSVCRT$strcat(char * __restrict__ _Dest,const char * __restrict__ _Source);
 WINBASEAPI int __cdecl MSVCRT$_snprintf(char * __restrict__ _Dest,size_t _Count,const char * __restrict__ _Format,...);
+WINBASEAPI int __cdecl MSVCRT$sscanf(const char * __restrict__ _Src,const char * __restrict__ _Format,...);
 WINBASEAPI void *__cdecl MSVCRT$calloc(size_t _NumOfElements, size_t _SizeOfElements);
 WINBASEAPI void *__cdecl MSVCRT$realloc(void *_Memory, size_t _NewSize);
 WINBASEAPI void __cdecl MSVCRT$free(void *_Memory);
@@ -164,6 +166,7 @@ DECLSPEC_IMPORT int __cdecl MSVCRT$rand(void);
 _CRTIMP __time32_t __cdecl MSVCRT$_time32(__time32_t *_Time);
 WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...);
 
+_CRTIMP __time64_t __cdecl MSVCRT$_time64(__time64_t *_Time);
 
 //SHLWAPI
 WINBASEAPI LPWSTR WINAPI SHLWAPI$PathCombineW(LPWSTR pszDest,LPCWSTR pszDir,LPCWSTR pszFile);
@@ -180,12 +183,23 @@ WINBASEAPI VOID WINAPI DNSAPI$DnsFree(PVOID pData,DNS_FREE_TYPE FreeType);
 //WSOCK32
 WINBASEAPI unsigned long WINAPI WSOCK32$inet_addr(const char *cp);
 
+
+
 //WS2_32
 WINBASEAPI u_long WINAPI WS2_32$htonl(u_long hostlong);
 WINBASEAPI u_short WINAPI WS2_32$htons(u_short hostshort);
 WINBASEAPI char * WINAPI WS2_32$inet_ntoa(struct in_addr in);
 WINBASEAPI LPCWSTR WINAPI WS2_32$InetNtopW(INT Family, LPCVOID pAddr, LPWSTR pStringBuf, size_t StringBufSIze);
 WINBASEAPI INT WINAPI WS2_32$inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+WINBASEAPI int WINAPI WS2_32$WSAStartup(WORD wVersionRequested,LPWSADATA lpWSAData);
+WINBASEAPI int WINAPI WS2_32$WSAGetLastError(void);
+WINBASEAPI int WINAPI WS2_32$socket(int af,int type,int protocol);
+WINBASEAPI int WINAPI WS2_32$setsockopt(SOCKET s,int level,int optname,const char *optval,int optlen);
+WINBASEAPI int WINAPI WS2_32$sendto(SOCKET s,const char *buf,int len,int flags,const struct sockaddr *to,int tolen);
+WINBASEAPI int WINAPI WS2_32$recvfrom(SOCKET s,char *buf,int len,int flags,struct sockaddr *from,int *fromlen);
+WINBASEAPI int WINAPI WS2_32$closesocket(SOCKET s);
+WINBASEAPI int WINAPI WS2_32$WSACleanup(void);
+WINBASEAPI int WINAPI WS2_32$ntohs(u_short netshort);
 
 //NETAPI32
 WINBASEAPI DWORD WINAPI NETAPI32$DsGetDcNameA(LPCSTR ComputerName,LPCSTR DomainName,GUID *DomainGuid,LPCSTR SiteName,ULONG Flags,PDOMAIN_CONTROLLER_INFOA *DomainControllerInfo);
@@ -281,6 +295,7 @@ HRESULT WINAPI FLTLIB$FilterUnload(LPCWSTR lpFilterName);
 //ADVAPI32
 WINADVAPI WINBOOL WINAPI ADVAPI32$LookupAccountNameA (LPCSTR lpSystemName, LPCSTR lpAccountName, PSID Sid, LPDWORD cbSid, LPSTR ReferencedDomainName, LPDWORD cchReferencedDomainName, PSID_NAME_USE peUse);
 WINADVAPI WINBOOL WINAPI ADVAPI32$GetUserNameA (LPSTR lpBuffer, LPDWORD pcbBuffer);
+WINADVAPI WINBOOL WINAPI ADVAPI32$ImpersonateLoggedOnUser (HANDLE hToken);
 WINADVAPI WINBOOL WINAPI ADVAPI32$LogonUserA (LPCSTR lpszUsername, LPCSTR lpszDomain, LPCSTR lpszPassword, DWORD dwLogonType, DWORD dwLogonProvider, PHANDLE phToken);
 WINADVAPI WINBOOL WINAPI ADVAPI32$LogonUserW (LPCWSTR lpszUsername, LPCWSTR lpszDomain, LPCWSTR lpszPassword, DWORD dwLogonType, DWORD dwLogonProvider, PHANDLE phToken);
 WINADVAPI WINBOOL WINAPI ADVAPI32$DuplicateTokenEx (HANDLE hExistingToken, DWORD dwDesiredAccess, LPSECURITY_ATTRIBUTES lpTokenAttributes, SECURITY_IMPERSONATION_LEVEL ImpersonationLevel, TOKEN_TYPE TokenType, PHANDLE phNewToken);
@@ -300,6 +315,8 @@ WINADVAPI WINBOOL WINAPI ADVAPI32$LookupPrivilegeValueA (LPCSTR lpSystemName, LP
 WINADVAPI WINBOOL WINAPI ADVAPI32$GetFileSecurityW (LPCWSTR lpFileName, SECURITY_INFORMATION RequestedInformation, PSECURITY_DESCRIPTOR pSecurityDescriptor, DWORD nLength, LPDWORD lpnLengthNeeded);
 WINADVAPI VOID WINAPI ADVAPI32$MapGenericMask (PDWORD AccessMask, PGENERIC_MAPPING GenericMapping);
 WINADVAPI ULONG WINAPI ADVAPI32$LsaNtStatusToWinError(NTSTATUS);
+WINADVAPI WINBOOL WINAPI ADVAPI32$CredMarshalCredentialW(CRED_MARSHAL_TYPE CredType,PVOID Credential,LPWSTR *MarshaledCredential);
+WINADVAPI VOID WINAPI ADVAPI32$CredFree (PVOID Buffer);
 WINADVAPI WINBOOL WINAPI ADVAPI32$InitializeSecurityDescriptor (PSECURITY_DESCRIPTOR pSecurityDescriptor, DWORD dwRevision);
 WINADVAPI WINBOOL WINAPI ADVAPI32$SetSecurityDescriptorDacl (PSECURITY_DESCRIPTOR pSecurityDescriptor, WINBOOL bDaclPresent, PACL pDacl, WINBOOL bDaclDefaulted);
 WINADVAPI WINBOOL WINAPI ADVAPI32$ConvertSecurityDescriptorToStringSecurityDescriptorW(PSECURITY_DESCRIPTOR SecurityDescriptor,DWORD RequestedStringSDRevision,SECURITY_INFORMATION SecurityInformation,LPWSTR *StringSecurityDescriptor,PULONG StringSecurityDescriptorLen);

