@@ -34,11 +34,14 @@ HCERTSTORE LoadCert(unsigned char * cert, const wchar_t * password, DWORD certle
         internal_printf("Failed to open the certificate store. Error: %lu\n", KERNEL32$GetLastError());
         return NULL;
     }
-
-	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, NULL, CRYPT_USER_KEYSET);
+	// Handle empty password which is represented as two null bytes in wchar_t.
+	if (passlen == 2) {
+		password = NULL;
+	}
+	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, password, CRYPT_USER_KEYSET);
 	if(store == NULL)
 	{
-		internal_printf("Failed to improt cert, make sure its in the right format: %x\n", KERNEL32$GetLastError());
+		internal_printf("Failed to import cert, make sure its in the right format: %x\n", KERNEL32$GetLastError());
 		return NULL;
 	}
 	*pcert = CRYPT32$CertEnumCertificatesInStore(store, NULL);
