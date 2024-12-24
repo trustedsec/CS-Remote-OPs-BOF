@@ -1477,6 +1477,36 @@ Usage:   addusertogroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
 "
 );
 
+#deluserfromgroup
+alias deluserfromgroup
+{
+    if(size(@_) != 5)
+    {
+        berror($1, beacon_command_detail("deluserfromgroup"));
+        berror($1, "Invalid number of parameters");
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "deluserfromgroup"), "go", bof_pack($1, "ZZZZ", $5, $4, $2, $3));
+}
+
+beacon_command_register(
+    "deluserfromgroup",
+    "Remove the specified user from the specified group",
+    "
+Command: deluserfromgroup
+Summary: Remove the specified user from the specified group.
+
+Usage:   deluserfromgroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
+         USERNAME   Required. The user name to remove from group. 
+         GROUPNAME  Required. The group to remove the user from.
+         SERVER     Required. The target computer to remove the user. use \"\" for the local machine
+         DOMAIN     Required. The domain/computer for the account. You must give 
+                    the domain name for the user if it is a domain account, or
+                    use \"\" to target an account on the local machine.
+                    
+"
+);
+
 #adduser
 alias adduser
 {
