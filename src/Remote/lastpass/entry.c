@@ -116,7 +116,7 @@ END:
 void Write_Memory_Range( HANDLE hProcess, LPCVOID address, size_t address_sz, unsigned int pid)
 {
     BOOL rc = FALSE;
-    size_t bytesRead = 0;
+    SIZE_T bytesRead = 0;
     char *buffer = {0};
     int index = 0;
     int ret_sz = 1;
