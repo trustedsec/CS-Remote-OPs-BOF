@@ -66,3 +66,7 @@ A command that would attempt to pre-generate an implant and perform automated mo
 ### What to expect as a contributor
 After a pull request is received, it will receive an in-depth code review and testing.  </br>
 After testing is completed, we will have zero or more rounds of change requests based on findings until there are no issues in the code. At that point it will be accepted into the repository, and your GitHub username will be added to our credit list. If you would prefer not to be added or some other handle to be used, just let me know.
+
+## Want to Learn More?
+If you've found these beacon object files helpful and want to write some of your own bofs following a similar style we invite you to check out our [Beacon Object File (BOF) Development](https://learn.trustedsec.com/courses/cd84409a-36af-4507-be2c-ca7ad1e9fd2d) course.  
+The course gives a breif overview of the history of beacon object files and then dives into a variety of challenge problems that aim to teach you how to leverage a variety of windows technologies when developing your own beacon object files.
