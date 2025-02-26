@@ -21,6 +21,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |addusertogroup| Add specified user to a group|
 |chromeKey| Decrypt the provided base64 encoded Chrome key|
 |enableuser| Enable and unlock the specified user account|
+|get_azure_token| Attempts to complete an OAuth codeflow grant against azure using saved logins |
 |get_priv| Activate the specified token privledge, more for non-cobalt strike users|
 |global_unprotect| Locates and Decrypts GlobalProtect config files converted from: [GlobalUnProtect](https://github.com/rotarydrone/GlobalUnProtect/tree/409d64b097e0a928a5545051e40e1566e9c26bd0)|
 |lastpass | Search Chrome, brave memory for LastPass passwords and data|

@@ -18,6 +18,7 @@
 #include <winreg.h>
 #include <shlwapi.h>
 #include <dsgetdc.h>
+#include <winhttp.h>
 
 
 #define intAlloc(size) KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, size)
@@ -117,6 +118,9 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$Process32Next(HANDLE hSnapshot,LPPROCESSENTRY
 WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA (LPCSTR lpLibFileName);
 WINBASEAPI FARPROC WINAPI KERNEL32$GetProcAddress (HMODULE hModule, LPCSTR lpProcName);
 WINBASEAPI WINBOOL WINAPI KERNEL32$FreeLibrary (HMODULE hLibModule);
+WINBASEAPI WINBOOL WINAPI KERNEL32$SetEvent (HANDLE hEvent);
+WINBASEAPI WINBOOL WINAPI KERNEL32$TerminateThread (HANDLE hThread, DWORD dwExitCode);
+WINBASEAPI HANDLE WINAPI KERNEL32$CreateEventA (LPSECURITY_ATTRIBUTES lpEventAttributes, WINBOOL bManualReset, WINBOOL bInitialState, LPCSTR lpName);
 
 //IPHLPAPI
 //ULONG WINAPI IPHLPAPI$GetAdaptersInfo (PIP_ADAPTER_INFO AdapterInfo, PULONG SizePointer);
@@ -166,6 +170,9 @@ DECLSPEC_IMPORT void __cdecl MSVCRT$srand(unsigned int _Seed);
 DECLSPEC_IMPORT int __cdecl MSVCRT$rand(void);
 _CRTIMP __time32_t __cdecl MSVCRT$_time32(__time32_t *_Time);
 WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...);
+_CRTIMP uintptr_t __cdecl MSVCRT$_beginthreadex(void *_Security,unsigned _StackSize,_beginthreadex_proc_type _StartAddress,void *_ArgList,unsigned _InitFlag,unsigned *_ThrdAddr);
+_CRTIMP void __cdecl MSVCRT$_endthreadex(unsigned _Retval) __MINGW_ATTRIB_NORETURN;
+
 
 _CRTIMP __time64_t __cdecl MSVCRT$_time64(__time64_t *_Time);
 
@@ -176,6 +183,7 @@ WINBASEAPI LPSTR WINAPI SHLWAPI$StrStrA(LPCSTR lpFirst,LPCSTR lpSrch);
 
 //SHELL32
 WINBASEAPI WINBOOL WINAPI SHELL32$ShellExecuteExW(SHELLEXECUTEINFOW *pExecInfo);
+WINBASEAPI HINSTANCE WINAPI SHELL32$ShellExecuteA (HWND hwnd, LPCSTR lpOperation, LPCSTR lpFile, LPCSTR lpParameters, LPCSTR lpDirectory, INT nShowCmd);
 
 //DNSAPI
 WINBASEAPI DNS_STATUS WINAPI DNSAPI$DnsQuery_A(PCSTR,WORD,DWORD,PIP4_ARRAY,PDNS_RECORD*,PVOID*);
@@ -183,8 +191,6 @@ WINBASEAPI VOID WINAPI DNSAPI$DnsFree(PVOID pData,DNS_FREE_TYPE FreeType);
 
 //WSOCK32
 WINBASEAPI unsigned long WINAPI WSOCK32$inet_addr(const char *cp);
-
-
 
 //WS2_32
 WINBASEAPI u_long WINAPI WS2_32$htonl(u_long hostlong);
@@ -198,9 +204,25 @@ WINBASEAPI int WINAPI WS2_32$socket(int af,int type,int protocol);
 WINBASEAPI int WINAPI WS2_32$setsockopt(SOCKET s,int level,int optname,const char *optval,int optlen);
 WINBASEAPI int WINAPI WS2_32$sendto(SOCKET s,const char *buf,int len,int flags,const struct sockaddr *to,int tolen);
 WINBASEAPI int WINAPI WS2_32$recvfrom(SOCKET s,char *buf,int len,int flags,struct sockaddr *from,int *fromlen);
+WINBASEAPI int WINAPI WS2_32$recv(SOCKET s,char *buf,int len,int flags);
 WINBASEAPI int WINAPI WS2_32$closesocket(SOCKET s);
 WINBASEAPI int WINAPI WS2_32$WSACleanup(void);
 WINBASEAPI int WINAPI WS2_32$ntohs(u_short netshort);
+WINBASEAPI int WINAPI WS2_32$bind(SOCKET s,const struct sockaddr *addr,int namelen);
+WINBASEAPI int WINAPI WS2_32$listen(SOCKET s,int backlog);
+WINBASEAPI SOCKET WINAPI WS2_32$accept(SOCKET s,struct sockaddr *addr,int *addrlen);
+WINBASEAPI SOCKET WINAPI WS2_32$send(SOCKET s,const char *buf,int len,int flags);
+
+//winhttp
+WINBASEAPI HINTERNET WINAPI WINHTTP$WinHttpOpen(LPCWSTR,DWORD,LPCWSTR,LPCWSTR,DWORD);
+WINBASEAPI HINTERNET WINAPI WINHTTP$WinHttpConnect(HINTERNET,LPCWSTR,INTERNET_PORT,DWORD);
+WINBASEAPI HINTERNET WINAPI WINHTTP$WinHttpOpenRequest(HINTERNET,LPCWSTR,LPCWSTR,LPCWSTR,LPCWSTR,LPCWSTR*,DWORD);
+WINBASEAPI WINBOOL WINAPI WINHTTP$WinHttpAddRequestHeaders(HINTERNET,LPCWSTR,DWORD,DWORD);
+WINBASEAPI WINBOOL WINAPI WINHTTP$WinHttpSendRequest(HINTERNET,LPCWSTR,DWORD,LPVOID,DWORD,DWORD,DWORD_PTR);
+WINBASEAPI WINBOOL WINAPI WINHTTP$WinHttpReceiveResponse(HINTERNET,LPVOID);
+WINBASEAPI WINBOOL WINAPI WINHTTP$WinHttpReadData(HINTERNET,LPVOID,DWORD,LPDWORD);
+WINBASEAPI WINBOOL WINAPI WINHTTP$WinHttpCloseHandle(HINTERNET);
+
 
 //NETAPI32
 WINBASEAPI DWORD WINAPI NETAPI32$DsGetDcNameA(LPCSTR ComputerName,LPCSTR DomainName,GUID *DomainGuid,LPCSTR SiteName,ULONG Flags,PDOMAIN_CONTROLLER_INFOA *DomainControllerInfo);
@@ -256,6 +278,7 @@ WINUSERAPI DWORD WINAPI USER32$GetWindowThreadProcessId(HWND hWnd,LPDWORD lpdwPr
 WINUSERAPI int WINAPI USER32$IsWindowVisible(HWND hWnd);
 WINUSERAPI WINBOOL WINAPI USER32$PostMessageA(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam);
 WINUSERAPI LRESULT WINAPI USER32$SendMessageA(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam);
+WINUSERAPI LRESULT WINAPI USER32$SendMessageTimeoutW(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam,UINT fuFlags,UINT uTimeout,PDWORD_PTR lpdwResult);
 WINUSERAPI BOOL WINAPI USER32$SetPropA(HWND hWnd,LPCSTR lpString,HANDLE hData);
 WINUSERAPI LONG WINAPI USER32$SetWindowLongA(HWND hWnd,int nIndex, LONG dwNewLong);
 WINUSERAPI LONG_PTR WINAPI USER32$SetWindowLongPtrA(HWND hWnd,int nIndex, LONG_PTR dwNewLong);
@@ -463,9 +486,29 @@ RPCRTAPI RPC_STATUS RPC_ENTRY RPCRT4$UuidToStringA(UUID *Uuid,RPC_CSTR *StringUu
 RPCRTAPI RPC_STATUS RPC_ENTRY RPCRT4$RpcStringFreeA(RPC_CSTR *String);
 
 //PSAPI
-WINBOOL WINAPI PSAPI$EnumProcesses(DWORD *lpidProcess,DWORD cb,DWORD *cbNeeded);
-WINBOOL WINAPI PSAPI$EnumProcessModules(HANDLE hProcess,HMODULE *lphModule,DWORD cb,LPDWORD lpcbNeeded);
-DWORD WINAPI PSAPI$GetModuleBaseNameW(HANDLE hProcess,HMODULE hModule,LPWSTR lpBaseName,DWORD nSize);
+WINBASEAPI WINBOOL WINAPI PSAPI$EnumProcesses(DWORD *lpidProcess,DWORD cb,DWORD *cbNeeded);
+WINBASEAPI WINBOOL WINAPI PSAPI$EnumProcessModules(HANDLE hProcess,HMODULE *lphModule,DWORD cb,LPDWORD lpcbNeeded);
+WINBASEAPI DWORD WINAPI PSAPI$GetModuleBaseNameW(HANDLE hProcess,HMODULE hModule,LPWSTR lpBaseName,DWORD nSize);
+
+//bcrypt
+
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptOpenAlgorithmProvider (BCRYPT_ALG_HANDLE *phAlgorithm, LPCWSTR pszAlgId, LPCWSTR pszImplementation, ULONG dwFlags);
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptCreateHash (BCRYPT_ALG_HANDLE hAlgorithm, BCRYPT_HASH_HANDLE *phHash, PUCHAR pbHashObject, ULONG cbHashObject, PUCHAR pbSecret, ULONG cbSecret, ULONG dwFlags);
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptHashData (BCRYPT_HASH_HANDLE hHash, PUCHAR pbInput, ULONG cbInput, ULONG dwFlags);
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptFinishHash (BCRYPT_HASH_HANDLE hHash, PUCHAR pbOutput, ULONG cbOutput, ULONG dwFlags);
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptDestroyHash (BCRYPT_HASH_HANDLE hHash);
+WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptCloseAlgorithmProvider (BCRYPT_ALG_HANDLE hAlgorithm, ULONG dwFlags);
+
+
+//SYSTEMFUNCTION
+//https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-rtlgenrandom
+WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG RandomBufferLength);
+#ifdef RtlGenRandom
+#undef RtlGenRandom
+#endif
+#define RtlGenRandom ADVAPI32$SystemFunction036
+
+
 #else
 //KERNEL32
 #define KERNEL32$VirtualAlloc VirtualAlloc 

