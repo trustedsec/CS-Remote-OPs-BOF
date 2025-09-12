@@ -18,6 +18,7 @@ VOID go(
 	LPCWSTR lpswzTemplate = NULL;
 	LPCWSTR lpswzSubject = NULL;
 	LPCWSTR lpswzAltName = NULL;
+	LPCWSTR lpswzAltUrl = NULL;
 	LPCWSTR lpPrivKey = NULL;
 	BOOL bInstall = FALSE;
 	BOOL bMachine = FALSE;
@@ -34,6 +35,7 @@ VOID go(
 	lpswzTemplate = (LPCWSTR)BeaconDataExtract(&parser, NULL);
 	lpswzSubject = (LPCWSTR)BeaconDataExtract(&parser, NULL);
 	lpswzAltName = (LPCWSTR)BeaconDataExtract(&parser, NULL);
+	lpswzAltUrl = (LPCWSTR)BeaconDataExtract(&parser, NULL);
 	bInstall = (BOOL)BeaconDataShort(&parser);
 	bMachine = (BOOL)BeaconDataShort(&parser);
 	addAppPolicy = (BOOL)BeaconDataShort(&parser);
@@ -46,6 +48,7 @@ VOID go(
 		lpswzTemplate,
 		lpswzSubject,
 		lpswzAltName,
+		lpswzAltUrl,
 		bInstall,
 		bMachine,
 		addAppPolicy,
@@ -69,6 +72,8 @@ fail:
 #define TEST_TEMPLATE L""
 #define TEST_SUBJECT L""
 #define TEST_ALTNAME L""
+#define TEST_ALTURL L""
+//#define TEST_ALTURL L"tag:microsoft.com,2022-09-14:sid:S-1-5-21-712980493-1503034693-3565059331-1105"
 #define TEST_INSTALL FALSE
 #define TEST_MACHINE FALSE
 #define TEST_APPPOLICY FALSE
@@ -80,6 +85,7 @@ int main(int argc, char ** argv)
 	LPCWSTR lpswzTemplate = TEST_TEMPLATE;
 	LPCWSTR lpswzSubject = TEST_SUBJECT;
 	LPCWSTR lpswzAltName = TEST_ALTNAME;
+	LPCWSTR lpswzAltUrl = TEST_ALTURL;
 	BOOL bInstall = TEST_INSTALL;
 	BOOL bMachine = TEST_MACHINE;
 	BOOL bAppPolicy = TEST_APPPOLICY;
@@ -92,6 +98,7 @@ int main(int argc, char ** argv)
 		lpswzTemplate,
 		lpswzSubject,
 		lpswzAltName,
+		lpswzAltUrl,
 		bInstall,
 		bMachine,
 		bAppPolicy,
