@@ -71,6 +71,8 @@ fail:
 #define TEST_ALTNAME L""
 #define TEST_INSTALL FALSE
 #define TEST_MACHINE FALSE
+#define TEST_APPPOLICY FALSE
+#define TEST_DNS FALSE
 int main(int argc, char ** argv)
 {
 	HRESULT hr = S_OK;
@@ -80,6 +82,8 @@ int main(int argc, char ** argv)
 	LPCWSTR lpswzAltName = TEST_ALTNAME;
 	BOOL bInstall = TEST_INSTALL;
 	BOOL bMachine = TEST_MACHINE;
+	BOOL bAppPolicy = TEST_APPPOLICY;
+	BOOL bDNS = TEST_DNS;
 
 	internal_printf("\nRequesting a %S certificate from %S for the current user\n", lpswzTemplate, lpswzCA);
 
@@ -89,7 +93,9 @@ int main(int argc, char ** argv)
 		lpswzSubject,
 		lpswzAltName,
 		bInstall,
-		bMachine
+		bMachine,
+		bAppPolicy,
+		bDNS
 	);
 	if (S_OK != hr)
 	{

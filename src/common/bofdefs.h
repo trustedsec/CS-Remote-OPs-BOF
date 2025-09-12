@@ -587,6 +587,7 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define KERNEL32$CreateFileA CreateFileA 
 #define KERNEL32$GetFileSize GetFileSize 
 #define KERNEL32$ReadFile ReadFile 
+#define KERNEL32$WriteFile WriteFile
 #define KERNEL32$DeleteFileW DeleteFileW 
 #define KERNEL32$CreateFileMappingA CreateFileMappingA 
 #define KERNEL32$MapViewOfFile MapViewOfFile 
@@ -858,6 +859,7 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define OLEAUT32$SysAllocString SysAllocString
 #define OLEAUT32$SysReAllocString SysReAllocString
 #define OLEAUT32$SysFreeString SysFreeString
+#define OLEAUT32$SysStringLen SysStringLen
 #define OLEAUT32$VariantInit VariantInit
 #define OLEAUT32$VariantClear VariantClear
 #define OLEAUT32$SysAddRefString SysAddRefString
