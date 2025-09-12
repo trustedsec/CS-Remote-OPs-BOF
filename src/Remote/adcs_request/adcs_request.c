@@ -245,10 +245,6 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 	if ( !IsNullOrEmptyW(bstrAltName) )
 	{		
 		// Format 1 - required for the CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT scenario
-		// Create an instance of the CAlternativeName class with the IAlternativeName interface
-		SAFE_RELEASE(pAlternativeName);
-		hr = OLE32$CoCreateInstance(&CLSID_CAlternativeName, NULL, CLSCTX_INPROC_SERVER, &IID_IAlternativeName, (LPVOID *)&(pAlternativeName));
-		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CAlternativeName)", hr);
 		// Create an instance of the CAlternativeNames class with the IAlternativeNames interface
 		SAFE_RELEASE(pAlternativeNames);
 		hr = OLE32$CoCreateInstance(&CLSID_CAlternativeNames, NULL, CLSCTX_INPROC_SERVER, &IID_IAlternativeNames, (LPVOID *)&(pAlternativeNames));
@@ -257,12 +253,19 @@ HRESULT _adcs_request_CreateCertRequest(BOOL bMachine, IX509PrivateKey * pPrivat
 		SAFE_RELEASE(pExtensionAlternativeNames);
 		hr = OLE32$CoCreateInstance(&CLSID_CX509ExtensionAlternativeNames, NULL, CLSCTX_INPROC_SERVER, &IID_IX509ExtensionAlternativeNames, (LPVOID *)&(pExtensionAlternativeNames));
 		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CX509ExtensionAlternativeNames)", hr);
+
+		// Add UPN or DNS SAN
+		// Create an instance of the CAlternativeName class with the IAlternativeName interface
+		SAFE_RELEASE(pAlternativeName);
+		hr = OLE32$CoCreateInstance(&CLSID_CAlternativeName, NULL, CLSCTX_INPROC_SERVER, &IID_IAlternativeName, (LPVOID *)&(pAlternativeName));
+		CHECK_RETURN_FAIL("CoCreateInstance(CLSID_CAlternativeName)", hr);
 		// Initialize the AlternativeName
 		hr = pAlternativeName->lpVtbl->InitializeFromString(pAlternativeName, (dns) ? XCN_CERT_ALT_NAME_DNS_NAME : XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME, bstrAltName);
 		CHECK_RETURN_FAIL("pAlternativeName->lpVtbl->InitializeFromString()", hr);
 		// Add the AlternativeName to the collection of AlternativeNames
 		hr = pAlternativeNames->lpVtbl->Add(pAlternativeNames, pAlternativeName);
 		CHECK_RETURN_FAIL("pAlternativeNames->lpVtbl->Add()", hr);
+
 		// Initialize the X509ExtensionAlternativeNames collection from the AlternativeNames collection
 		hr = pExtensionAlternativeNames->lpVtbl->InitializeEncode(pExtensionAlternativeNames, pAlternativeNames);
 		CHECK_RETURN_FAIL("pExtensionAlternativeNames->lpVtbl->InitializeEncode()", hr);
