@@ -579,7 +579,7 @@ HRESULT adcs_request(LPCWSTR lpswzCA, LPCWSTR lpswzTemplate, LPCWSTR lpswzSubjec
 	internal_printf("[*] CA            : %S\n", bstrCA);
 	internal_printf("[*] Template      : %S\n", bstrTemplate);
 	internal_printf("[*] Subject       : %S\n", bstrSubject);
-	internal_printf("[*] AltName (%s)       : %S\n", (dns) ? "dns" : "upn", (bstrAltName?bstrAltName:L"N/A"));
+	internal_printf("[*] AltName (%s) : %S\n", (dns) ? "dns" : "upn", (bstrAltName?bstrAltName:L"N/A"));
 
 	// Initialize COM
 	hr = OLE32$CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
