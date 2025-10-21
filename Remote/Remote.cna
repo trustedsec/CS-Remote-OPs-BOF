@@ -2100,6 +2100,142 @@ sub bschtaskscreate
     beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
 }
 
+sub bschtaskscreate-extend
+{
+    local('$hostnames $taskpath $fpath $fp $bid $fdata $mode $force $args');
+    $bid = $1;
+    $hostnames = $2;
+    $taskpath = $3;
+    $mode = $4;
+    $force = $5;
+    $fpath = $6;
+
+    # Validate mode
+    if($mode < 0 || $mode > 2)
+    {
+        berror($bid, "Invalid mode. Must be 0 (USER), 1 (SYSTEM), or 2 (XML)");
+        return;
+    }
+
+    # Validate force
+    if($force != 0 && $force != 1)
+    {
+        berror($bid, "Invalid force. Must be 0 (CREATE) or 1 (UPDATE)");
+        return;
+    }
+
+    # Read XML file
+    if(!-canread $fpath)
+    {
+        berror($bid, "Unable to read the xml task definition file: $fpath");
+        return;
+    }
+    $fp = openf($fpath);
+    $fdata = readb($fp, -1);
+    closef($fp);
+
+    $args = bof_pack($bid, "ZZZii", $hostnames, $taskpath, $fdata, $mode, $force);
+    beacon_inline_execute($bid, readbof($bid, "schtaskscreate-extend"), "go", $args);
+}
+
+#schtaskscreate-extend <HOSTNAMES> <TASKPATH> <USERMODE> <FORCEMODE>
+alias schtaskscreate-extend
+{
+    local('$hostnames $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
+    $bid = $1;
+
+    if(size(@_) == 5)
+    {
+        $hostnames = $2;
+        $taskpath = $3;
+        $mode = $4;
+    }
+    else
+    {
+        berror($bid, beacon_command_detail("schtaskscreate-extend"));
+        berror($bid, "Invalid usage");
+        return;
+    }
+
+    if($mode eq "USER")
+    {
+        $mode = 0;
+    }
+    else if($mode eq "SYSTEM")
+    {
+        $mode = 1;
+    }
+    else if ($mode eq "XML")
+    {
+        $mode = 2;
+    }
+    else
+    {
+        berror($bid, beacon_command_detail("schtaskscreate-extend"));
+        berror($bid, "Must provide USER, SYSTEM, or XML (case sensitive)");
+        return;
+    }
+
+    if(@_[size(@_) -1] eq "UPDATE")
+    {
+        $force = 1;
+    }
+    else if (@_[size(@_) -1] eq "CREATE")
+    {
+        $force = 0;
+    }
+    else
+    {
+        berror($1, beacon_command_detail("schtaskscreate-extend"));
+        berror($1, "Must provide CREATE or UPDATE (case sensitive)");
+        return;
+    }
+
+    prompt_file_open("Please select the xml task definition", $null, false, $this);
+    yield;
+    $fpath = $1;
+    if(!-canread $fpath)
+    {
+        berror($bid, "Unable to read the xml task definition file: $fpath");
+        return;
+    }
+    $fp = openf($fpath);
+    $fdata = readb($fp, -1);
+    closef($fp);
+
+    $args = bof_pack($bid, "ZZZii", $hostnames, $taskpath, $fdata, $mode, $force);
+    beacon_inline_execute($bid, readbof($bid, "schtaskscreate-extend"), "go", $args);
+}
+
+beacon_command_register(
+    "schtaskscreate-extend",
+    "Creates a new scheduled task on multiple remote hosts",
+    "
+Command: schtaskscreate-extend
+Summary: This command attempts to create or update a scheduled task on multiple
+         remote systems using an XML task definition from your local machine.
+Usage:   schtaskscreate-extend <HOSTNAMES> <TASKPATH> <USERMODE> <FORCEMODE>
+         HOSTNAMES Required. Comma-separated list of remote hostnames to target.
+                   Example: \"host1,host2,host3\"
+         TASKPATH  Required. The path for the created task.
+                   Example: \"\\MyTasks\\RemoteTask\"
+         USERMODE  Required. The username to associate with the task. The valid
+                   options are (case sensitive):
+                     USER uses the current user
+                     XML uses the principal user from the task XML
+                     SYSTEM uses the Local System service
+         FORCEMODE Required. Creation disposition. The options are (case
+                   sensitive):
+                     CREATE fail if the task already exists
+                     UPDATE update an existing task
+Note:    A file browser will open to select the XML task definition from your
+         LOCAL machine. The same XML will be used for all target hosts.
+Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema-elements
+         for the base xml definitions. More formed examples start here
+         https://docs.microsoft.com/en-us/windows/win32/taskschd/time-trigger-example--xml-
+"
+);
+
 alias make_token_cert
 {
     local('$handle $certpath $cert $password $args');
