@@ -9,6 +9,7 @@
 #define SCHTASKS_USER 0
 #define SCHTASKS_SYSTEM 1
 #define SCHTASKS_XML_PRINCIPAL 2
+#define SCHTASKS_PASSWORD 3
 
 #define USER_SYSTEM_STRING L"nt authority\\SYSTEM"
 
@@ -150,13 +151,14 @@ getUserDefaultSDDL_end:
 	return dwErrorCode;
 }
 
-DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmldef, int mode, BOOL force)
+DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmldef, int mode, BOOL force, const wchar_t* UserName, const wchar_t* UserPassword)
 {
 	HRESULT hr = S_OK;
 	VARIANT Vserver;
 	VARIANT VNull;
 	VARIANT Vsddl;
 	VARIANT Vthisuser;
+	VARIANT VUserPassword;
 	wchar_t *defaultSDDL = NULL;
 	ITaskFolder *pCurFolder = NULL;
 	ITaskFolder *pRootFolder = NULL;
@@ -168,6 +170,8 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 	BSTR BSTRtaskxml = NULL;
 	BSTR BSTRthisuser = NULL;
 	BSTR BSTRsystem = NULL;
+	BSTR BSTRUserPassword = NULL;
+	BSTR BSTRUserName = NULL;
 	wchar_t * taskname = NULL;
 	wchar_t * taskpathpart = NULL;
 	BOOL mustcreate = FALSE;
@@ -183,7 +187,8 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 	OLEAUT32$VariantInit(&Vserver);
 	OLEAUT32$VariantInit(&VNull);
 	OLEAUT32$VariantInit(&Vsddl);
-	OLEAUT32$VariantInit(&Vthisuser); // we don't clear this because we free both possible OLE strings
+	OLEAUT32$VariantInit(&Vthisuser);
+	OLEAUT32$VariantInit(&VUserPassword); // we don't clear this because we free both possible OLE strings
 
 	// Initialize COM
 	hr = OLE32$CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -290,6 +295,26 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 		goto createTask_end;
 	}
 	//internal_printf("BSTRtaskxml:\n%S\n", BSTRtaskxml);
+
+	// Define username and password for password task creation.
+	BSTRUserName = OLEAUT32$SysAllocString(UserName);
+	if (NULL == BSTRUserName)
+	{
+		hr = ERROR_OUTOFMEMORY;
+		internal_printf("SysAllocString failed (%lX)\n", hr);
+		goto createTask_end;
+	}
+	BSTRUserPassword = OLEAUT32$SysAllocString(UserPassword);
+	if (NULL == BSTRUserPassword)
+	{
+		hr = ERROR_OUTOFMEMORY;
+		internal_printf("SysAllocString failed (%lX)\n", hr);
+		goto createTask_end;
+	}
+
+
+
+	// internal_printf("BSTRtaskxml:\n%S\n", BSTRtaskxml);
 
 	// Validate the task only
 	hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, NULL, BSTRtaskxml, TASK_VALIDATE_ONLY, VNull, VNull, 0, VNull, &pRegisteredTask);
@@ -407,6 +432,14 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 	{
 		taskType = TASK_LOGON_NONE;
 	}
+	else if (mode == SCHTASKS_PASSWORD)
+	{
+		taskType = TASK_LOGON_PASSWORD;
+		Vthisuser.vt = VT_BSTR;
+		Vthisuser.bstrVal = BSTRUserName;
+		VUserPassword.vt = VT_BSTR;
+		VUserPassword.bstrVal = BSTRUserPassword;
+	}
 	else
 	{
 		hr = ERROR_BAD_ARGUMENTS;
@@ -417,13 +450,19 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 	// Are we forcing the update/create or just trying to create?
 	if (force)
 	{
-		hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VNull, taskType, Vsddl, &pRegisteredTask);
+		if(mode == SCHTASKS_PASSWORD)
+		{
+			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
+		}else
+		{
+			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
+		}
 		if(FAILED(hr))
 		{
 			internal_printf("Failed to register task (%lX)\n", hr);
 			goto createTask_end;
 		}
-	}
+}
 	else // else create only
 	{ 
 		// First check to see if the task already exits
@@ -434,14 +473,21 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 			internal_printf("Task already exists (%lX)\n", hr);
 			goto createTask_end;
 		}
-		
+
 		// The task does not exist, so we can continue
-		hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VNull, taskType, Vsddl, &pRegisteredTask);
-		if(FAILED(hr))
+
+		if(mode == SCHTASKS_PASSWORD)
 		{
-			internal_printf("Failed to register task (%lX)\n", hr);
-			goto createTask_end;
+			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
+		}else
+		{
+			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VNull, taskType, Vsddl, &pRegisteredTask);
 		}
+		if(FAILED(hr))
+			{
+				internal_printf("Failed to register task (%lX)\n", hr);
+				goto createTask_end;
+			}
 	}
 	
 	internal_printf("Registered task\n");
@@ -476,6 +522,18 @@ createTask_end:
 	{
 		OLEAUT32$SysFreeString(BSTRtaskname);
 		BSTRtaskname = NULL;
+	}
+
+	if(BSTRUserPassword)
+	{
+		OLEAUT32$SysFreeString(BSTRUserPassword);
+		BSTRUserPassword = NULL;
+	}
+
+	if(BSTRUserName)
+	{
+		OLEAUT32$SysFreeString(BSTRUserName);
+		BSTRUserName = NULL;
 	}
 
 	if(thisuser)
@@ -522,6 +580,7 @@ createTask_end:
 
 	OLEAUT32$VariantClear(&Vsddl);
 	OLEAUT32$VariantClear(&Vserver);
+	OLEAUT32$VariantClear(&VUserPassword);
 	//OLEAUT32$VariantInit(&Vthisuser); // we don't clear this because we free both possible OLE strings
 	OLE32$CoUninitialize();
 
@@ -539,12 +598,16 @@ VOID go(
 	datap parser;
 	const wchar_t * hostname = NULL;
 	wchar_t * taskpath = NULL;
+	wchar_t * username = NULL;
+	wchar_t * password = NULL;
 	const wchar_t * xml = NULL;
 	int mode = 0;
 	BOOL force = 0;
 
 	BeaconDataParse(&parser, Buffer, Length);
 	hostname = (const wchar_t *)BeaconDataExtract(&parser, NULL);
+	username = (wchar_t *)BeaconDataExtract(&parser, NULL);
+	password = (wchar_t *)BeaconDataExtract(&parser, NULL);
 	taskpath = (wchar_t *)BeaconDataExtract(&parser, NULL);
 	xml = (const wchar_t *)BeaconDataExtract(&parser, NULL);
 	mode = BeaconDataInt(&parser);
@@ -555,10 +618,10 @@ VOID go(
 		return;
 	}
 	
-	internal_printf("createTask hostname:%S taskpath:%S mode:%d force:%d\n", 
-		hostname, taskpath, mode, force);
+	internal_printf("createTask hostname:%S username: %S password:%S taskpath:%S mode:%d force:%d\n", 
+		hostname, username, password, taskpath, mode, force);
 
-	dwErrorCode = createTask(hostname, taskpath, xml, mode, force);
+	dwErrorCode = createTask(hostname, taskpath, xml, mode, force, username, password);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "createTask failed: %lX\n", dwErrorCode);
@@ -574,6 +637,8 @@ go_end:
 };
 #else
 #define TEST_HOSTNAME         L""
+#define TEST_USERNAME         L""
+#define TEST_PASSWORD         L""
 #define TEST_TASK_PATH        L"\\BOF_FOLDER\\BOF_TASK"
 #define TEST_TASK_XML_NOTEPAD L"\
 <Task xmlns=\"http://schemas.microsoft.com/windows/2004/02/mit/task\">\n\
@@ -628,6 +693,8 @@ int main(int argc, char ** argv)
 	DWORD   dwErrorCode             = ERROR_SUCCESS;
 	LPCWSTR lpcswzHostName          = TEST_HOSTNAME;
 	WCHAR   lpswzTaskPath[MAX_PATH];
+	LPCWSTR lpusername				= TEST_USERNAME;
+	LPCWSTR lppassword				= TEST_PASSWORD;
 	LPCWSTR lpcswzTaskXMLCalc       = TEST_TASK_XML_CALC;
 	LPCWSTR lpcswzTaskXMLNotepad    = TEST_TASK_XML_NOTEPAD;
 	INT     nMode                   = SCHTASKS_XML_PRINCIPAL;
@@ -640,7 +707,7 @@ int main(int argc, char ** argv)
 	internal_printf("createTask hostname:%S taskpath:%S mode:%d force:%d\n", 
 		lpcswzHostName, lpswzTaskPath, nMode, bForce);
 	
-	dwErrorCode = createTask(lpcswzHostName, lpswzTaskPath, lpcswzTaskXMLCalc, nMode, bForce);
+	dwErrorCode = createTask(lpcswzHostName, lpswzTaskPath, lpcswzTaskXMLCalc, nMode, bForce, lpusername, lppassword);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "createTask failed: %lX\n", dwErrorCode);
@@ -655,7 +722,7 @@ int main(int argc, char ** argv)
 	internal_printf("createTask hostname:%S taskpath:%S mode:%d force:%d\n", 
 		lpcswzHostName, lpswzTaskPath, nMode, bForce);
 
-	dwErrorCode = createTask(lpcswzHostName, lpswzTaskPath, lpcswzTaskXMLNotepad, nMode, bForce);
+	dwErrorCode = createTask(lpcswzHostName, lpswzTaskPath, lpcswzTaskXMLNotepad, nMode, bForce, lpusername, lppassword);
 	if(ERROR_SUCCESS != dwErrorCode)
 	{
 		BeaconPrintf(CALLBACK_ERROR, "createTask failed: %lX\n", dwErrorCode);

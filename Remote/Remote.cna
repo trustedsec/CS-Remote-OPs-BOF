@@ -1023,24 +1023,28 @@ Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.
 # Schedule Task functions
 ########################################
 
-#schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
+#schtaskscreate <OPT:HOSTNAME> <USERNAME> <PASSWORD> <TASKPATH> <USERMODE> <FORCEMODE>
 alias schtaskscreate
 {
-    local('$server $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
+    local('$server $taskpath $username $password $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
     $bid = $1;
     $server = "";
     $fp = $null;
 
-    if(size(@_) == 4)
+    if(size(@_) == 6)
     {
-        $taskpath = $2;
-        $mode = $3;
+        $username = $2;
+        $password = $3;
+        $taskpath = $4;
+        $mode = $5;
     }
-    else if(size(@_) == 5)
+    else if(size(@_) == 7)
     {
         $server = $2;
-        $taskpath = $3;
-        $mode = $4;
+        $username = $3;
+        $password = $4;
+        $taskpath = $5;
+        $mode = $6;
     }
     else
     {
@@ -1060,6 +1064,10 @@ alias schtaskscreate
     else if ($mode eq "XML")
     {
         $mode = 2;
+    }
+    else if ($mode eq "PASSWORD")
+    {
+        $mode = 3;
     }
     else
     {
@@ -1095,7 +1103,7 @@ alias schtaskscreate
     $fdata = readb($fp, -1);
     closef($fp);
 
-    $args = bof_pack($bid, "ZZZii", $server, $taskpath, $fdata, $mode, $force);
+    $args = bof_pack($bid, "ZZZZZii", $server,$username,$password, $taskpath, $fdata, $mode, $force);
     beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
 }
 
@@ -1106,14 +1114,17 @@ beacon_command_register(
 Command: schtaskscreate
 Summary: This command attempts to create or update a scheduled task given an
          XML task definition.         
-Usage:   schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE>
+Usage:   schtaskscreate <OPT:HOSTNAME> <USERNAME> <PASSWORD> <TASKPATH> <USERMODE> <FORCEMODE>
          HOSTNAME  Optional. The system on which to create the task.
+         USERNAME  Required. The username that the task will run as. If current user is same as desired context, pass \"\" (empty quotes)
+         PASSWORD  Required. The password for the user that the task will run as. If current user is same as desired context, pass \"\" (empty quotes)
          TASKPATH  Required. The path for the created task.
          USERMODE  Required. The username to associate with the task. The valid
                    options are (case sensitive):
                      USER uses the current user
                      XML uses the principal user from the task XML
                      SYSTEM uses the Local System service
+                     PASSWORD uses the credentials passed
          FORCEMODE Required. Creation disposition. The options are (case 
                    sensitive):
                      CREATE fail if the task already exists

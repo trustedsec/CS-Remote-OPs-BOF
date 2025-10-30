@@ -6,7 +6,7 @@
     </LogonTrigger>
   </Triggers>
   <Principals>
-    <Principal>
+    <Principal id="Author">
       <UserId>TESTING\Administrator</UserId>
     </Principal>
   </Principals>
@@ -14,7 +14,7 @@
     <AllowStartOnDemand>true</AllowStartOnDemand>
     <Enabled>true</Enabled>
   </Settings>
-  <Actions>
+  <Actions Context="Author">
     <Exec>
       <Command>notepad.exe</Command>
     </Exec>
