@@ -1,4 +1,4 @@
-BOFNAME := clipboard
+BOFNAME := clipboardinject
 COMINCLUDE := -I ../../common
 LIBINCLUDE := -l user32
 CC_x64 := x86_64-w64-mingw32-gcc
