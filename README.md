@@ -41,7 +41,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |sc_description| sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME> | Modify an existing services description|
 |sc_start| sc_start <SVCNAME> <OPT:HOSTNAME> | Start an existing service|
 |sc_stop| sc_stop <SVCNAME> <OPT:HOSTNAME> | Stop an existing service|
-|schtaskscreate| schtaskscreate <OPT:HOSTNAME> <TASKPATH> <USERMODE> <FORCEMODE> | Create a new scheduled task (via xml definition)|
+|schtaskscreate| schtaskscreate <OPT:HOSTNAME> <USERNAME> <PASSWORD> <TASKPATH> <USERMODE> <FORCEMODE> | Create a new scheduled task (via xml definition)|
 |schtasksdelete| schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE> | Delete an existing scheduled task|
 |schtasksrun| schtasksrun <OPT:HOSTNAME> <TASKNAME> | Start a scheduled task|
 |schtasksstop| schtasksstop <OPT:HOSTNAME> <TASKNAME> | Stop a running scheduled task|
