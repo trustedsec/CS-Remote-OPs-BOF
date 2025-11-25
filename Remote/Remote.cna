@@ -1282,7 +1282,7 @@ beacon_command_register(
     "
 Command: schtasksrun
 Summary: This command runs a scheduled task.
-Usage:   schtasksstop <OPT:HOSTNAME> <TASKNAME>
+Usage:   schtasksrun <OPT:HOSTNAME> <TASKNAME>
          HOSTNAME  Optional. The target system (local system if not specified)
          TASKNAME  Required. The scheduled task name.
 Note:    The full path including the task name must be given, e.g.:
