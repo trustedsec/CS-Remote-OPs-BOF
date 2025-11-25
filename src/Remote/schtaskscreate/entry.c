@@ -450,13 +450,7 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 	// Are we forcing the update/create or just trying to create?
 	if (force)
 	{
-		if(mode == SCHTASKS_PASSWORD)
-		{
-			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
-		}else
-		{
-			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
-		}
+		hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE_OR_UPDATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
 		if(FAILED(hr))
 		{
 			internal_printf("Failed to register task (%lX)\n", hr);
@@ -476,13 +470,7 @@ DWORD createTask(const wchar_t * server, wchar_t * taskpath, const wchar_t* xmld
 
 		// The task does not exist, so we can continue
 
-		if(mode == SCHTASKS_PASSWORD)
-		{
-			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
-		}else
-		{
-			hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VNull, taskType, Vsddl, &pRegisteredTask);
-		}
+		hr = pRootFolder->lpVtbl->RegisterTask(pRootFolder, BSTRtaskname, BSTRtaskxml, TASK_CREATE, Vthisuser, VUserPassword, taskType, Vsddl, &pRegisteredTask);
 		if(FAILED(hr))
 			{
 				internal_printf("Failed to register task (%lX)\n", hr);
@@ -580,7 +568,7 @@ createTask_end:
 
 	OLEAUT32$VariantClear(&Vsddl);
 	OLEAUT32$VariantClear(&Vserver);
-	OLEAUT32$VariantClear(&VUserPassword);
+	//OLEAUT32$VariantClear(&VUserPassword); backing string is freed above if used
 	//OLEAUT32$VariantInit(&Vthisuser); // we don't clear this because we free both possible OLE strings
 	OLE32$CoUninitialize();
 
