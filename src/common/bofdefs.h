@@ -121,6 +121,8 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$FreeLibrary (HMODULE hLibModule);
 WINBASEAPI WINBOOL WINAPI KERNEL32$SetEvent (HANDLE hEvent);
 WINBASEAPI WINBOOL WINAPI KERNEL32$TerminateThread (HANDLE hThread, DWORD dwExitCode);
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateEventA (LPSECURITY_ATTRIBUTES lpEventAttributes, WINBOOL bManualReset, WINBOOL bInitialState, LPCSTR lpName);
+WINBASEAPI HMODULE WINAPI KERNEL32$GetModuleHandleW(LPCWSTR lpModuleName);
+
 
 //IPHLPAPI
 //ULONG WINAPI IPHLPAPI$GetAdaptersInfo (PIP_ADAPTER_INFO AdapterInfo, PULONG SizePointer);
@@ -172,7 +174,7 @@ _CRTIMP __time32_t __cdecl MSVCRT$_time32(__time32_t *_Time);
 WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...);
 _CRTIMP uintptr_t __cdecl MSVCRT$_beginthreadex(void *_Security,unsigned _StackSize,_beginthreadex_proc_type _StartAddress,void *_ArgList,unsigned _InitFlag,unsigned *_ThrdAddr);
 _CRTIMP void __cdecl MSVCRT$_endthreadex(unsigned _Retval) __MINGW_ATTRIB_NORETURN;
-
+WINBASEAPI int __cdecl MSVCRT$swprintf_s(wchar_t *buffer, size_t sizeOfBuffer, const wchar_t *format, ...);
 
 _CRTIMP __time64_t __cdecl MSVCRT$_time64(__time64_t *_Time);
 
@@ -282,6 +284,28 @@ WINUSERAPI LRESULT WINAPI USER32$SendMessageTimeoutW(HWND hWnd,UINT Msg,WPARAM w
 WINUSERAPI BOOL WINAPI USER32$SetPropA(HWND hWnd,LPCSTR lpString,HANDLE hData);
 WINUSERAPI LONG WINAPI USER32$SetWindowLongA(HWND hWnd,int nIndex, LONG dwNewLong);
 WINUSERAPI LONG_PTR WINAPI USER32$SetWindowLongPtrA(HWND hWnd,int nIndex, LONG_PTR dwNewLong);
+WINUSERAPI UINT_PTR WINAPI USER32$SetTimer(HWND hWnd, UINT_PTR nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc);
+WINUSERAPI WINBOOL WINAPI USER32$KillTimer(HWND hWnd, UINT_PTR uIDEvent);
+WINUSERAPI WINBOOL WINAPI USER32$PostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+WINUSERAPI HDC WINAPI USER32$BeginPaint(HWND hWnd, LPPAINTSTRUCT lpPaint);
+WINUSERAPI WINBOOL WINAPI USER32$GetClientRect(HWND hWnd, LPRECT lpRect);
+WINUSERAPI int WINAPI USER32$FillRect(HDC hDC, CONST RECT *lprc, HBRUSH hbr);
+WINUSERAPI int WINAPI USER32$DrawTextW(HDC hdc, LPCWSTR lpchText, int cchText, LPRECT lprc, UINT format);
+WINUSERAPI WINBOOL WINAPI USER32$EndPaint(HWND hWnd, CONST PAINTSTRUCT *lpPaint);
+WINUSERAPI WINBOOL WINAPI USER32$DestroyWindow(HWND hWnd);
+WINUSERAPI VOID WINAPI USER32$PostQuitMessage(int nExitCode);
+WINUSERAPI LRESULT WINAPI USER32$DefWindowProcW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+WINUSERAPI LRESULT WINAPI USER32$DispatchMessageW(CONST MSG *lpMsg);
+WINUSERAPI WINBOOL WINAPI USER32$TranslateMessage(CONST MSG *lpMsg);
+WINUSERAPI WINBOOL WINAPI USER32$GetMessageW(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax);
+WINUSERAPI HWND WINAPI USER32$SetFocus(HWND hWnd);
+WINUSERAPI ATOM WINAPI USER32$RegisterClassExW(CONST WNDCLASSEXW *lpwcx);
+WINUSERAPI WINBOOL WINAPI USER32$SetForegroundWindow(HWND hWnd);
+WINUSERAPI WINBOOL WINAPI USER32$UpdateWindow(HWND hWnd);
+WINUSERAPI WINBOOL WINAPI USER32$ShowWindow(HWND hWnd, int nCmdShow);
+WINUSERAPI WINBOOL WINAPI USER32$UnregisterClassW(LPCWSTR lpClassName, HINSTANCE hInstance);
+WINUSERAPI HWND WINAPI USER32$CreateWindowExW(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+WINUSERAPI int WINAPI USER32$GetSystemMetrics(int nIndex);
 
 //SSPICLI
 WINBASEAPI DWORD WINAPI SSPICLI$EnumerateSecurityPackagesA(unsigned long*, PSecPkgInfoA*);
@@ -499,6 +523,14 @@ WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptFinishHash (BCRYPT_HASH_HANDLE hHash, PU
 WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptDestroyHash (BCRYPT_HASH_HANDLE hHash);
 WINBASEAPI NTSTATUS WINAPI BCRYPT$BCryptCloseAlgorithmProvider (BCRYPT_ALG_HANDLE hAlgorithm, ULONG dwFlags);
 
+// GDI32 
+WINBASEAPI HFONT WINAPI GDI32$CreateFontW(int cHeight, int cWidth, int cEscapement, int cOrientation, int cWeight, DWORD bItalic, DWORD bUnderline, DWORD bStrikeOut, DWORD iCharSet, DWORD iOutPrecision, DWORD iClipPrecision, DWORD iQuality, DWORD iPitchAndFamily, LPCWSTR pszFaceName);
+WINBASEAPI BOOL WINAPI GDI32$DeleteObject(HGDIOBJ ho);
+WINBASEAPI HGDIOBJ WINAPI GDI32$SelectObject(HDC hdc, HGDIOBJ h);
+WINBASEAPI COLORREF WINAPI GDI32$SetTextColor(HDC hdc, COLORREF color);
+WINBASEAPI COLORREF WINAPI GDI32$SetBkColor(HDC hdc, COLORREF color);
+WINBASEAPI int WINAPI GDI32$SetBkMode(HDC hdc, int mode);
+WINBASEAPI HBRUSH WINAPI GDI32$CreateSolidBrush(COLORREF color);
 
 //SYSTEMFUNCTION
 //https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-rtlgenrandom
@@ -600,6 +632,7 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define KERNEL32$LoadLibraryA LoadLibraryA
 #define KERNEL32$GetProcAddress GetProcAddress
 #define KERNEL32$FreeLibrary FreeLibrary
+#define KERNEL32$CloseHandle CloseHandle
 
 //IPHLPAPI
 #define IPHLPAPI$GetAdaptersInfo GetAdaptersInfo 
@@ -642,6 +675,7 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define MSVCRT$wcstok wcstok
 #define MSVCRT$wcstoul wcstoul
 #define MSVCRT$_wtol _wtol
+#define MSVCRT$swprintf_s swprintf_s
 
 //SHLWAPI
 #define SHLWAPI$PathCombineW PathCombineW
@@ -715,6 +749,28 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define USER32$SetPropA SetPropA
 #define USER32$SetWindowLongA SetWindowLongA
 #define USER32$SetWindowLongPtrA SetWindowLongPtrA
+#define USER32$KillTimer KillTimer
+#define USER32$SetTimer SetTimer
+#define USER32$PostMessageW PostMessageW
+#define USER32$BeginPaint BeginPaint
+#define USER32$GetClientRect GetClientRect
+#define USER32$FillRect FillRect
+#define USER32$DrawTextW DrawTextW
+#define USER32$EndPaint EndPaint
+#define USER32$DestroyWindow DestroyWindow
+#define USER32$PostQuitMessage PostQuitMessage
+#define USER32$DefWindowProcW DefWindowProcW
+#define USER32$DispatchMessageW DispatchMessageW
+#define USER32$TranslateMessage TranslateMessage
+#define USER32$GetMessageW GetMessageW
+#define USER32$SetFocus SetFocus
+#define USER32$RegisterClassExW RegisterClassExW
+#define USER32$SetForegroundWindow SetForegroundWindow
+#define USER32$UpdateWindow UpdateWindow
+#define USER32$ShowWindow ShowWindow
+#define USER32$UnregisterClassW UnregisterClassW
+#define USER32$CreateWindowExW CreateWindowExW
+#define USER32$GetSystemMetrics GetSystemMetrics
 
 //SSPICLI
 #define SSPICLI$EnumerateSecurityPackagesA EnumerateSecurityPackagesA
@@ -903,6 +959,15 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define PSAPI$EnumProcesses EnumProcesses
 #define PSAPI$EnumProcessModules EnumProcessModules
 #define PSAPI$GetModuleBaseNameW GetModuleBaseNameW
+
+// GDI32
+#define GDI32$CreateFontW CreateFontW
+#define GDI32$DeleteObject DeleteObject
+#define GDI32$SelectObject SelectObject
+#define GDI32$SetTextColor SetTextColor
+#define GDI32$SetBkColor SetBkColor
+#define GDI32$SetBkMode SetBkMode
+#define GDI32$CreateSolidBrush CreateSolidBrush
 
 //BEACON
 #define BeaconPrintf(x, y, ...) printf(y, ##__VA_ARGS__)
