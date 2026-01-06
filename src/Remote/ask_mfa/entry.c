@@ -178,6 +178,7 @@ DWORD WINAPI MFADialogThread(LPVOID lpParameter) {
     hInstance = KERNEL32$GetModuleHandleW(NULL);
 
     if (!CreateDialogFonts(pData)) {
+        CleanupDialogFonts(pData);
         internal_printf("Failed to create dialog fonts.\n");
         return 1;
     }

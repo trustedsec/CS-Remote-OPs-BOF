@@ -101,7 +101,7 @@ sub ops {
 # Service Control functions
 ########################################
 
-# sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
+# sc_description [SVCNAME] [DESCRIPTION] [OPT:HOSTNAME]
 alias sc_description
 {
     local('$hostname $servicename $args $desc');
@@ -136,7 +136,7 @@ beacon_command_register(
 Command: sc_description 
 Summary: This command sets the description of an existing service on the target 
          host.
-Usage:   sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
+Usage:   sc_description [SVCNAME] [DESCRIPTION] [OPT:HOSTNAME]
          SVCNAME      Required. The name of the service to create.
          DESCRIPTION  Required. The description of the service.
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
@@ -144,7 +144,7 @@ Usage:   sc_description <SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
 "
 );
 
-#sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+#sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME]
 sub bsc_config
 {
     local('$hostname $servicename $binpath $errormode $startmode $bid $args');
@@ -179,7 +179,7 @@ sub bsc_config
 
 }
 
-#sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+#sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME]
 alias sc_config
 {
     local('$hostname $servicename $binpath $ignore $startmode $junk');
@@ -214,7 +214,7 @@ beacon_command_register(
     "
 Command: sc_config 
 Summary: This command configures an existing service on the target host.
-Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+Usage:   sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME]
          SVCNAME      Required. The name of the service to create.
          BINPATH      Required. The binary path of the service to execute.
          ERRORMODE    Required. The error mode of the service. The valid 
@@ -233,7 +233,7 @@ Usage:   sc_config <SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
 "
 );
 
-#sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+#sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME]
 sub bsc_failure
 {
     local('$hostname $servicename $resetperiod $rebootmessage $command $numactions $actions $bid $args');
@@ -249,7 +249,7 @@ sub bsc_failure
     beacon_inline_execute($bid, readbof($1, "sc_failure"), "go", $args);
 }
 
-#sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+#sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME]
 alias sc_failure
 {
     local('$hostname $servicename $resetperiod $rebootmessage $command $numactions $actions $junk');
@@ -288,7 +288,7 @@ beacon_command_register(
     "
 Command: sc_failure 
 Summary: This command configures the actions upon failure of an existing service on the target host.
-Usage:   sc_failure <SVCNAME> <RESETPERIOD> <REBOOTMESSAGE> <COMMAND> <NUMACTIONS> <ACTIONS> <OPT:HOSTNAME>
+Usage:   sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME]
          SVCNAME        Required. The name of the service to create.
          RESETPERIOD    Required. Length of period of no failures (in seconds)
                         after which to reset the failure count to 0 (may be INFINITE)
@@ -348,7 +348,7 @@ sub bsc_create
 }
 
 
-#sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
+#sc_create [SVCNAME] [DISPLAYNAME] [BINPATH] [DESCRIPTION] [ERRORMODE] [STARTMODE] [OPT:TYPE] [OPT:HOSTNAME]
 alias sc_create
 {
     local('$servicetype $hostname $servicename $binpath $ignore $startmode $junk $desc $displayname');
@@ -417,7 +417,7 @@ beacon_command_register(
     "
 Command: sc_create 
 Summary: This command creates a service on the target host.
-Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
+Usage:   sc_create [SVCNAME] [DISPLAYNAME] [BINPATH] [DESCRIPTION] [ERRORMODE] [STARTMODE] [OPT:TYPE] [OPT:HOSTNAME]
          SVCNAME      Required. The name of the service to create.
          DISPLAYNAME  Required. The display name of the service.
          BINPATH      Required. The binary path of the service to execute.
@@ -445,7 +445,7 @@ Usage:   sc_create <SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <
 );
 
 
-#sc_delete <SVCNAME> <OPT:HOSTNAME>
+#sc_delete [SVCNAME] [OPT:HOSTNAME]
 alias sc_delete
 {
     local('$hostname $servicename $args');
@@ -478,7 +478,7 @@ beacon_command_register(
     "
 Command: sc_delete 
 Summary: This command deletes the specified service on the target host.
-Usage:   sc_delete <SVCNAME> <OPT:HOSTNAME>
+Usage:   sc_delete [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to delete.
          HOSTNAME Optional. The host to connect to and run the commnad on. The
                   local system is targeted if a HOSTNAME is not specified.
@@ -496,7 +496,7 @@ sub bsc_stop
     beacon_inline_execute($1, readbof($1, "sc_stop"), "go", $args);
 }
 
-#sc_stop <SVCNAME> <OPT:HOSTNAME>
+#sc_stop [SVCNAME] [OPT:HOSTNAME]
 alias sc_stop
 {
     local('$hostname $servicename $args');
@@ -526,7 +526,7 @@ beacon_command_register(
     "
 Command: sc_stop 
 Summary: This command stops the specified service on the target host.
-Usage:   sc_stop <SVCNAME> <OPT:HOSTNAME>
+Usage:   sc_stop [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to stop.
          HOSTNAME Optional. The host to connect to and run the commnad on. The
                   local system is targeted if a HOSTNAME is not specified.
@@ -544,7 +544,7 @@ sub bsc_start
 }
 
 
-#sc_start <SVCNAME> <OPT:HOSTNAME>
+#sc_start [SVCNAME] [OPT:HOSTNAME]
 alias sc_start
 {
     local('$hostname $servicename $args');
@@ -577,7 +577,7 @@ beacon_command_register(
     "
 Command: sc_start 
 Summary: This command starts the specified service on the target host.
-Usage:   sc_start <SVCNAME> <OPT:HOSTNAME>
+Usage:   sc_start [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to start.
          HOSTNAME Optional. The host to connect to and run the command on. The
                   local system is targeted if a HOSTNAME is not specified.
@@ -753,7 +753,7 @@ sub breg_set
     }
 }
 
-#reg_set reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
+#reg_set reg_set [OPT:HOSTNAME] [HIVE] [KEY] [VALUE] [TYPE] [DATA]
 alias reg_set
 {
     # I need hostname Hive, path, key type value(s)
@@ -856,7 +856,7 @@ beacon_command_register(
 Command: reg_set 
 Summary: This command creates or sets the specified registry key (or value) on
          the target host.
-Usage:   reg_set <OPT:HOSTNAME> <HIVE> <KEY> <VALUE> <TYPE> <DATA>
+Usage:   reg_set reg_set [OPT:HOSTNAME] [HIVE] [KEY] [VALUE] [TYPE] [DATA]
          HOSTNAME Optional. The host to connect to and run the commnad on.
          HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
@@ -886,7 +886,7 @@ Note: For REG_QWORD, the VALUE must be less than a DWORD (due to limitation of
 );
 
 
-#reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
+#reg_delete [OPT:HOSTNAME] [HIVE] [REGPATH] [OPT:REGVALUE]
 alias reg_delete
 {
     # I need hostname Hive, path, key type value(s)
@@ -950,7 +950,7 @@ beacon_command_register(
 Command: reg_delete 
 Summary: This command deletes the specified registry key (or value) on the 
          target host.
-Usage:   reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
+Usage:   reg_delete [OPT:HOSTNAME] [HIVE] [REGPATH] [OPT:REGVALUE]
          HOSTNAME Optional. The host to connect to and run the commnad on.
          HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
@@ -966,7 +966,7 @@ Usage:   reg_delete <OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
 );
 
 
-#reg_save <HIVE> <REGPATH> <FILEOUT>
+#reg_save [HIVE] [REGPATH] [FILEOUT]
 alias reg_save
 {
     if(size(@_) != 4)
@@ -1004,7 +1004,7 @@ beacon_command_register(
 Command: reg_save 
 Summary: This command saves the specified registry path (and all subkeys) to a
          file on the target system.
-Usage:   reg_save <HIVE> <REGPATH> <FILEOUT>
+Usage:   reg_save [HIVE] [REGPATH] [FILEOUT]
          HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
@@ -1023,7 +1023,7 @@ Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.
 # Schedule Task functions
 ########################################
 
-#schtaskscreate <OPT:HOSTNAME> <USERNAME> <PASSWORD> <TASKPATH> <USERMODE> <FORCEMODE>
+#schtaskscreate [OPT:HOSTNAME] [USERNAME] [PASSWORD] [TASKPATH] [USERMODE] [FORCEMODE]
 alias schtaskscreate
 {
     local('$server $taskpath $username $password $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
@@ -1114,7 +1114,7 @@ beacon_command_register(
 Command: schtaskscreate
 Summary: This command attempts to create or update a scheduled task given an
          XML task definition.         
-Usage:   schtaskscreate <OPT:HOSTNAME> <USERNAME> <PASSWORD> <TASKPATH> <USERMODE> <FORCEMODE>
+Usage:   schtaskscreate [OPT:HOSTNAME] [USERNAME] [PASSWORD] [TASKPATH] [USERMODE] [FORCEMODE]
          HOSTNAME  Optional. The system on which to create the task.
          USERNAME  Required. The username that the task will run as. If current user is same as desired context, pass \"\" (empty quotes)
          PASSWORD  Required. The password for the user that the task will run as. If current user is same as desired context, pass \"\" (empty quotes)
@@ -1136,7 +1136,7 @@ Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task
 );
 
 
-#schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE>
+#schtasksdelete [OPT:HOSTNAME] [TASKNAME] [TYPE]
 alias schtasksdelete
 {
     local('$bid $args $server $taskname $isfolder');
@@ -1190,7 +1190,7 @@ beacon_command_register(
     "
 Command: schtasksdelete
 Summary: This command deletes a scheduled task or folder.
-Usage:   schtasksdelete <OPT:HOSTNAME> <TASKNAME> <TYPE>
+Usage:   schtasksdelete [OPT:HOSTNAME] [TASKNAME] [TYPE]
          HOSTNAME Optional. The target system (local system if not specified)
          TASKNAME Required. The task or folder name.
          TYPE     Required. The type of target to delete. Valid options are:
@@ -1205,7 +1205,7 @@ Note:    If you are deleting a folder, it must be empty.
 );
 
 
-#schtasksstop <OPT:HOSTNAME> <TASKNAME>
+#schtasksstop [OPT:HOSTNAME] [TASKNAME]
 alias schtasksstop
 {
     local('$bid $args $server $taskname');
@@ -1239,7 +1239,7 @@ beacon_command_register(
     "
 Command: schtasksstop
 Summary: This command stops a scheduled task.
-Usage:   schtasksstop <OPT:HOSTNAME> <TASKNAME>
+Usage:   schtasksstop [OPT:HOSTNAME] [TASKNAME]
          HOSTNAME  Optional. The target system (local system if not specified)
          TASKNAME  Required. The scheduled task name.
 Note:    The full path including the task name must be given, e.g.:
@@ -1248,7 +1248,7 @@ Note:    The full path including the task name must be given, e.g.:
 "
 );
 
-#schtasksrun <OPT:HOSTNAME> <TASKNAME>
+#schtasksrun [OPT:HOSTNAME] [TASKNAME]
 alias schtasksrun
 {
     local('$bid $args $server $taskname');
@@ -1282,7 +1282,7 @@ beacon_command_register(
     "
 Command: schtasksrun
 Summary: This command runs a scheduled task.
-Usage:   schtasksrun <OPT:HOSTNAME> <TASKNAME>
+Usage:   schtasksrun [OPT:HOSTNAME] [TASKNAME]
          HOSTNAME  Optional. The target system (local system if not specified)
          TASKNAME  Required. The scheduled task name.
 Note:    The full path including the task name must be given, e.g.:
@@ -1297,7 +1297,7 @@ Note:    The full path including the task name must be given, e.g.:
 # Process functions
 ########################################
 
-#procdump <PID> <FILEOUT>
+#procdump [PID] [FILEOUT]
 alias procdump
 {
     local('$args $pid $target');
@@ -1324,7 +1324,7 @@ beacon_command_register(
 Command: procdump
 Summary: This command attempts to dump a process using MiniDumpWriteDump. It 
          writes the output to the file location specified.
-Usage:   procdump <PID> <FILEOUT>
+Usage:   procdump [PID] [FILEOUT]
          PID     Required. The process to dump.
          FILEOUT Required. The output path to write the dump to. Remember to 
                  delete this file.
@@ -1333,7 +1333,7 @@ Warning: This command may very well get caught, but is here as an option regardl
 );
 
 
-#ProcessListHandles <PID>
+#ProcessListHandles [PID]
 alias ProcessListHandles
 {
     if(size(@_) != 2)
@@ -1351,14 +1351,14 @@ beacon_command_register(
     "
 Command: ProcessListHandles
 Summary: Lists all open handles in a specified process.
-Usage:   ProcessListHandles <PID>
+Usage:   ProcessListHandles [PID]
          PID    Required. The process to list the handles of. You must have 
                 permission to open the specified process.
 "
 );
 
 
-#ProcessDestroy <PID> <OPT:HANDLEID>
+#ProcessDestroy [PID] [OPT:HANDLEID]
 alias ProcessDestroy
 {
     local('$handle');
@@ -1385,7 +1385,7 @@ beacon_command_register(
 Command: ProcessDestroy
 Summary: Closes specified handle in a specified process, or closes all handles 
          if one is not specified.
-Usage:   ProcessDestroy <PID> <OPT:HANDLEID>
+Usage:   ProcessDestroy [PID] [OPT:HANDLEID]
          PID       Required. The process to list the handles of. You must have 
                    permission to open the specified process.
          HANDLEID: Optional. The specific handle ID to close, or close all 
@@ -1400,7 +1400,7 @@ Usage:   ProcessDestroy <PID> <OPT:HANDLEID>
 # User account functions
 ########################################
 
-#enableuser <USERNAME> <DOMAIN>
+#enableuser [USERNAME] [DOMAIN]
 alias enableuser
 {
     if(size(@_) != 3)
@@ -1419,7 +1419,7 @@ beacon_command_register(
 Command: enableuser
 Summary: Activates (and if necessary enables) the specified user account on the
          target computer. 
-Usage:   enableuser <USERNAME> <DOMAIN>
+Usage:   enableuser [USERNAME] [DOMAIN]
          USERNAME  Required. The user name to activate/enable. 
          DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
@@ -1428,7 +1428,7 @@ Usage:   enableuser <USERNAME> <DOMAIN>
 );
 
 
-#setuserpass <USERNAME> <PASSWORD> <DOMAIN>
+#setuserpass [USERNAME] [PASSWORD] [DOMAIN]
 alias setuserpass
 {
     if(size(@_) != 4)
@@ -1447,7 +1447,7 @@ beacon_command_register(
 Command: setuserpass
 Summary: Sets the password for the specified user account on the target 
          computer. 
-Usage:   setuserpass <USERNAME> <PASSWORD> <DOMAIN>
+Usage:   setuserpass [USERNAME] [PASSWORD] [DOMAIN]
          USERNAME  Required. The user name to activate/enable. 
          PASSWORD  Required. The new password. The password must meet GPO 
                    requirements.
@@ -1458,7 +1458,7 @@ Usage:   setuserpass <USERNAME> <PASSWORD> <DOMAIN>
 );
     
 
-#addusertogroup
+#addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN]
 alias addusertogroup
 {
     if(size(@_) != 5)
@@ -1477,7 +1477,7 @@ beacon_command_register(
 Command: addusertogroup
 Summary: Add the specified user to the group. Domain groups only!
 
-Usage:   addusertogroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
+Usage:   addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN]
          USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
          SERVER     Required. The target computer to perform the addition on. use \"\" for the local machine
@@ -1488,7 +1488,7 @@ Usage:   addusertogroup <USERNAME> <GROUPNAME> <SERVER> <DOMAIN>
 "
 );
 
-#adduser
+#aadduser [USERNAME] [PASSWORD] [SERVER]
 alias adduser
 {
     local('$bid $username $pass $server');
@@ -1524,7 +1524,7 @@ beacon_command_register(
 Command: adduser
 Summary: Add a new user to a machine.
 
-Usage:   adduser <USERNAME> <PASSWORD> <SERVER>
+Usage:   adduser [USERNAME] [PASSWORD] [SERVER]
          USERNAME   Required. The name of the new user. 
          PASSWORD   Required. The password of the new user. 
          SERVER     Optional. If entered, the user will be created on that machine. If not, the
@@ -1532,7 +1532,7 @@ Usage:   adduser <USERNAME> <PASSWORD> <SERVER>
 "
 );
 
-#enableuser <USERNAME> <DOMAIN>
+#unexpireuser [USERNAME] [DOMAIN]
 alias unexpireuser
 {
     if(size(@_) != 3)
@@ -1551,7 +1551,7 @@ beacon_command_register(
 Command: unexpireuser
 Summary: Activates (and if necessary enables) the specified user account on the
          target computer. 
-Usage:   unexpireuser <USERNAME> <DOMAIN>
+Usage:   unexpireuser [USERNAME] [DOMAIN]
          USERNAME  Required. The user name to activate/enable. 
          DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
@@ -1632,6 +1632,7 @@ sub bshspawnas {
 
 }
 
+# shspawnas [DOMAIN] [USERNAME] [PASSWORD] [OPT:SHELLCODEFILE]
 alias shspawnas {
     local('$shellcodepath $bid $username $pass $domain $ppid');
     if(size(@_) < 4)
@@ -1662,12 +1663,13 @@ alias shspawnas {
 beacon_command_register(
     'shspawnas',
     'spawn / inject as specified user',
-    "usage: shspawnas <domain> <username> <password> <opt: shellcodefile>
+    "usage: shspawnas [DOMAIN] [USERNAME] [PASSWORD] [OPT:SHELLCODEFILE]
     If shellcode file is not provided a file browser will open so you can select it
     use \"\" for domain to log into the local machine
     Be aware the user you specify must be able to log into the machine interactivly and the login is recorded as such"
 );
 
+# adcs_request [CA] [OPT:TEMPLATE] [OPT:SUBJECT] [OPT:ALTNAME] [OPT:INSTALL] [OPT:MACHINE] [OPT:ADD_APP_POLICY] [OPT:DNS]
 alias adcs_request {
 	local('$params $keys $args $adcs_request_ca $adcs_request_template $adcs_request_subject $adcs_request_altname $adcs_request_alturl $adcs_request_install $adcs_request_machine $app_policy');
 
@@ -1711,7 +1713,7 @@ Command: adcs_request
 Summary: This command connects a certificate authority and requests an enrollment 
          certificate of the specified type for the specified subject and alternative 
          name. It will also optionally install the certificate for the current context.
-Usage:   adcs_request CA [opt:TEMPLATE] [opt:SUBJECT] [opt: ALTNAME] [opt: INSTALL] [opt:MACHINE]
+Usage:   adcs_request [CA] [OPT:TEMPLATE] [OPT:SUBJECT] [OPT:ALTNAME] [OPT:INSTALL] [OPT:MACHINE] [OPT:ADD_APP_POLICY] [OPT:DNS]
          CA        Required. The certificate authority to use.
          TEMPLATE  Optional. The certificate type to request. Use \"\" for default of User/Machine
          SUBJECT   Optional. The subject's distinguished name. Use \"\" for default of current machine / user
@@ -1736,6 +1738,7 @@ use quotes for any arguments with spaces.
 "
 );
 
+# adcs_request_on_behalf [TEMPLATE] [REQUESTER] [ENROLLMENT_AGENT.pfx] [Download_Name]
 alias adcs_request_on_behalf
 {
     local('$handle $enrollpfx');
@@ -1781,6 +1784,7 @@ Example:
     adcs_request_on_behalf User Example\\Administrator /tmp/enroll.pfx Admin.pfx"
 )
 
+# office_tokens [PID]
 alias office_tokens 
 {
 	local('$pid $args');
@@ -1801,9 +1805,10 @@ beacon_command_register(
 	"Searches memory for Office JWT Access Tokens",
 	"Command: office_tokens
 
-Usage: office_tokens <pid> "
+Usage: office_tokens [PID] "
 );
 
+# lastpass lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... ...
 alias lastpass
 {
 	local('$pid $args $value $i $buffer $arg_sz');
@@ -1837,9 +1842,10 @@ beacon_command_register(
 	"Searches memory for LastPass passwords and hashes",
 	"Command: lastpass 
 
-Usage: lastpass <number of pids> <pid>,<pid>,<pid> ... "
+Usage: lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... "
 );
 
+# suspend [PID]
 alias suspend {
     local('$args');
     if(size(@_) < 2)
@@ -1856,11 +1862,12 @@ beacon_command_register(
     "suspend a process by pid",
     "Command: suspend
     
-Usage: suspend <pid>
+Usage: suspend [PID]
 
 attempts to suspend the process listed"
 );
 
+# resume [PID]
 alias resume {
     local('$args');
     if(size(@_) < 2)
@@ -1877,11 +1884,12 @@ beacon_command_register(
     "resume a process by pid",
     "Command: resume
     
-Usage: resume <pid>
+Usage: resume [PID]
 
 attempts to resume the process listed"
 );
 
+# get_priv [Privledge Name]
 alias get_priv {
     local('$args');
     if(size(@_) < 2)
@@ -1898,7 +1906,7 @@ beacon_command_register(
     "Activate a token privledge",
     "Command: get_priv
 
-Usage: get_priv <Privledge Name>
+Usage: get_priv [Privledge Name]
 
 Privledge names are listed here https://learn.microsoft.com/en-us/windows/win32/secauthz/privilege-constants
 They are the equivilent of what you see in whoami /all or our whoami bof from the SA repo
@@ -1980,26 +1988,28 @@ beacon_command_register(
 Command: ghost_task
 Summary: Create or modify a local or remote scheduled task, without triggering 
          Windows events 4698 and 106.         
-Usage:   ghost_task <hostname/localhost> <operation> <taskname> <program> <argument> <username> <scheduletype> <time/second> <day>
-         - hostname/localhost: Remote computer name or localhost.
-         - operation: add/delete
+Usage:   ghost_task [HOSTNAME/LOCALHOST] [OPERATION] [TASKANME] [PROGRAM] [ARGUMENT] [USERNAME] [SCHEDULETYPE] [TIME/SECOND] [DAY]
+         - HOSTNAME/LOCALHOST: Remote computer name or localhost.
+         - OPERATION: add/delete
            - add: Create or modify a scheduled task using only registry keys. Requires restarting the Schedule service to load the task definition.
            - delete: Delete a scheduled task. Requires restarting the Schedule service to offload the task.
-         - taskname: Name of the scheduled task.
-         - program: Program to be executed.
-         - argument: Arguments for the program.
-         - username: User account under which the scheduled task will run.
-         - scheduletype: Supported triggers: second, daily, weekly, and logon.
-         - time/second (applicable for 'second', 'daily', and 'weekly' triggers):
+         - TASKANME: Name of the scheduled task.
+         - PROGRAM: Program to be executed.
+         - ARGUMENT: Arguments for the program.
+         - USERNAME: User account under which the scheduled task will run.
+         - SCHEDULETYPE: Supported triggers: second, daily, weekly, and logon.
+         - TIME/SECOND (applicable for 'second', 'daily', and 'weekly' triggers):
            - For 'second' trigger: Specify the frequency in seconds for task execution.
            - For 'daily' and 'weekly' triggers: Specify the exact time (e.g., 22:30) for task execution.
-         - day (applicable for 'weekly' trigger): Days to execute the scheduled task (e.g., monday, thursday).
+         - DAY (applicable for 'weekly' trigger): Days to execute the scheduled task (e.g., monday, thursday).
 Note:    As of October 21, 2023, this tool has been tested on Windows 10, Windows Server 2016, 2019, and 2022
          As of October 21, 2023, no alert and no scheduled task creation event (ScheduledTaskCreated action type) will be generated in MDE (Microsoft Defender For Endpoint)
          To create a scheduled task using this tool, NT AUTHORITY/SYSTEM privileges are required
          After configuring the scheduled task, you'll need to either restart the system or await the next reboot for the task to be loaded into the Schedule service process and subsequently executed
 "
 );
+
+# slack_cookie [PID]
 alias slack_cookie 
 {
 	local('$pid $args');
@@ -2020,9 +2030,10 @@ beacon_command_register(
 	"Searches memory for Slack tokens",
 	"Command: slack_cookie
 
-Usage: slack_cookie <pid> "
+Usage: slack_cookie [PID] "
 );
 
+# shutdown [HOSTNAME] \"[MESSAGE]\" [TIME] [CLOSEAPPS] [REBOOT]
 beacon_command_register(
 	"shutdown",
 	"Shutdown or reboot a local or remote system in the number of seconds provided",
@@ -2030,16 +2041,16 @@ beacon_command_register(
     Command: shutdown
     Summary: Shutdown or reboot the local/remote system with or without a message, with or withough allowing the closing of apps in
              the time specified. WARNING: non-zero times will prompt the user.  Obviously, remote requires administrative privileges.
-    Usage:   shutdown <hostname> \"<message>\" <time> <closeapps> <reboot>
-		     - hostname: For localhost use \"\"
-		     - \"message\": For no message use \"\".  Make sure to enclose in quotes.
-		     - time: The number of seconds before the shutdown/reboot.
+    Usage:   shutdown [HOSTNAME] \"[MESSAGE]\" [TIME] [CLOSEAPPS] [REBOOT]
+		     - HOSTNAME: For localhost use \"\"
+		     - \"[MESSAGE]\": For no message use \"\".  Make sure to enclose in quotes.
+		     - [TIME]: The number of seconds before the shutdown/reboot.
                 - 0 for immediately.
                 - WARNING: Anything non-zero will prompt user with <message>
-		     - closeapps: Whether or not to allow the user to save/close applications
+		     - CLOSEAPPS: Whether or not to allow the user to save/close applications
                 - 0 to allow user to save before closing application
                 - 1 for close applications with unsaved changes
-		     - reboot:
+		     - REBOOT:
                 - 1 to reboot the system after shutdown
                 - 0 to have it stay off (shutdown)
 
@@ -2080,6 +2091,7 @@ alias shutdown {
 
 }
 
+# global_unprotect
 alias global_unprotect {
     beacon_inline_execute($1, readbof($1, "global_unprotect"), "go", $null);
 }
@@ -2091,6 +2103,7 @@ beacon_command_register(
     
     There are no arguments to this command"
 )
+
 sub bschtaskscreate
 {
     local('$server $taskpath $taskxml $dialog $fpath $fp $bid $fdata $mode $index $force $args');
@@ -2114,12 +2127,13 @@ sub bschtaskscreate
     beacon_inline_execute($bid, readbof($bid, "schtaskscreate"), "go", $args);
 }
 
+# make_token_cert [PFX LOCAL PATH] [OPT:PFX PASSWORD]
 alias make_token_cert
 {
     local('$handle $certpath $cert $password $args');
     if(size(@_) < 2)
     {
-        berror($1, "usage: make_token_cert <.pfx local path> [opt: .pfx password]");
+        berror($1, "usage: make_token_cert [.PFX LOCAL PATH] [OPT:PFX PASSWORD]");
         return;
     }
     $certpath = $2;
@@ -2142,12 +2156,13 @@ beacon_command_register(
     "Applies an impersonation token based on the Alt Name in a supplied .pfx file",
     "Command: make_token_cert
 
-Usage make_token_cert <path to .pfx> [opt: password]
+Usage make_token_cert [PFX LOCAL PATH] [OPT:PFX PASSWORD]
 
 Takes the path to a .pfx and optionally the password to decrypt the .pfx.
 Reads it into the certificate store for the current user and creates an impersonation token with it.
 Then deletes it from the users certificate store.");
 
+# get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH]
 alias get_azure_token
 {
     #I'm going to do validation on the bof side since that works more cross implant
@@ -2169,7 +2184,7 @@ alias get_azure_token
 beacon_command_register(
     "get_azure_token",
     "perform an OAuth code grant against azure and print the returned tokens",
-"Usage: get_azure_token <client-id> <scope> <browser (see below)> [opt: hint] [opt: browser_path]
+"Usage: get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH]
 
 The client_id specified must already have consent in the tennant and accept http://localhost as the redirect URL
 see https://github.com/dirkjanm/ROADtools/blob/master/roadtx/roadtools/roadtx/firstpartyscopes.json for many examples.
@@ -2218,5 +2233,5 @@ alias ask_mfa {
 beacon_command_register(
 	"ask_mfa",
 	"Displays a fake Microsoft MFA approval dialog",
-	"Command: ask_mfa\n\nUsage: ask_mfa <number>\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42"
+	"Command: ask_mfa\n\nUsage: ask_mfa [NUMBER]\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42"
 );
