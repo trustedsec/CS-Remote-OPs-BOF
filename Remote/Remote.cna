@@ -1427,6 +1427,32 @@ Usage:   enableuser [USERNAME] [DOMAIN]
 "
 );
 
+#disableuser [USERNAME] [DOMAIN]
+alias disableuser
+{
+    if(size(@_) != 3)
+    {
+        berror($1, beacon_command_detail("disableuser"));
+        berror($1, "Invalid number of parameters");
+        return;
+    }
+    beacon_inline_execute($1, readbof($1, "disableuser"), "go", bof_pack($1, "ZZ", $3, $2));
+}
+
+beacon_command_register(
+    "disableuser",
+    "Enables and unlocks the specified user account",
+    "
+Command: disableuser
+Summary: Disables the specified user account on the
+         target computer. 
+Usage:   disableuser [USERNAME] [DOMAIN]
+         USERNAME  Required. The user name to disable. 
+         DOMAIN    Required. The domain/computer for the account. You must give 
+                   the domain name for the user if it is a domain account, or
+                   use \"\" to target an account on the local machine.
+"
+);
 
 #setuserpass [USERNAME] [PASSWORD] [DOMAIN]
 alias setuserpass

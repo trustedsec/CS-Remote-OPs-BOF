@@ -22,6 +22,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |addusertogroup| addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN] | Add specified user to a group|
 |ask_mfa | ask_mfa [NUMBER] | Displays a fake Microsoft Authenticator approval dialog with the specified number. |
 |chromeKey| chromeKey | Decrypt the provided base64 encoded Chrome key|
+|disableuser| disableuser [USERNAME] [DOMAIN] | Disable the specified user account|
 |enableuser| enableuser [USERNAME] [DOMAIN] | Enable and unlock the specified user account|
 |get_azure_token| get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH] | Attempts to complete an OAuth codeflow grant against azure using saved logins |
 |get_priv| get_priv [Privledge Name] | Activate the specified token privledge, more for non-cobalt strike users|
