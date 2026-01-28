@@ -25,6 +25,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |enableuser| enableuser [USERNAME] [DOMAIN] | Enable and unlock the specified user account|
 |get_azure_token| get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH] | Attempts to complete an OAuth codeflow grant against azure using saved logins |
 |get_priv| get_priv [Privledge Name] | Activate the specified token privledge, more for non-cobalt strike users|
+|ghost_task| ghost_task [HOSTNAME/LOCALHOST] [OPERATION] [TASKANME] [PROGRAM] [ARGUMENT] [USERNAME] [SCHEDULETYPE] [TIME/SECOND] [DAY] | Add/Delete a ghost task. |
 |global_unprotect| global_unprotect | Locates and Decrypts GlobalProtect config files converted from: [GlobalUnProtect](https://github.com/rotarydrone/GlobalUnProtect/tree/409d64b097e0a928a5545051e40e1566e9c26bd0)|
 |lastpass | lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... | Search Chrome, brave memory for LastPass passwords and data|
 |make_token_cert| make_token_cert [.PFX LOCAL PATH] [OPT:PFX PASSWORD]| Impersonates a user using the altname of a .pfx file |
@@ -38,8 +39,8 @@ You are welcome to use these, but issues opened related to these will be closed 
 |sc_config| sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME] | Configure an existing service|
 |sc_create| sc_create [SVCNAME] [DISPLAYNAME] [BINPATH] [DESCRIPTION] [ERRORMODE] [STARTMODE] [OPT:TYPE] [OPT:HOSTNAME] | Create a new service|
 |sc_delete| sc_delete [SVCNAME] [OPT:HOSTNAME] | Delete an existing service|
-|sc_failure| sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME] | Configures the actions upon failure of an existing service|
 |sc_description| sc_description [SVCNAME] [DESCRIPTION] [OPT:HOSTNAME] | Modify an existing services description|
+|sc_failure| sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME] | Configures the actions upon failure of an existing service|
 |sc_start| sc_start [SVCNAME] [OPT:HOSTNAME] | Start an existing service|
 |sc_stop| sc_stop [SVCNAME] [OPT:HOSTNAME] | Stop an existing service|
 |schtaskscreate| schtaskscreate [OPT:HOSTNAME] [USERNAME] [PASSWORD] [TASKPATH] [USERMODE] [FORCEMODE] | Create a new scheduled task (via xml definition)|
@@ -49,9 +50,11 @@ You are welcome to use these, but issues opened related to these will be closed 
 |setuserpass| setuserpass [USERNAME] [PASSWORD] [DOMAIN] | Set a user's password|
 |shspawnas| shspawnas [DOMAIN] [USERNAME] [PASSWORD] [OPT:SHELLCODEFILE] | A misguided attempt at injecting code into a newly spawned process|
 |shutdown| shutdown [HOSTNAME] \"[MESSAGE]\" [TIME] [CLOSEAPPS] [REBOOT] | Shutdown or reboot a local or remote computer, with or without a warning/message
+|slackKey | slackKey | Attempts to harvest slack keys from "%APPDATA%\Slack\Local State" |
 |slack_cookie| slack_cookie [PID] | Collect the Slack authentication cookie from a Slack process|
+|suspendresume | suspendresume [0\|1] [PID] | Suspend a process with 1, resume a process with 0|
 |unexpireuser| unexpireuser [USERNAME] [DOMAIN] | Set a user account to never expire|
-|ghost_task| ghost_task [HOSTNAME/LOCALHOST] [OPERATION] [TASKANME] [PROGRAM] [ARGUMENT] [USERNAME] [SCHEDULETYPE] [TIME/SECOND] [DAY] | Add/Delete a ghost task. |
+
 
 ## Contributing
 
