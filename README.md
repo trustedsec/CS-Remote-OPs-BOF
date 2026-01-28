@@ -52,7 +52,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |shutdown| shutdown [HOSTNAME] \"[MESSAGE]\" [TIME] [CLOSEAPPS] [REBOOT] | Shutdown or reboot a local or remote computer, with or without a warning/message
 |slackKey | slackKey | Attempts to harvest slack keys from "%APPDATA%\Slack\Local State" |
 |slack_cookie| slack_cookie [PID] | Collect the Slack authentication cookie from a Slack process|
-|suspendresume | suspendresume [0|1] [PID] | Suspend a process with 1, resume a process with 0|
+|suspendresume | suspendresume [0\|1] [PID] | Suspend a process with 1, resume a process with 0|
 |unexpireuser| unexpireuser [USERNAME] [DOMAIN] | Set a user account to never expire|
 
 
