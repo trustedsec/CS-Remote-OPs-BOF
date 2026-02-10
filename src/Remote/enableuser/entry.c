@@ -58,12 +58,20 @@ VOID go(
 	DWORD dwErrorCode = ERROR_SUCCESS;
 	datap parser = {0};
 	BeaconDataParse(&parser, Buffer, Length);
-	LPCWSTR lpswzHostName = (LPCWSTR)BeaconDataExtract(&parser, NULL);;
-	LPCWSTR lpswzUserName = (LPCWSTR)BeaconDataExtract(&parser, NULL);;
+	LPCWSTR lpswzHostName = (LPCWSTR)BeaconDataExtract(&parser, NULL);
+	LPCWSTR lpswzUserName = (LPCWSTR)BeaconDataExtract(&parser, NULL);
+	if(!lpswzHostName || lpswzHostName[0] == L'\0'){lpswzHostName = NULL;}
+
 
 	if(!bofstart())
 	{
 		return;
+	}
+	
+	if(!lpswzUserName || lpswzUserName[0] == L'\0')
+	{
+	    BeaconPrintf(CALLBACK_ERROR, "Username is required\n");
+	    goto go_end;
 	}
 
 	internal_printf("Enabling %S\\%S\n", lpswzHostName, lpswzUserName);
