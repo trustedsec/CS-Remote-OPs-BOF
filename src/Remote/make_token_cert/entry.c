@@ -114,6 +114,13 @@ VOID go(
 	{
 		return;
 	}
+
+	if(!cert || len == 0)
+	{
+		internal_printf("Cert data is empty\n");
+		goto go_end;
+	}
+
 	internal_printf("Loading Cert into temp store\n");
 	PCCERT_CONTEXT pcert = NULL;
 	HCERTSTORE store = LoadCert(cert, password, len, passlen, &pcert);
