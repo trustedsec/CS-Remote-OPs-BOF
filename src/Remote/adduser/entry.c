@@ -38,11 +38,22 @@ VOID go(
 	LPWSTR lpswzUserName = (LPWSTR)BeaconDataExtract(&parser, NULL); // $2
 	LPWSTR lpswzPassword = (LPWSTR)BeaconDataExtract(&parser, NULL); // $3
 	LPWSTR lpswzServerName = (LPWSTR)BeaconDataExtract(&parser, NULL); // $4
-	if(lpswzServerName[0] == L'\0'){lpswzServerName = NULL;}
+	if(!lpswzServerName || lpswzServerName[0] == L'\0'){lpswzServerName = NULL;}
 
 	if(!bofstart())
 	{
 		return;
+	}
+
+	if(!lpswzUserName || lpswzUserName[0] == L'\0')
+	{
+		BeaconPrintf(CALLBACK_ERROR, "Username is required\n");
+		goto go_end;
+	}
+	if(!lpswzPassword || lpswzPassword[0] == L'\0')
+	{
+		BeaconPrintf(CALLBACK_ERROR, "Password is required\n");
+		goto go_end;
 	}
 
 	internal_printf("Adding %S to %S\n", lpswzUserName, lpswzServerName ? lpswzServerName : L"the local machine" );
