@@ -56,7 +56,7 @@ set_regkey_end:
 	if(RemoteKey)
 	{
 		ADVAPI32$RegCloseKey(RemoteKey);
-		rootkey = NULL;
+		RemoteKey = NULL;
 	}
 
 	if(rootkey)
