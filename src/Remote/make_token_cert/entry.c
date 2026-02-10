@@ -91,6 +91,11 @@ void ImpersonateUser(PCCERT_CONTEXT pCertContext)
 	#endif
 	BeaconPrintf(CALLBACK_OUTPUT, "success");
 
+end:
+	if(hToken)
+	{
+		ADVAPI32$CloseHandle(hToken);
+	}
 }
 
 #ifdef BOF
