@@ -56,7 +56,7 @@ set_regkey_end:
 	if(RemoteKey)
 	{
 		ADVAPI32$RegCloseKey(RemoteKey);
-		rootkey = NULL;
+		RemoteKey = NULL;
 	}
 
 	if(rootkey)
@@ -135,6 +135,7 @@ VOID go(
 	internal_printf("SUCCESS.\n");
 
 go_end:
+	if(type == REG_QWORD){intFree((void*)data);}
 	printoutput(TRUE);
 	
 	bofstop();
