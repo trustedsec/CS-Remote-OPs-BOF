@@ -38,13 +38,31 @@ HCERTSTORE LoadCert(unsigned char * cert, const wchar_t * password, DWORD certle
 	if (passlen == 2) {
 		password = NULL;
 	}
-	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, password, CRYPT_USER_KEYSET);
+	HCERTSTORE store = CRYPT32$PFXImportCertStore(&pfxData, password, PKCS12_ALLOW_OVERWRITE_KEY | PKCS12_ALWAYS_CNG_KSP);
 	if(store == NULL)
 	{
 		internal_printf("Failed to import cert, make sure its in the right format: %x\n", KERNEL32$GetLastError());
 		return NULL;
 	}
-	*pcert = CRYPT32$CertEnumCertificatesInStore(store, NULL);
+	// Iterate through certs in the PFX to find the one with a private key (skip CA certs)
+	PCCERT_CONTEXT pEnumCert = NULL;
+	while ((pEnumCert = CRYPT32$CertEnumCertificatesInStore(store, pEnumCert)) != NULL)
+	{
+		DWORD keySpec = 0;
+		DWORD keySpecSize = sizeof(keySpec);
+		if (CRYPT32$CertGetCertificateContextProperty(pEnumCert, CERT_KEY_SPEC_PROP_ID, &keySpec, &keySpecSize))
+		{
+			*pcert = pEnumCert;
+			break;
+		}
+	}
+	if (*pcert == NULL)
+	{
+		internal_printf("No certificate with a private key found in PFX\n");
+		CRYPT32$CertCloseStore(store, 0);
+		CRYPT32$CertCloseStore(hCertStore, 0);
+		return NULL;
+	}
 	CRYPT32$CertAddCertificateContextToStore(hCertStore, *pcert, CERT_STORE_ADD_ALWAYS, &pnewcert);
 	CRYPT32$CertDeleteCertificateFromStore(*pcert);
 	CRYPT32$CertCloseStore(store, 0);
@@ -94,7 +112,7 @@ void ImpersonateUser(PCCERT_CONTEXT pCertContext)
 end:
 	if(hToken)
 	{
-		ADVAPI32$CloseHandle(hToken);
+		KERNEL32$CloseHandle(hToken);
 	}
 }
 
