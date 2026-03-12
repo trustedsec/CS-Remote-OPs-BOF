@@ -2276,3 +2276,43 @@ beacon_command_register(
 	"Command: ask_mfa\n\nUsage: ask_mfa [NUMBER]\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42",
     "bof"
 );
+
+alias zip {
+    local('$args $files $output $password');
+
+    if (size(@_) < 3) {
+        berror($1, "usage: zip [files|*] [output.zip] [password]");
+        return;
+    }
+
+    $files    = $2;
+    $output   = $3;
+    $password = iff(size(@_) >= 4, $4, "");
+
+    $files  = replace($files,  "\n", "\\\\n");
+    $files  = replace($files,  "\t", "\\\\t");
+    $files  = replace($files,  "\r", "\\\\r");
+    $output = replace($output, "\n", "\\\\n");
+    $output = replace($output, "\t", "\\\\t");
+    $output = replace($output, "\r", "\\\\r");
+
+    $args = bof_pack($1, "zzz", $files, $output, $password);
+    beacon_inline_execute($1, readbof($1, "zip"), "go", $args);
+}
+
+beacon_command_register(
+    "zip",
+    "Compress files into a ZIP archive (optionally password-encrypted)",
+    "Usage: zip [files|*] [output.zip] [password]\n\n" .
+    "Arguments:\n" .
+    "  files    : space-separated file paths, or * for all CWD files\n" .
+    "  output   : full path for the output ZIP archive\n" .
+    "  password : optional PKZIP traditional encryption password\n\n" .
+    "Examples:\n" .
+    "  zip C:\\Users\\nickvourd\\Desktop\\file.txt C:\\Users\\Desktop\\out.zip\n" .
+    "  zip * C:\\Users\nickvourd\\\Desktop\\dump.zip\n" .
+    "  zip * C:\\Users\\nickvourd\\Desktop\\enc.zip MyP@ssw0rd\n" .
+    "  zip C:\\Users\\nickvourd\\Desktop C:\\Users\\nickvourd\\Desktop\\enc.zip MyP@ssw0rd\n" .
+    "  zip \"C:\\Users\\nickvourd\\Desktop\\a.log C:\\Users\\nickvourd\\Desktop\\b.log\" C:\\Users\\nickvourd\\Desktop\\logs.zip S3cr3t\n\n" ,
+    "bof"
+);
