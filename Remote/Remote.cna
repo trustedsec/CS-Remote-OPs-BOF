@@ -2303,7 +2303,7 @@ alias zip {
 beacon_command_register(
     "zip",
     "Compress files into a ZIP archive (optionally password-encrypted)",
-    "Usage: zip [files|*] [output.zip] [password]\n\n" .
+    "Usage: zip [files|*] [output.zip] [opt:password]\n\n" .
     "Arguments:\n" .
     "  files    : space-separated file paths, or * for all CWD files\n" .
     "  output   : full path for the output ZIP archive\n" .
