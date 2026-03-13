@@ -2316,3 +2316,75 @@ beacon_command_register(
     "  zip \"C:\\Users\\nickvourd\\Desktop\\a.log C:\\Users\\nickvourd\\Desktop\\b.log\" C:\\Users\\nickvourd\\Desktop\\logs.zip S3cr3t\n\n" ,
     "bof"
 );
+
+sub parseChunkSize {
+	local('$raw $num $suffix $multiplier');
+	$raw = $1;
+
+	# Extract trailing alpha suffix (if any)
+	if($raw ismatch '(?i)(\d+)\s*(b|kb|mb|gb)')
+	{
+		$num    = matched()[0];
+		$suffix = uc(matched()[1]);
+	}
+	else if($raw ismatch '(\d+)')
+	{
+		$num    = matched()[0];
+		$suffix = "B";
+	}
+	else
+	{
+		return -1;
+	}
+
+	if($suffix eq "B")       { $multiplier = 1;             }
+	else if($suffix eq "KB") { $multiplier = 1024;          }
+	else if($suffix eq "MB") { $multiplier = 1048576;       }
+	else if($suffix eq "GB") { $multiplier = 1073741824;    }
+	else                     { return -1;                   }
+
+	return parseNumber($num, 10) * $multiplier;
+}
+
+alias filesplit {
+	local('$file_path $chunk_size $chunk_bytes $args');
+	if(size(@_) != 3)
+	{
+		berror($1, "usage: filesplit <file_path> <chunk_size[B|KB|MB|GB]>");
+		return;
+	}
+	$file_path  = $2;
+	$chunk_size = $3;
+
+	# Validate file path is not empty
+	if(strlen($file_path) == 0)
+	{
+		berror($1, "File path cannot be empty");
+		return;
+	}
+
+	# Parse human-friendly size (e.g. 512KB, 10MB, 1GB, or raw bytes)
+	$chunk_bytes = parseChunkSize($chunk_size);
+	if($chunk_bytes <= 0)
+	{
+		berror($1, "Invalid chunk size ' $+ $chunk_size $+ '. Examples: 512B  512KB  10MB  1GB");
+		return;
+	}
+
+	# Safety cap: refuse chunks larger than 2 GB (int overflow territory)
+	if($chunk_bytes > 2147483647)
+	{
+		berror($1, "Chunk size exceeds 2 GB limit");
+		return;
+	}
+
+	$args = bof_pack($1, "zi", $file_path, $chunk_bytes);
+	beacon_inline_execute($1, readbof($1, "filesplit"), "go", $args);
+}
+
+beacon_command_register(
+	"filesplit",
+	"Splits a large binary file into smaller chunks on the target",
+	"Command: filesplit\n\nUsage: filesplit <file_path> <chunk_size[B|KB|MB|GB]>\n\nSplits a large file into smaller chunks. The chunk size accepts an optional\nunit suffix (case-insensitive). Output files follow the pattern:\n  <basename>_<N><ext>\n\nArguments:\n  file_path   - Full path to the source file on the target\n  chunk_size  - Size of each chunk with optional unit suffix\n\nUnit suffixes:\n  B   -> bytes        (e.g. 4096B)\n  KB  -> kilobytes    (e.g. 512KB)\n  MB  -> megabytes    (e.g. 10MB)   [default scale for most uses]\n  GB  -> gigabytes    (e.g. 1GB)\n  (no suffix)  -> raw bytes\n\nExamples:\n  filesplit C:\\temp\\payload.bin 512KB\n  filesplit C:\\temp\\payload.bin 10MB\n  filesplit C:\\temp\\payload.bin 1048576",
+	"bof"
+);
