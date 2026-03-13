@@ -27,7 +27,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |filesplit| filesplit [FILEPATH] [SIZE] | Split a large file into smaller chunks | 
 |get_azure_token| get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH] | Attempts to complete an OAuth codeflow grant against azure using saved logins |
 |get_priv| get_priv [Privledge Name] | Activate the specified token privledge, more for non-cobalt strike users|
-|ghost_task| ghost_task [HOSTNAME/LOCALHOST] [OPERATION] [TASKANME] [PROGRAM] [ARGUMENT] [USERNAME] [SCHEDULETYPE] [TIME/SECOND] [DAY] | Add/Delete a ghost task. |
+|ghost_task| ghost_task [HOSTNAME/LOCALHOST] [OPERATION] [TASKANME] [PROGRAM] [ARGUMENT] [USERNAME] [SCHEDULETYPE] [TIME/SECOND] [DAY] | Add/Delete a ghost task |
 |global_unprotect| global_unprotect | Locates and Decrypts GlobalProtect config files converted from: [GlobalUnProtect](https://github.com/rotarydrone/GlobalUnProtect/tree/409d64b097e0a928a5545051e40e1566e9c26bd0)|
 |lastpass | lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... | Search Chrome, brave memory for LastPass passwords and data|
 |make_token_cert| make_token_cert [.PFX LOCAL PATH] [OPT:PFX PASSWORD]| Impersonates a user using the altname of a .pfx file |
