@@ -94,7 +94,8 @@ Usage:   createremotethread <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -165,7 +166,8 @@ Usage:   setthreadcontext <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -237,7 +239,8 @@ Usage:   ntcreatethread <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -309,7 +312,8 @@ Usage:   ntqueueapcthread <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -383,7 +387,8 @@ Usage:   kernelcallbacktable <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -457,7 +462,8 @@ Usage:   tooltip <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -519,7 +525,8 @@ Usage:   uxsubclassinfo <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -595,7 +602,8 @@ Usage:   clipboardinject <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -672,7 +680,8 @@ Usage:   conhost <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
 
 
@@ -734,7 +743,8 @@ Usage:   ctray <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.                
-"
+",
+"bof"
 );
 
 
@@ -798,7 +808,8 @@ Usage:   dde <SHELLCODE>
                     select the file.
 Warning: The injection technique causes the shellcode to be executed FOUR times
          so plan accordingly.                    
-"
+",
+"bof"
 );
 
 
@@ -873,5 +884,6 @@ Usage:   svcctrl <PID> <SHELLCODE>
          SHELLCODE  Optional. The file name of the shellcode to inject. If not
                     specified on the command line, then you will be prompted to
                     select the file.
-"
+",
+"bof"
 );
