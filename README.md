@@ -20,7 +20,7 @@ You are welcome to use these, but issues opened related to these will be closed 
 |adcs_request_on_behalf| adcs_request_on_behalf [TEMPLATE] [REQUESTER] [ENROLLMENT_AGENT.pfx] [Download_Name] | Request an enrollment certificate on behalf of another user|
 |adduser| adduser [USERNAME] [PASSWORD] [SERVER] | Add specified user to a machine|
 |addusertogroup| addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN] | Add specified user to a group|
-|ask_mfa | ask_mfa [NUMBER] | Displays a fake Microsoft Authenticator approval dialog with the specified number. |
+|ask_mfa | ask_mfa [NUMBER] | Display a fake Microsoft Authenticator approval dialog with the specified number. |
 |chromeKey| chromeKey | Decrypt the provided base64 encoded Chrome key|
 |disableuser| disableuser [USERNAME] [DOMAIN] | Disable the specified user account|
 |enableuser| enableuser [USERNAME] [DOMAIN] | Enable and unlock the specified user account|
