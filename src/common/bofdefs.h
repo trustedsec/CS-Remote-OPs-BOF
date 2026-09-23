@@ -122,7 +122,7 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$SetEvent (HANDLE hEvent);
 WINBASEAPI WINBOOL WINAPI KERNEL32$TerminateThread (HANDLE hThread, DWORD dwExitCode);
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateEventA (LPSECURITY_ATTRIBUTES lpEventAttributes, WINBOOL bManualReset, WINBOOL bInitialState, LPCSTR lpName);
 WINBASEAPI HMODULE WINAPI KERNEL32$GetModuleHandleW(LPCWSTR lpModuleName);
-
+WINBASEAPI BOOL WINAPI KERNEL32$GetFileSizeEx(HANDLE hFile, PLARGE_INTEGER lpFileSize);
 
 //IPHLPAPI
 //ULONG WINAPI IPHLPAPI$GetAdaptersInfo (PIP_ADAPTER_INFO AdapterInfo, PULONG SizePointer);
@@ -635,6 +635,7 @@ WINBASEAPI WINBOOL WINAPI ADVAPI32$SystemFunction036(PVOID RandomBuffer,ULONG Ra
 #define KERNEL32$GetProcAddress GetProcAddress
 #define KERNEL32$FreeLibrary FreeLibrary
 #define KERNEL32$CloseHandle CloseHandle
+#define KERNEL32$GetFileSizeEx GetFileSizeEx
 
 //IPHLPAPI
 #define IPHLPAPI$GetAdaptersInfo GetAdaptersInfo 
