@@ -2239,3 +2239,89 @@ beacon_command_register(
 	"Displays a fake Microsoft MFA approval dialog",
 	"Command: ask_mfa\n\nUsage: ask_mfa [NUMBER]\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42"
 );
+
+
+#stayawake [AWAKE] [OPT:AWAY] [OPT:DISPLAY]
+sub bstayawake
+{
+    local('$bid $awake $away $display $junk $args');
+    $bid = $1;
+    $awake = $2;
+    $away = $3;
+    $display = $4;
+
+    try {
+        $junk = parseNumber($awake, 10);
+        $junk = parseNumber($away, 10);
+        $junk = parseNumber($display, 10);
+    } catch $msg {
+        berror($bid, beacon_command_detail("stayawake"));
+        berror($bid, "awake, away, and display must all be numbers");
+        return;
+    }
+    if ($awake != 0 && $awake != 1)
+    {
+        berror($bid, beacon_command_detail("stayawake"));
+        berror($bid, "awake must be 0 or 1");
+        return;
+    }
+    if (($away != 0 && $away != 1) || ($display != 0 && $display != 1))
+    {
+        berror($bid, beacon_command_detail("stayawake"));
+        berror($bid, "away and display must each be 0 or 1");
+        return;
+    }
+    if ($awake == 0 && ($away != 0 || $display != 0))
+    {
+        berror($bid, beacon_command_detail("stayawake"));
+        berror($bid, "away and display only make sense when awake is 1");
+        return;
+    }
+
+    $args = bof_pack($bid, "sss", $awake, $away, $display);
+    beacon_inline_execute($bid, readbof($bid, "stayawake"), "go", $args);
+}
+
+#stayawake [AWAKE] [OPT:AWAY] [OPT:DISPLAY]
+alias stayawake
+{
+    local('$awake $away $display');
+
+    if (size(@_) < 2 || size(@_) > 4)
+    {
+        berror($1, beacon_command_detail("stayawake"));
+        return;
+    }
+
+    $awake = $2;
+    $away = iff(-istrue $3, $3, 0);
+    $display = iff(-istrue $4, $4, 0);
+
+    if ($awake eq "0" && (size(@_) > 2))
+    {
+        berror($1, beacon_command_detail("stayawake"));
+        berror($1, "away and display cannot be specified when awake is 0");
+        return;
+    }
+
+    bstayawake($1, $awake, $away, $display);
+}
+
+beacon_command_register(
+    "stayawake",
+    "Sets the system/thread execution state so the system or display stays awake",
+    "
+Command: stayawake 
+Summary: This command sets the execution state on the target host, keeping the 
+         system and/or display awake via SetThreadExecutionState.
+Usage:   stayawake [AWAKE] [OPT:AWAY] [OPT:DISPLAY]
+         AWAKE    Required. Keep the system awake (ES_SYSTEM_REQUIRED). 0 or 1.
+         AWAY     Optional. Enable away mode (ES_AWAYMODE_REQUIRED). 0 or 1.
+                  Only valid when AWAKE is 1. Defaults to 0.
+         DISPLAY  Optional. Keep the display awake (ES_DISPLAY_REQUIRED). 0 or 1.
+                  Only valid when AWAKE is 1. Defaults to 0.
+Note:    AWAKE must be 0 or 1. AWAY and DISPLAY are ignored/rejected when AWAKE 
+         is 0.
+Example: stayawake 1 0 1
+"
+);
