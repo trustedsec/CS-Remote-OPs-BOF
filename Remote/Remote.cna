@@ -142,7 +142,8 @@ Usage:   sc_description [SVCNAME] [DESCRIPTION] [OPT:HOSTNAME]
          DESCRIPTION  Required. The description of the service.
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 #sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME]
@@ -231,7 +232,8 @@ Usage:   sc_config [SVCNAME] [BINPATH] [ERRORMODE] [STARTMODE] [OPT:HOSTNAME]
                         4 - disabled
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 #sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTIONS] [ACTIONS] [OPT:HOSTNAME]
@@ -307,7 +309,8 @@ Usage:   sc_failure [SVCNAME] [RESETPERIOD] [REBOOTMESSAGE] [COMMAND] [NUMACTION
                         (Must be used in conjunction with the RESETPERIOD option) (NULL = \"\")
          HOSTNAME       Optional. The host to connect to and run the commnad on. The
                         local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 sub bsc_create
@@ -442,7 +445,8 @@ Usage:   sc_create [SVCNAME] [DISPLAYNAME] [BINPATH] [DESCRIPTION] [ERRORMODE] [
                       4 - SERVICE_WIN32_SHARE_PROCESS (Service that shares a process with one or more other services)
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 
@@ -483,7 +487,8 @@ Usage:   sc_delete [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to delete.
          HOSTNAME Optional. The host to connect to and run the commnad on. The
                   local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 sub bsc_stop
@@ -531,7 +536,8 @@ Usage:   sc_stop [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to stop.
          HOSTNAME Optional. The host to connect to and run the commnad on. The
                   local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 sub bsc_start
@@ -582,7 +588,8 @@ Usage:   sc_start [SVCNAME] [OPT:HOSTNAME]
          SVCNAME  Required. The name of the service to start.
          HOSTNAME Optional. The host to connect to and run the command on. The
                   local system is targeted if a HOSTNAME is not specified.
-"
+",
+"bof"
 );
 
 on beacon_output
@@ -884,7 +891,8 @@ Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list
       of quoted strings.
 Note: For REG_QWORD, the VALUE must be less than a DWORD (due to limitation of
       sleep language).
-"
+",
+"bof"
 );
 
 
@@ -965,7 +973,8 @@ Usage:   reg_delete [OPT:HOSTNAME] [HIVE] [REGPATH] [OPT:REGVALUE]
          REGVALUE Optional. The registry value to delete. If the value is not 
                   specified, then the whole key is deleted. If you want to 
                   delete the default key, use \"\" as the REGVALUE.
-"
+",
+"bof"
 );
 
 
@@ -1018,10 +1027,9 @@ Usage:   reg_save [HIVE] [REGPATH] [FILEOUT]
          REGPATH  Required. The registry path to save.
          FILEOUT  Required. The output file. 
 Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.
-"
+",
+"bof"
 );
-
-
 
 ########################################
 # Schedule Task functions
@@ -1136,7 +1144,8 @@ Usage:   schtaskscreate [OPT:HOSTNAME] [USERNAME] [PASSWORD] [TASKPATH] [USERMOD
 Note:    Please see https://docs.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema-elements 
          for the base xml definitions. More formed examples start here 
          https://docs.microsoft.com/en-us/windows/win32/taskschd/time-trigger-example--xml-
-"
+",
+"bof"
 );
 
 
@@ -1205,9 +1214,9 @@ Note:    If you are deleting a folder, it must be empty.
          be given, e.g.:
              schtasksdelete \\Microsoft\\Windows\\MUI\\LpRemove TASK
              schtasksdelete \\some\\random\\task\\folder FOLDER
-"
+",
+"bof"
 );
-
 
 #schtasksstop [OPT:HOSTNAME] [TASKNAME]
 alias schtasksstop
@@ -1249,7 +1258,8 @@ Usage:   schtasksstop [OPT:HOSTNAME] [TASKNAME]
 Note:    The full path including the task name must be given, e.g.:
              schtasksstop \\Microsoft\\Windows\\MUI\\LpRemove
              schtasksstop \\Microsoft\\windows\\MUI\\totallyreal
-"
+",
+"bof"
 );
 
 #schtasksrun [OPT:HOSTNAME] [TASKNAME]
@@ -1292,10 +1302,9 @@ Usage:   schtasksrun [OPT:HOSTNAME] [TASKNAME]
 Note:    The full path including the task name must be given, e.g.:
              schtasksstop \\Microsoft\\Windows\\MUI\\LpRemove
              schtasksstop \\Microsoft\\windows\\MUI\\totallyreal
-"
+",
+"bof"
 );
-
-
 
 ########################################
 # Process functions
@@ -1333,9 +1342,9 @@ Usage:   procdump [PID] [FILEOUT]
          FILEOUT Required. The output path to write the dump to. Remember to 
                  delete this file.
 Warning: This command may very well get caught, but is here as an option regardless.
-"
+",
+"bof"
 );
-
 
 #ProcessListHandles [PID]
 alias ProcessListHandles
@@ -1358,9 +1367,9 @@ Summary: Lists all open handles in a specified process.
 Usage:   ProcessListHandles [PID]
          PID    Required. The process to list the handles of. You must have 
                 permission to open the specified process.
-"
+",
+"bof"
 );
-
 
 #ProcessDestroy [PID] [OPT:HANDLEID]
 alias ProcessDestroy
@@ -1395,10 +1404,9 @@ Usage:   ProcessDestroy [PID] [OPT:HANDLEID]
          HANDLEID: Optional. The specific handle ID to close, or close all 
                    handles if not specified. The values for HANDLEID must be 
                    between 1 - 65535.
-"
+",
+"bof"
 );
-
-
 
 ########################################
 # User account functions
@@ -1428,9 +1436,9 @@ Usage:   enableuser [USERNAME] [DOMAIN]
          DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
-"
+",
+"bof"
 );
-
 
 #setuserpass [USERNAME] [PASSWORD] [DOMAIN]
 alias setuserpass
@@ -1458,10 +1466,10 @@ Usage:   setuserpass [USERNAME] [PASSWORD] [DOMAIN]
          DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
-"
+",
+"bof"
 );
     
-
 #addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN]
 alias addusertogroup
 {
@@ -1489,7 +1497,8 @@ Usage:   addusertogroup [USERNAME] [GROUPNAME] [SERVER] [DOMAIN]
                     the domain name for the user if it is a domain account, or
                     use \"\" to target an account on the local machine.
                     
-"
+",
+"bof"
 );
 
 #aadduser [USERNAME] [PASSWORD] [SERVER]
@@ -1533,7 +1542,8 @@ Usage:   adduser [USERNAME] [PASSWORD] [SERVER]
          PASSWORD   Required. The password of the new user. 
          SERVER     Optional. If entered, the user will be created on that machine. If not, the
                     local machine will be used.
-"
+",
+"bof"
 );
 
 #unexpireuser [USERNAME] [DOMAIN]
@@ -1560,7 +1570,8 @@ Usage:   unexpireuser [USERNAME] [DOMAIN]
          DOMAIN    Required. The domain/computer for the account. You must give 
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.
-"
+",
+"bof"
 );
 
 
@@ -1583,7 +1594,8 @@ Summary: This command decrypts the provided base64 encoded Chrome key for use
          https://github.com/rxwx/chlonium
 
 Usage:   chromeKey
-"  
+",
+"bof"  
 );
 
 #slackKey
@@ -1602,9 +1614,9 @@ Summary: This command decrypts the provided base64 encoded Slack key for use
   C:\\Users\\user\\AppData\\Roaming\\Slack\\Network\\Cookies
 
 Usage:   slackKey
-"  
+",
+"bof"  
 );
-
 
 sub bshspawnas {
     local('$bid $args $pass $username $domain $shellcode $shellcodelen $user $fp');
@@ -1670,7 +1682,8 @@ beacon_command_register(
     "usage: shspawnas [DOMAIN] [USERNAME] [PASSWORD] [OPT:SHELLCODEFILE]
     If shellcode file is not provided a file browser will open so you can select it
     use \"\" for domain to log into the local machine
-    Be aware the user you specify must be able to log into the machine interactivly and the login is recorded as such"
+    Be aware the user you specify must be able to log into the machine interactivly and the login is recorded as such",
+    "bof"
 );
 
 # adcs_request [CA] [OPT:TEMPLATE] [OPT:SUBJECT] [OPT:ALTNAME] [OPT:INSTALL] [OPT:MACHINE] [OPT:ADD_APP_POLICY] [OPT:DNS]
@@ -1739,7 +1752,8 @@ all options:
     adcs_request cert.example.org\\example-CERT-CA vulnTemplate CN=Administrator,CN=Users,DC=example,DC=org CN=second_adm,CN=Users,DC=example,DC=org tag:microsoft.com,2022-09-14:sid:S-1-5-21-3006160104-3291460162-27467737-1123 0 0 0 0
 
 use quotes for any arguments with spaces.
-"
+",
+"bof"
 );
 
 # adcs_request_on_behalf [TEMPLATE] [REQUESTER] [ENROLLMENT_AGENT.pfx] [Download_Name]
@@ -1785,7 +1799,8 @@ in other frameworks it is dependent on proper handling of cobalt strike style do
         
 Example:
 
-    adcs_request_on_behalf User Example\\Administrator /tmp/enroll.pfx Admin.pfx"
+    adcs_request_on_behalf User Example\\Administrator /tmp/enroll.pfx Admin.pfx",
+    "bof"
 )
 
 # office_tokens [PID]
@@ -1809,7 +1824,8 @@ beacon_command_register(
 	"Searches memory for Office JWT Access Tokens",
 	"Command: office_tokens
 
-Usage: office_tokens [PID] "
+Usage: office_tokens [PID] ",
+"bof"
 );
 
 # lastpass lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... ...
@@ -1846,7 +1862,8 @@ beacon_command_register(
 	"Searches memory for LastPass passwords and hashes",
 	"Command: lastpass 
 
-Usage: lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... "
+Usage: lastpass [NUMBER OF PIDs] [PID],[PID],[PID],[PID] ... ",
+"bof"
 );
 
 # suspend [PID]
@@ -1868,7 +1885,8 @@ beacon_command_register(
     
 Usage: suspend [PID]
 
-attempts to suspend the process listed"
+attempts to suspend the process listed",
+"bof"
 );
 
 # resume [PID]
@@ -1890,7 +1908,8 @@ beacon_command_register(
     
 Usage: resume [PID]
 
-attempts to resume the process listed"
+attempts to resume the process listed",
+"bof"
 );
 
 # get_priv [Privledge Name]
@@ -1914,7 +1933,8 @@ Usage: get_priv [Privledge Name]
 
 Privledge names are listed here https://learn.microsoft.com/en-us/windows/win32/secauthz/privilege-constants
 They are the equivilent of what you see in whoami /all or our whoami bof from the SA repo
-"
+",
+"bof"
 );
 
 # ghost_task localhost add demo "cmd.exe" "/c notepad.exe" LAB\Administrator weekly 14:12 monday,thursday
@@ -2010,7 +2030,8 @@ Note:    As of October 21, 2023, this tool has been tested on Windows 10, Window
          As of October 21, 2023, no alert and no scheduled task creation event (ScheduledTaskCreated action type) will be generated in MDE (Microsoft Defender For Endpoint)
          To create a scheduled task using this tool, NT AUTHORITY/SYSTEM privileges are required
          After configuring the scheduled task, you'll need to either restart the system or await the next reboot for the task to be loaded into the Schedule service process and subsequently executed
-"
+",
+"bof"
 );
 
 # slack_cookie [PID]
@@ -2034,7 +2055,8 @@ beacon_command_register(
 	"Searches memory for Slack tokens",
 	"Command: slack_cookie
 
-Usage: slack_cookie [PID] "
+Usage: slack_cookie [PID] ",
+"bof"
 );
 
 # shutdown [HOSTNAME] \"[MESSAGE]\" [TIME] [CLOSEAPPS] [REBOOT]
@@ -2061,7 +2083,8 @@ beacon_command_register(
 
 		NOTE: The flags (SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_SECURITYFIX | SHTDN_REASON_FLAG_PLANNED) for security patch,
               planned reboot are hard-coded but may be added later as changeable or may be changed in entry.c.
-"
+",
+"bof"
 );
 
 alias shutdown {
@@ -2105,7 +2128,8 @@ beacon_command_register(
     "Attempts to find, decrypt, and download Global Protect VPN profiles and HIP settings",
     "Usage: global_unprotect
     
-    There are no arguments to this command"
+    There are no arguments to this command",
+    "bof"
 )
 
 sub bschtaskscreate
@@ -2164,7 +2188,9 @@ Usage make_token_cert [PFX LOCAL PATH] [OPT:PFX PASSWORD]
 
 Takes the path to a .pfx and optionally the password to decrypt the .pfx.
 Reads it into the certificate store for the current user and creates an impersonation token with it.
-Then deletes it from the users certificate store.");
+Then deletes it from the users certificate store.",
+"bof"
+);
 
 # get_azure_token [CLIENT ID] [SCOPE] [BROWSER] [OPT:HINT] [OPT:BROWSER PATH]
 alias get_azure_token
@@ -2211,7 +2237,8 @@ Example:
    Log into azure pretending to be the first party Azure powershell module (Connect-AZAccount)
     get_azure_token 1950a258-227b-4e31-a9cf-717495945fc2 \"74658136-14ec-4630-ad9b-26e160ff0fc6/user_impersonation offline_access openid profile\" 2 \"your azure email here\"
 
-"
+",
+"bof"
 );
 
 alias ask_mfa {
@@ -2237,7 +2264,36 @@ alias ask_mfa {
 beacon_command_register(
 	"ask_mfa",
 	"Displays a fake Microsoft MFA approval dialog",
-	"Command: ask_mfa\n\nUsage: ask_mfa [NUMBER]\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42"
+	"Command: ask_mfa\n\nUsage: ask_mfa [NUMBER]\n\nDisplays a fake Microsoft Authenticator approval dialog with the specified number.\nThe dialog auto-closes after 30 seconds or when the user closes it.\n\nExample: ask_mfa 42",
+    "bof"
+);
+
+alias filesplit {
+	local('$file_path $chunk_size $args');
+	if(size(@_) != 3)
+	{
+		berror($1, "usage: filesplit <file_path> <chunk_size>");
+		return;
+	}
+	$file_path = $2;
+	$chunk_size = parseNumber($3, 10);
+
+	# Validate chunk size (must be positive)
+	if($chunk_size <= 0)
+	{
+		berror($1, "Chunk size must be greater than 0");
+		return;
+	}
+
+	$args = bof_pack($1, "zi", $file_path, $chunk_size);
+	beacon_inline_execute($1, readbof($1, "filesplit"), "go", $args);
+}
+
+beacon_command_register(
+	"filesplit",
+	"Split a file into smaller chunks",
+	"Command: filesplit\n\nUsage: filesplit [FILE_PATH] [CHUNK_SIZE]\n\nSplits a file into smaller chunks for easier exfiltration or processing.\nChunks are created with random 8-character base names.\n\nArguments:\n  FILE_PATH  - Path to the file to split\n  CHUNK_SIZE - Size of each chunk in bytes\n\nExample: filesplit C:\\data\\payload.bin 1048576",
+    "bof"
 );
 
 
